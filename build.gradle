@@ -47,12 +47,12 @@ tasks.withType(JavaCompile) {
 
 minecraft {
     version = "1.10.2"
-    mappings = 'snapshot_nodoc_20160518'
+    mappings = 'snapshot_nodoc_20161111'
     workspaceDir = "projects"
     versionJson = "jsons/1.10.2-svarka-dev.json"
     buildUserdev = true
     buildInstaller = true
-	installerVersion = '1.4'
+    installerVersion = '1.5'
 
     def common = {
         patchPrefixOriginal "../src-base/minecraft"
@@ -103,7 +103,7 @@ launch4j {
     outfile = file("build/distributions/${project.name}-${project.version}-installer-win.exe").canonicalPath
     icon = file('icon.ico').canonicalPath
     manifest = file('l4jManifest.xml').canonicalPath
-    jreMinVersion = '1.6.0'
+    jreMinVersion = '1.8.0'
     initialHeapPercent = 5;
     maxHeapPercent = 100;
 }

@@ -116,6 +116,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.entity.Entity;
+import ru.svarka.entity.CraftCustomEntity;
+import ru.svarka.entity.CustomCraftProjectile;
 
 public abstract class CraftEntity implements Entity
 {
@@ -414,6 +416,10 @@ public abstract class CraftEntity implements Entity
                             }
                             if (entity instanceof EntityAreaEffectCloud) {
                                 return new CraftAreaEffectCloud(server, (EntityAreaEffectCloud)entity);
+                            }
+                            if (entity instanceof net.minecraft.entity.Entity){
+                                if(entity instanceof net.minecraft.entity.IProjectile) return new CustomCraftProjectile(server,(net.minecraft.entity.Entity)entity);
+                                return new CraftCustomEntity(server, (net.minecraft.entity.Entity)entity);
                             }
                         }
                     }

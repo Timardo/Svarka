@@ -242,13 +242,13 @@
             }
         },
         {
-            "name": "com.mojang:realms:1.9.7",
+            "name": "com.mojang:realms:1.9.8",
             "downloads": {
                 "artifact": {
-                    "size": 1576916,
-                    "sha1": "1feef1f10e34883a219c1f0e83b6ded9863edd91",
-                    "path": "com/mojang/realms/1.9.7/realms-1.9.7.jar",
-                    "url": "https://libraries.minecraft.net/com/mojang/realms/1.9.7/realms-1.9.7.jar"
+                    "size": 1577897,
+                    "sha1": "c9609760e050cd7c369292252552c0cc81c54331",
+                    "path": "com/mojang/realms/1.9.8/realms-1.9.8.jar",
+                    "url": "https://libraries.minecraft.net/com/mojang/realms/1.9.8/realms-1.9.8.jar"
                 }
             }
         },
@@ -546,9 +546,9 @@
         "client": {
             "file": {
                 "id": "client-1.7.xml",
-                "sha1": "49e2e41bc339698bd8199e0da9398c926e68c95d",
-                "size": 467,
-                "url": "https://launchermeta.mojang.com/mc/log_configs/client-1.7.xml/49e2e41bc339698bd8199e0da9398c926e68c95d/client-1.7.xml"
+                "sha1": "6605d632a2399010c0085d3e4da58974d62ccdfe",
+                "size": 871,
+                "url": "https://launchermeta.mojang.com/mc/log_configs/client-1.7.xml/6605d632a2399010c0085d3e4da58974d62ccdfe/client-1.7.xml"
             },
             "argument": "-Dlog4j.configurationFile=${path}",
             "type": "log4j2-xml"
@@ -558,6 +558,6 @@
     "minecraftArguments": "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userType ${user_type} --versionType ${version_type}",
     "minimumLauncherVersion": 18,
     "releaseTime": "2016-06-23T09:17:32+00:00",
-    "time": "2016-10-16T17:55:51+00:00",
+    "time": "2016-10-22T20:28:03+00:00",
     "type": "release"
 }
