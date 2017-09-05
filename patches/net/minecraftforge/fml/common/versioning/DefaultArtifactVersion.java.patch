@@ -1,0 +1,19 @@
+--- ../src-base/minecraft/net/minecraftforge/fml/common/versioning/DefaultArtifactVersion.java
++++ ../src-work/minecraft/net/minecraftforge/fml/common/versioning/DefaultArtifactVersion.java
+@@ -21,6 +21,7 @@
+ 
+ public class DefaultArtifactVersion implements ArtifactVersion
+ {
++
+     private ComparableVersion comparableVersion;
+     private String label;
+     private boolean unbounded;
+@@ -70,7 +71,7 @@
+     @Override
+     public boolean containsVersion(ArtifactVersion source)
+     {
+-        if (source.getLabel() != null && !source.getLabel().equals(getLabel()))
++        if (!source.getLabel().equals(getLabel()))
+         {
+             return false;
+         }

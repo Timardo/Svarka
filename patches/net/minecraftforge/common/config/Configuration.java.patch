@@ -1,0 +1,33 @@
+--- ../src-base/minecraft/net/minecraftforge/common/config/Configuration.java
++++ ../src-work/minecraft/net/minecraftforge/common/config/Configuration.java
+@@ -62,7 +62,6 @@
+ import net.minecraftforge.fml.common.FMLLog;
+ import net.minecraftforge.fml.common.Loader;
+ import net.minecraftforge.fml.relauncher.FMLInjectionData;
+-import org.apache.commons.io.IOUtils;
+ 
+ /**
+  * This class offers advanced configurations capabilities, allowing to provide
+@@ -1056,8 +1055,20 @@
+         }
+         finally
+         {
+-            IOUtils.closeQuietly(buffer);
+-            IOUtils.closeQuietly(input);
++            if (buffer != null)
++            {
++                try
++                {
++                    buffer.close();
++                } catch (IOException e){}
++            }
++            if (input != null)
++            {
++                try
++                {
++                    input.close();
++                } catch (IOException e){}
++            }
+         }
+ 
+         resetChangedState();

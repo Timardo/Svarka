@@ -23,8 +23,8 @@
  {
      private static final DataParameter<Float> RADIUS = EntityDataManager.<Float>createKey(EntityAreaEffectCloud.class, DataSerializers.FLOAT);
 @@ -33,15 +40,15 @@
-     private static final DataParameter<Integer> field_189736_e = EntityDataManager.<Integer>createKey(EntityAreaEffectCloud.class, DataSerializers.VARINT);
-     private static final DataParameter<Integer> field_189737_f = EntityDataManager.<Integer>createKey(EntityAreaEffectCloud.class, DataSerializers.VARINT);
+     private static final DataParameter<Integer> PARTICLE_PARAM_1 = EntityDataManager.<Integer>createKey(EntityAreaEffectCloud.class, DataSerializers.VARINT);
+     private static final DataParameter<Integer> PARTICLE_PARAM_2 = EntityDataManager.<Integer>createKey(EntityAreaEffectCloud.class, DataSerializers.VARINT);
      private PotionType potion;
 -    private final List<PotionEffect> effects;
 +    public final List<PotionEffect> effects;

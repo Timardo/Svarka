@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraftforge/fml/common/registry/EntityRegistry.java
++++ ../src-work/minecraft/net/minecraftforge/fml/common/registry/EntityRegistry.java
+@@ -332,7 +332,7 @@
+                 return er;
+             }
+             localClazz = localClazz.getSuperclass();
+-            keepLooking &= (!Object.class.equals(localClazz));
++            keepLooking = (!Object.class.equals(localClazz));
+         }
+         while (keepLooking);
+ 

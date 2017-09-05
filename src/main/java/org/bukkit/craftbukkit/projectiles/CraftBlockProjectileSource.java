@@ -77,7 +77,7 @@ public class CraftBlockProjectileSource implements BlockProjectileSource
         Validate.isTrue(this.getBlock().getType() == Material.DISPENSER, "Block is no longer dispenser");
         final BlockSourceImpl isourceblock = new BlockSourceImpl(this.dispenserBlock.getWorld(), this.dispenserBlock.getPos());
         final IPosition iposition = BlockDispenser.getDispensePosition(isourceblock);
-        final EnumFacing enumdirection = isourceblock.func_189992_e().getValue((IProperty<EnumFacing>)BlockDispenser.FACING);
+        final EnumFacing enumdirection = isourceblock.getBlockState().getValue((IProperty<EnumFacing>)BlockDispenser.FACING);
         final World world = this.dispenserBlock.getWorld();
         Entity launch = null;
         if (Snowball.class.isAssignableFrom(projectile)) {

@@ -50,16 +50,16 @@ public class CraftZombie extends CraftMonster implements Zombie
     
     @Override
     public void setVillager(final boolean flag) {
-        this.getHandle().func_189778_a(flag ? ZombieType.VILLAGER_FARMER : ZombieType.NORMAL);
+        this.getHandle().setZombieType(flag ? ZombieType.VILLAGER_FARMER : ZombieType.NORMAL);
     }
     
     @Override
     public void setVillagerProfession(final Villager.Profession profession) {
-        this.getHandle().func_189778_a((profession == null) ? ZombieType.NORMAL : ZombieType.func_190146_a(profession.ordinal()));
+        this.getHandle().setZombieType((profession == null) ? ZombieType.NORMAL : ZombieType.getByOrdinal(profession.ordinal()));
     }
     
     @Override
     public Villager.Profession getVillagerProfession() {
-        return Villager.Profession.values()[this.getHandle().func_189777_di().ordinal()];
+        return Villager.Profession.values()[this.getHandle().getZombieType().ordinal()];
     }
 }

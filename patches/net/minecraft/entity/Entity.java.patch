@@ -319,35 +319,7 @@
          this.worldObj = worldIn;
      }
  
-@@ -1527,6 +1699,14 @@
-         {
-             p_189511_1_.setTag("Pos", this.newDoubleNBTList(new double[] {this.posX, this.posY, this.posZ}));
-             p_189511_1_.setTag("Motion", this.newDoubleNBTList(new double[] {this.motionX, this.motionY, this.motionZ}));
-+            // CB start
-+            if (Float.isNaN(this.rotationYaw)) {
-+                this.rotationYaw = 0.0f;
-+            }
-+            if (Float.isNaN(this.rotationPitch)) {
-+                this.rotationPitch = 0.0f;
-+            }
-+            // CB start
-             p_189511_1_.setTag("Rotation", this.newFloatNBTList(new float[] {this.rotationYaw, this.rotationPitch}));
-             p_189511_1_.setFloat("FallDistance", this.fallDistance);
-             p_189511_1_.setShort("Fire", (short)this.fire);
-@@ -1536,7 +1716,11 @@
-             p_189511_1_.setBoolean("Invulnerable", this.invulnerable);
-             p_189511_1_.setInteger("PortalCooldown", this.timeUntilPortal);
-             p_189511_1_.setUniqueId("UUID", this.getUniqueID());
--
-+            // BC start
-+            p_189511_1_.setLong("WorldUUIDLeast", this.worldObj.getSaveHandler().getUUID().getLeastSignificantBits());
-+            p_189511_1_.setLong("WorldUUIDMost", this.worldObj.getSaveHandler().getUUID().getMostSignificantBits());
-+            p_189511_1_.setInteger("Bukkit.updateLevel", 2);
-+            // BC end
-             if (this.getCustomNameTag() != null && !this.getCustomNameTag().isEmpty())
-             {
-                 p_189511_1_.setString("CustomName", this.getCustomNameTag());
-@@ -1622,7 +1806,7 @@
+@@ -1622,7 +1794,7 @@
              this.motionX = nbttaglist2.getDoubleAt(0);
              this.motionY = nbttaglist2.getDoubleAt(1);
              this.motionZ = nbttaglist2.getDoubleAt(2);
@@ -356,7 +328,7 @@
              if (Math.abs(this.motionX) > 10.0D)
              {
                  this.motionX = 0.0D;
-@@ -1637,7 +1821,7 @@
+@@ -1637,7 +1809,7 @@
              {
                  this.motionZ = 0.0D;
              }
@@ -365,7 +337,7 @@
              this.posX = nbttaglist.getDoubleAt(0);
              this.posY = nbttaglist.getDoubleAt(1);
              this.posZ = nbttaglist.getDoubleAt(2);
-@@ -1707,6 +1891,43 @@
+@@ -1707,6 +1879,43 @@
              {
                  this.setPosition(this.posX, this.posY, this.posZ);
              }
@@ -409,7 +381,7 @@
          }
          catch (Throwable throwable)
          {
-@@ -1769,6 +1990,12 @@
+@@ -1769,6 +1978,12 @@
      {
          if (stack.stackSize != 0 && stack.getItem() != null)
          {
@@ -422,7 +394,7 @@
              EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY + (double)offsetY, this.posZ, stack);
              entityitem.setDefaultPickupDelay();
              if (captureDrops)
-@@ -1934,6 +2161,20 @@
+@@ -1934,6 +2149,20 @@
          }
          else
          {
@@ -443,7 +415,7 @@
              if (!this.worldObj.isRemote && passenger instanceof EntityPlayer && !(this.getControllingPassenger() instanceof EntityPlayer))
              {
                  this.riddenByEntities.add(0, passenger);
-@@ -1953,6 +2194,19 @@
+@@ -1953,6 +2182,19 @@
          }
          else
          {
@@ -463,7 +435,7 @@
              this.riddenByEntities.remove(passenger);
              passenger.rideCooldown = 60;
          }
-@@ -2150,12 +2404,12 @@
+@@ -2150,12 +2392,12 @@
          this.setFlag(5, invisible);
      }
  
@@ -478,7 +450,7 @@
      {
          byte b0 = ((Byte)this.dataManager.get(FLAGS)).byteValue();
  
-@@ -2176,17 +2430,50 @@
+@@ -2176,17 +2418,50 @@
  
      public void setAir(int air)
      {
@@ -531,7 +503,7 @@
          }
      }
  
-@@ -2358,21 +2645,63 @@
+@@ -2358,21 +2633,63 @@
              if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(this, dimensionIn)) return null;
              this.worldObj.theProfiler.startSection("changeDimension");
              MinecraftServer minecraftserver = this.getServer();
@@ -608,7 +580,7 @@
  
              if (dimensionIn == 1)
              {
-@@ -2404,14 +2733,20 @@
+@@ -2404,14 +2721,20 @@
                  blockpos = new BlockPos(this);
              }
  
@@ -632,7 +604,7 @@
                  if (i == 1 && dimensionIn == 1)
                  {
                      BlockPos blockpos1 = worldserver1.getTopSolidOrLiquidBlock(worldserver1.getSpawnPoint());
-@@ -2420,26 +2755,33 @@
+@@ -2420,26 +2743,33 @@
                  else
                  {
                      entity.moveToBlockPosAndAngles(blockpos, entity.rotationYaw, entity.rotationPitch);
@@ -675,7 +647,7 @@
      }
  
      public boolean isNonBoss()
-@@ -2562,6 +2904,11 @@
+@@ -2562,6 +2892,11 @@
  
      public void setCustomNameTag(String name)
      {
@@ -687,7 +659,7 @@
          this.dataManager.set(CUSTOM_NAME, name);
      }
  
-@@ -2645,7 +2992,37 @@
+@@ -2645,7 +2980,37 @@
  
      public void setEntityBoundingBox(AxisAlignedBB bb)
      {

@@ -1,0 +1,24 @@
+--- ../src-base/minecraft/net/minecraftforge/items/ItemHandlerHelper.java
++++ ../src-work/minecraft/net/minecraftforge/items/ItemHandlerHelper.java
+@@ -52,7 +52,9 @@
+         if (a == null || !a.isItemEqual(b))
+             return false;
+ 
+-        return ItemStack.areItemStackTagsEqual(a, b);
++        final NBTTagCompound aTag = a.getTagCompound();
++        final NBTTagCompound bTag = b.getTagCompound();
++        return (aTag != null || bTag == null) && (aTag == null || aTag.equals(bTag));
+     }
+ 
+     /**
+@@ -73,7 +75,9 @@
+         if (a.getHasSubtypes() && a.getMetadata() != b.getMetadata())
+             return false;
+ 
+-        return ItemStack.areItemStackTagsEqual(a, b);
++        final NBTTagCompound aTag = a.getTagCompound();
++        final NBTTagCompound bTag = b.getTagCompound();
++        return (aTag != null || bTag == null) && (aTag == null || aTag.equals(bTag));
+     }
+ 
+     public static ItemStack copyStackWithSize(ItemStack itemStack, int size)

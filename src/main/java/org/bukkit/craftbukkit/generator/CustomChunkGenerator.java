@@ -39,7 +39,7 @@ public class CustomChunkGenerator extends InternalChunkGenerator
         this.random.setSeed(x * 341873128712L + z * 132897987541L);
         final CustomBiomeGrid biomegrid = new CustomBiomeGrid();
         biomegrid.biome = new Biome[256];
-        this.world.getBiomeProvider().loadBlockGeneratorData(biomegrid.biome, x << 4, z << 4, 16, 16);
+        this.world.getBiomeProvider().getBiomesForGeneration(biomegrid.biome, x << 4, z << 4, 16, 16);
         final CraftChunkData data = (CraftChunkData)this.generator.generateChunkData(this.world.getWorld(), this.random, x, z, biomegrid);
         Chunk chunk;
         if (data != null) {
@@ -176,7 +176,7 @@ public class CustomChunkGenerator extends InternalChunkGenerator
     
     @Override
     public List<Biome.SpawnListEntry> getPossibleCreatures(final EnumCreatureType type, final BlockPos position) {
-        final Biome biomebase = this.world.getBiomeGenForCoords(position);
+        final Biome biomebase = this.world.getBiome(position);
         return (biomebase == null) ? null : biomebase.getSpawnableList(type);
     }
     

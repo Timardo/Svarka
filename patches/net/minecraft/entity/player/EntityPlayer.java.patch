@@ -24,18 +24,6 @@
  @SuppressWarnings("incomplete-switch")
  public abstract class EntityPlayer extends EntityLivingBase
  {
-@@ -123,9 +139,9 @@
-     public double chasingPosX;
-     public double chasingPosY;
-     public double chasingPosZ;
--    protected boolean sleeping;
-+    public boolean sleeping;
-     public BlockPos playerLocation;
--    private int sleepTimer;
-+    public int sleepTimer;
-     public float renderOffsetX;
-     @SideOnly(Side.CLIENT)
-     public float renderOffsetY;
 @@ -147,7 +163,17 @@
      private ItemStack itemStackMainHand;
      private final CooldownTracker cooldownTracker = this.createCooldownTracker();

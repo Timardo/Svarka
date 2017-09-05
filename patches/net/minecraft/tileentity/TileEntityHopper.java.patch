@@ -49,5 +49,5 @@
 +    }
 +    // CraftBukkit end
  
-     public static void func_189683_a(DataFixer p_189683_0_)
+     public static void registerFixesHopper(DataFixer fixer)
      {

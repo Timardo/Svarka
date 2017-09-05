@@ -35,12 +35,12 @@ public class CraftSkeleton extends CraftMonster implements Skeleton
     
     @Override
     public SkeletonType getSkeletonType() {
-        return SkeletonType.values()[this.getHandle().func_189771_df().ordinal()];
+        return SkeletonType.values()[this.getHandle().getSkeletonType().ordinal()];
     }
     
     @Override
     public void setSkeletonType(final SkeletonType type) {
         Validate.notNull((Object)type);
-        this.getHandle().func_189768_a(net.minecraft.entity.monster.SkeletonType.func_190134_a(type.ordinal()));
+        this.getHandle().setSkeletonType(net.minecraft.entity.monster.SkeletonType.getByOrdinal(type.ordinal()));
     }
 }

@@ -2,20 +2,21 @@ package ru.svarka.entity;
 
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.entity.CraftEntity;
-import org.bukkit.entity.Entity;
+
 
 import net.minecraftforge.fml.common.registry.EntityRegistry;
+import org.bukkit.entity.EntityType;
 
 public class CraftCustomEntity extends CraftEntity {
-    public Class<? extends Entity> entityClass;
+    public Class<? extends net.minecraft.entity.Entity> entityClass;
     public String entityName;
 
-    public CraftCustomEntity(CraftServer server, net.minecraft.entity.Entity entity) {
+    public CraftCustomEntity(final CraftServer server,final net.minecraft.entity.Entity entity) {
         super(server, entity);
         this.entityClass = entity.getClass();
         this.entityName = EntityRegistry.getCustomEntityTypeName(entityClass);
         if (entityName == null)
-            entityName = entity.getCommandSenderName();
+            entityName = entity.getCommandSenderEntity().getName();
     }
 
     @Override

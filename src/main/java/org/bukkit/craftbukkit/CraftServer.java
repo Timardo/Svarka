@@ -1095,7 +1095,7 @@ public final class CraftServer implements Server
             toAdd = CraftFurnaceRecipe.fromBukkitRecipe((FurnaceRecipe)recipe);
         }
         toAdd.addToCraftingManager();
-        CraftingManager.getInstance().sort();
+        CraftingManager.getInstance();
         return true;
     }
     

@@ -1,0 +1,41 @@
+--- ../src-base/minecraft/net/minecraftforge/fml/relauncher/CoreModManager.java
++++ ../src-work/minecraft/net/minecraftforge/fml/relauncher/CoreModManager.java
+@@ -24,7 +24,6 @@
+ import java.io.FileOutputStream;
+ import java.io.FilenameFilter;
+ import java.io.IOException;
+-import java.io.InputStream;
+ import java.lang.reflect.Method;
+ import java.net.MalformedURLException;
+ import java.net.URL;
+@@ -56,7 +55,6 @@
+ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
+ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
+ 
+-import org.apache.commons.io.IOUtils;
+ import org.apache.logging.log4j.Level;
+ 
+ import com.google.common.base.Strings;
+@@ -466,19 +464,9 @@
+             try
+             {
+                 Files.createParentDirs(target);
+-                FileOutputStream targetOutputStream = null;
+-                InputStream jarInputStream = null;
+-                try
+-                {
+-                    targetOutputStream = new FileOutputStream(target);
+-                    jarInputStream = jar.getInputStream(jarEntry);
+-                    ByteStreams.copy(jarInputStream, targetOutputStream);
+-                }
+-                finally
+-                {
+-                    IOUtils.closeQuietly(targetOutputStream);
+-                    IOUtils.closeQuietly(jarInputStream);
+-                }
++                FileOutputStream targ = new FileOutputStream(target);
++                ByteStreams.copy(jar.getInputStream(jarEntry), targ);
++                targ.close();
+                 FMLRelaunchLog.log(Level.DEBUG, "Extracted ContainedDep %s from %s to %s", dep, jar.getName(), target.getCanonicalPath());
+                 result.put(dep,target);
+             } catch (IOException e)

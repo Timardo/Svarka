@@ -419,7 +419,7 @@ public class CraftWorld implements World
         if (!this.unloadChunk0(x, z, false)) {
             return false;
         }
-        final long chunkKey = ChunkPos.chunkXZ2Int(x, z);
+        final long chunkKey = ChunkPos.asLong(x, z);
         this.world.getChunkProvider().droppedChunksSet.remove(chunkKey);
         net.minecraft.world.chunk.Chunk chunk = null;
         chunk = this.world.getChunkProvider().chunkGenerator.provideChunk(x, z);
@@ -835,7 +835,7 @@ public class CraftWorld implements World
     
     @Override
     public Biome getBiome(final int x, final int z) {
-        return CraftBlock.biomeBaseToBiome(this.world.getBiomeGenForCoords(new BlockPos(x, 0, z)));
+        return CraftBlock.biomeBaseToBiome(this.world.getBiome(new BlockPos(x, 0, z)));
     }
     
     @Override
@@ -852,12 +852,12 @@ public class CraftWorld implements World
     
     @Override
     public double getTemperature(final int x, final int z) {
-        return this.world.getBiomeGenForCoords(new BlockPos(x, 0, z)).getTemperature();
+        return this.world.getBiome(new BlockPos(x, 0, z)).getTemperature();
     }
     
     @Override
     public double getHumidity(final int x, final int z) {
-        return this.world.getBiomeGenForCoords(new BlockPos(x, 0, z)).getRainfall();
+        return this.world.getBiome(new BlockPos(x, 0, z)).getRainfall();
     }
     
     @Override
@@ -1775,7 +1775,7 @@ public class CraftWorld implements World
             if (this.isChunkInUse(chunk.xPosition, chunk.zPosition)) {
                 continue;
             }
-            if (cps.droppedChunksSet.contains(ChunkPos.chunkXZ2Int(chunk.xPosition, chunk.zPosition))) {
+            if (cps.droppedChunksSet.contains(ChunkPos.asLong(chunk.xPosition, chunk.zPosition))) {
                 continue;
             }
             cps.unload(chunk);

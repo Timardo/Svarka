@@ -1,0 +1,12 @@
+--- ../src-base/minecraft/net/minecraftforge/fluids/BlockFluidBase.java
++++ ../src-work/minecraft/net/minecraftforge/fluids/BlockFluidBase.java
+@@ -280,8 +280,7 @@
+         {
+             if (displacements.get(block))
+             {
+-                if (state.getBlock() != Blocks.SNOW_LAYER) //Forge: Vanilla has a 'bug' where snowballs don't drop like every other block. So special case because ewww...
+-                    block.dropBlockAsItem(world, pos, state, 0);
++                block.dropBlockAsItem(world, pos, state, 0);
+                 return true;
+             }
+             return false;

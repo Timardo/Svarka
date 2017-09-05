@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraftforge/common/util/BlockSnapshot.java
++++ ../src-work/minecraft/net/minecraftforge/common/util/BlockSnapshot.java
+@@ -158,7 +158,7 @@
+     public TileEntity getTileEntity()
+     {
+         if (getNbt() != null)
+-            return TileEntity.create(getWorld(), getNbt());
++            return TileEntity.func_190200_a(getWorld(), getNbt());
+         else return null;
+     }
+ 

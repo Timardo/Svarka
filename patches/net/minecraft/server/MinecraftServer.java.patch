@@ -171,7 +171,7 @@
 +        this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.POSTWORLD); // CraftBukkit
      }
  
-     public void saveAllWorlds(boolean dontLog)
+     public void saveAllWorlds(boolean isSilent)
 @@ -1320,6 +1393,13 @@
      {
          return this;
