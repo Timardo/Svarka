@@ -55,6 +55,7 @@ public class Main
                 this.acceptsAll(asList(new String[] { "noconsole" }), "Disables the console");
                 this.acceptsAll(asList(new String[] { "v", "version" }), "Show the CraftBukkit Version");
                 this.acceptsAll(asList(new String[] { "demo" }), "Demo mode");
+                this.acceptsAll(asList(new String[] { "S", "spigot-settings" }), "File for spigot settings").withRequiredArg().ofType(File.class).defaultsTo(new File("spigot.yml"), new File[0]).describedAs("Yml file");
             }
         };
         OptionSet options = null;

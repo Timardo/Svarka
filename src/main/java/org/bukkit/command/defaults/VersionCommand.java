@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import ru.svarka.Svarka;
 
 public class VersionCommand extends BukkitCommand {
     public VersionCommand(String name) {
@@ -43,8 +44,9 @@ public class VersionCommand extends BukkitCommand {
         if (!testPermission(sender)) return true;
 
         if (args.length == 0) {
-            sender.sendMessage("This server is running " + Bukkit.getName() + " version " + Bukkit.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ")");
-            sendVersion(sender);
+            sender.sendMessage("This server is running " + Bukkit.getName() + " version " + Bukkit.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ") \nSvarka version " + Svarka.getVersions());
+            sender.sendMessage(Bukkit.getServer().getClass().getName());
+            //sendVersion(sender);
         } else {
             StringBuilder name = new StringBuilder();
 

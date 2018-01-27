@@ -21,6 +21,12 @@ import com.google.common.collect.ImmutableList;
 
 public class TimingsCommand extends BukkitCommand {
     private static final List<String> TIMINGS_SUBCOMMANDS = ImmutableList.of("merged", "reset", "separate");
+    public static long timingStart;
+
+    static {
+        //TODO TimingStart
+        TimingsCommand.timingStart = 0L;
+    }
 
     public TimingsCommand(String name) {
         super(name);

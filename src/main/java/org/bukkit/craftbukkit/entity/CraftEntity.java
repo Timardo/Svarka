@@ -4,6 +4,7 @@
 
 package org.bukkit.craftbukkit.entity;
 
+import net.minecraftforge.common.DimensionManager;
 import org.bukkit.metadata.MetadataStoreBase;
 import org.bukkit.permissions.ServerOperator;
 import net.minecraft.util.DamageSource;
@@ -116,6 +117,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.entity.Entity;
+import net.minecraftforge.common.util.FakePlayerFactory;
 import ru.svarka.entity.CraftCustomEntity;
 import ru.svarka.entity.CustomCraftProjectile;
 
@@ -137,7 +139,10 @@ public abstract class CraftEntity implements Entity
                 if (entity instanceof EntityPlayerMP) {
                     return new CraftPlayer(server, (EntityPlayerMP)entity);
                 }
-                return new CraftHumanEntity(server, (EntityPlayer)entity);
+                // Svarka start
+                //return new CraftHumanEntity(server, (EntityPlayer)entity);
+                return new CraftPlayer(server,FakePlayerFactory.get(DimensionManager.getWorld(entity.worldObj.provider.getDimension()), ((EntityPlayer) entity).getGameProfile()));
+                // Svarka end
             }
             else if (entity instanceof EntityWaterMob) {
                 if (entity instanceof EntitySquid) {
@@ -417,14 +422,14 @@ public abstract class CraftEntity implements Entity
                             if (entity instanceof EntityAreaEffectCloud) {
                                 return new CraftAreaEffectCloud(server, (EntityAreaEffectCloud)entity);
                             }
-                            if (entity instanceof net.minecraft.entity.Entity){
-                                if(entity instanceof net.minecraft.entity.IProjectile) return new CustomCraftProjectile(server,(net.minecraft.entity.Entity)entity);
-                                return new CraftCustomEntity(server, (net.minecraft.entity.Entity)entity);
-                            }
                         }
                     }
                 }
             }
+        }
+        if (entity instanceof net.minecraft.entity.Entity){
+            if(entity instanceof net.minecraft.entity.IProjectile) return new CustomCraftProjectile(server, entity);
+            return new CraftCustomEntity(server, entity);
         }
         throw new AssertionError((Object)("Unknown entity " + ((entity == null) ? null : entity.getClass())));
     }
@@ -845,12 +850,12 @@ public abstract class CraftEntity implements Entity
     
     @Override
     public boolean hasGravity() {
-        return !this.getHandle().func_189652_ae();
+        return !this.getHandle().isGlowing();
     }
     
     @Override
     public void setGravity(final boolean gravity) {
-        this.getHandle().func_189654_d(!gravity);
+        this.getHandle().setNoGravity(!gravity);
     }
     
     private static PermissibleBase getPermissibleBase() {

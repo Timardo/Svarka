@@ -1,9 +1,0 @@
---- ../src-base/minecraft/net/minecraftforge/fml/common/FMLCommonHandler.java
-+++ ../src-work/minecraft/net/minecraftforge/fml/common/FMLCommonHandler.java
-@@ -751,6 +751,4 @@
-     {
-         sidedDelegate.fireSidedRegistryEvents();
-     }
--
--    public boolean isDisplayVSyncForced() { return sidedDelegate.isDisplayVSyncForced(); }
- }

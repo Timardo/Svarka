@@ -1,9 +1,0 @@
---- ../src-base/minecraft/net/minecraftforge/fml/common/IFMLSidedHandler.java
-+++ ../src-work/minecraft/net/minecraftforge/fml/common/IFMLSidedHandler.java
-@@ -77,6 +77,4 @@
-     void reloadRenderers();
- 
-     void fireSidedRegistryEvents();
--
--    boolean isDisplayVSyncForced();
- }

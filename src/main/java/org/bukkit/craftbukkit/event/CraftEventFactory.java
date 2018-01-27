@@ -529,7 +529,7 @@ public class CraftEventFactory
                 cause2 = EntityDamageEvent.DamageCause.CONTACT;
             }
             else {
-                if (source != DamageSource.field_190095_e) {
+                if (source != DamageSource.hotFloor) {
                     throw new IllegalStateException(String.format("Unhandled damage of %s by %s from %s", entity, damager3, source.damageType));
                 }
                 cause2 = EntityDamageEvent.DamageCause.HOT_FLOOR;

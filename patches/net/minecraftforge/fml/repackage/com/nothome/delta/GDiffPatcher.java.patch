@@ -1,39 +1,6 @@
 --- ../src-base/minecraft/net/minecraftforge/fml/repackage/com/nothome/delta/GDiffPatcher.java
 +++ ../src-work/minecraft/net/minecraftforge/fml/repackage/com/nothome/delta/GDiffPatcher.java
-@@ -19,8 +19,6 @@
- 
- package net.minecraftforge.fml.repackage.com.nothome.delta;
- 
--import org.apache.commons.io.IOUtils;
--
- import static net.minecraftforge.fml.repackage.com.nothome.delta.GDiffWriter.COPY_INT_INT;
- import static net.minecraftforge.fml.repackage.com.nothome.delta.GDiffWriter.COPY_INT_UBYTE;
- import static net.minecraftforge.fml.repackage.com.nothome.delta.GDiffWriter.COPY_INT_USHORT;
-@@ -72,16 +70,16 @@
- 		throws IOException
- 	{
-         RandomAccessFileSeekableSource source =new RandomAccessFileSeekableSource(new RandomAccessFile(sourceFile, "r"));
--        InputStream patch = null;
--        OutputStream output = null;
-+        InputStream patch = new FileInputStream(patchFile);
-+        OutputStream output = new FileOutputStream(outputFile);
-         try {
--            patch = new FileInputStream(patchFile);
--            output = new FileOutputStream(outputFile);
-             patch(source, patch, output);
-+        } catch (IOException e) {
-+            throw e;
-         } finally {
--            IOUtils.closeQuietly(source);
--            IOUtils.closeQuietly(patch);
--            IOUtils.closeQuietly(output);
-+            source.close();
-+            patch.close();
-+            output.close();
-         }
-     }
- 
-@@ -233,10 +231,8 @@
+@@ -233,10 +233,8 @@
              patcher.patch(sourceFile, patchFile, outputFile);
  
              System.out.println("finished patching file");

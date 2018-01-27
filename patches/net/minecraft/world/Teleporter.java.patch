@@ -43,7 +43,7 @@
 +        // CraftBukkit end
 +    	boolean flag = true;
 +        BlockPos blockpos = BlockPos.ORIGIN;
-+        long l = ChunkPos.chunkXZ2Int(fX, fZ);
++        long l = ChunkPos.asLong(fX, fZ);
 +        if (this.destinationCoordinateCache.containsKey(l)) {
 +            Teleporter.PortalPosition teleporter$portalposition = (Teleporter.PortalPosition)this.destinationCoordinateCache.get(l);
 +            d0 = 0.0D;

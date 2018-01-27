@@ -4,22 +4,21 @@
 
 package org.bukkit.craftbukkit;
 
+import org.bukkit.*;
 import org.bukkit.metadata.MetadataStoreBase;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import org.bukkit.Particle;
 import net.minecraft.network.play.server.SPacketCustomSound;
 import net.minecraft.util.SoundCategory;
-import org.bukkit.Sound;
 import org.bukkit.metadata.MetadataValue;
-import org.bukkit.WorldType;
+
 import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.plugin.messaging.StandardMessenger;
 import org.bukkit.plugin.Plugin;
 import net.minecraft.world.storage.SaveHandler;
 import java.io.File;
-import org.bukkit.ChunkSnapshot;
+
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.EntityLiving;
 import com.google.common.base.Preconditions;
@@ -163,11 +162,8 @@ import net.minecraft.entity.item.EntityBoat;
 import org.bukkit.entity.Boat;
 import net.minecraft.entity.item.EntityFallingBlock;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.Material;
 import net.minecraft.network.play.server.SPacketEffect;
-import org.bukkit.Effect;
 import net.minecraft.world.EnumDifficulty;
-import org.bukkit.Difficulty;
 import net.minecraft.world.MinecraftException;
 import net.minecraft.util.IProgressUpdate;
 import org.bukkit.entity.HumanEntity;
@@ -191,7 +187,6 @@ import net.minecraft.tileentity.TileEntity;
 import java.util.Iterator;
 import org.bukkit.craftbukkit.block.CraftBlockState;
 import org.bukkit.block.BlockState;
-import org.bukkit.BlockChangeDelegate;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.gen.feature.WorldGenerator;
 import net.minecraft.block.BlockChorusFlower;
@@ -212,7 +207,6 @@ import net.minecraft.world.gen.feature.WorldGenTaiga1;
 import net.minecraft.world.gen.feature.WorldGenTaiga2;
 import net.minecraft.world.gen.feature.WorldGenBirchTree;
 import net.minecraft.world.gen.feature.WorldGenBigTree;
-import org.bukkit.TreeType;
 import org.bukkit.craftbukkit.entity.CraftLightningStrike;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import org.bukkit.entity.LightningStrike;
@@ -239,23 +233,18 @@ import net.minecraft.init.Blocks;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.util.math.ChunkPos;
-import org.bukkit.Chunk;
 import org.bukkit.event.Event;
 import org.bukkit.event.world.SpawnChangeEvent;
-import org.bukkit.Location;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import net.minecraft.util.math.BlockPos;
 import org.bukkit.block.Block;
 import java.util.ArrayList;
-import org.bukkit.Bukkit;
 import java.util.Random;
 import org.bukkit.craftbukkit.metadata.BlockMetadataStore;
 import org.bukkit.generator.BlockPopulator;
 import java.util.List;
 import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.WorldBorder;
 import net.minecraft.world.WorldServer;
-import org.bukkit.World;
 
 public class CraftWorld implements World
 {
@@ -1780,5 +1769,93 @@ public class CraftWorld implements World
             }
             cps.unload(chunk);
         }
+    }
+    private final Server.Spigot spigot = new Server.Spigot()
+    {
+        /*@Override
+        public void playEffect( Location location, Effect effect, int id, int data, float offsetX, float offsetY, float offsetZ, float speed, int particleCount, int radius )
+        {
+            Validate.notNull( location, "Location cannot be null" );
+            Validate.notNull( effect, "Effect cannot be null" );
+            Validate.notNull( location.getWorld(), "World cannot be null" );
+            Packet packet;
+            if ( effect.getType() != Effect.Type.PARTICLE )
+            {
+                int packetData = effect.getId();
+                packet = new PacketPlayOutWorldEvent( packetData, new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ() ), id, false );
+            } else
+            {
+                net.minecraft.server.EnumParticle particle = null;
+                int[] extra = null;
+                for ( net.minecraft.server.EnumParticle p : net.minecraft.server.EnumParticle.values() )
+                {
+                    if ( effect.getName().startsWith( p.b().replace("_", "") ) )
+                    {
+                        particle = p;
+                        if ( effect.getData() != null )
+                        {
+                            if ( effect.getData().equals( org.bukkit.Material.class ) )
+                            {
+                                extra = new int[]{ id };
+                            } else
+                            {
+                                extra = new int[]{ (data << 12) | (id & 0xFFF) };
+                            }
+                        }
+                        break;
+                    }
+                }
+                if ( extra == null )
+                {
+                    extra = new int[0];
+                }
+                packet = new PacketPlayOutWorldParticles( particle, true, (float) location.getX(), (float) location.getY(), (float) location.getZ(), offsetX, offsetY, offsetZ, speed, particleCount, extra );
+            }
+            int distance;
+            radius *= radius;
+            for ( Player player : getPlayers() )
+            {
+                if ( ( (CraftPlayer) player ).getHandle().playerConnection == null )
+                {
+                    continue;
+                }
+                if ( !location.getWorld().equals( player.getWorld() ) )
+                {
+                    continue;
+                }
+                distance = (int) player.getLocation().distanceSquared( location );
+                if ( distance <= radius )
+                {
+                    ( (CraftPlayer) player ).getHandle().playerConnection.sendPacket( packet );
+                }
+            }
+        }
+
+        @Override
+        public void playEffect( Location location, Effect effect )
+        {
+            CraftWorld.this.playEffect( location, effect, 0 );
+        }
+
+        @Override
+        public LightningStrike strikeLightning(Location loc, boolean isSilent)
+        {
+            EntityLightningBolt lightning = new EntityLightningBolt( world, loc.getX(), loc.getY(), loc.getZ(), false, isSilent );
+            world.strikeLightning( lightning );
+            return new CraftLightningStrike( server, lightning );
+        }
+
+        @Override
+        public LightningStrike strikeLightningEffect(Location loc, boolean isSilent)
+        {
+            EntityLightning lightning = new EntityLightning( world, loc.getX(), loc.getY(), loc.getZ(), true, isSilent );
+            world.strikeLightning( lightning );
+            return new CraftLightningStrike( server, lightning );
+        }*/
+    };
+
+    public Server.Spigot spigot()
+    {
+        return spigot;
     }
 }

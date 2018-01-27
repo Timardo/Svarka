@@ -129,12 +129,12 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity
     
     @Override
     public boolean isSleeping() {
-        return this.getHandle().sleeping;
+        return this.getHandle().isPlayerSleeping();
     }
     
     @Override
     public int getSleepTicks() {
-        return this.getHandle().sleepTimer;
+        return this.getHandle().getSleepTimer();
     }
     
     @Override

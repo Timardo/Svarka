@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/world/WorldServer.java
 +++ ../src-work/minecraft/net/minecraft/world/WorldServer.java
-@@ -78,15 +78,25 @@
+@@ -78,15 +78,26 @@
  import net.minecraftforge.fml.relauncher.SideOnly;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
@@ -13,6 +13,7 @@
 +
 +import org.bukkit.event.block.BlockFormEvent;
 +import org.bukkit.event.weather.LightningStrikeEvent;
++import org.spigotmc.SpigotConfig;
 +// CraftBukkit end
 +
  public class WorldServer extends World implements IThreadListener
@@ -28,7 +29,7 @@
      private final Map<UUID, Entity> entitiesByUuid = Maps.<UUID, Entity>newHashMap();
      public boolean disableLevelSaving;
      private boolean allPlayersSleeping;
-@@ -101,10 +111,13 @@
+@@ -101,20 +112,24 @@
      /** Stores the recently processed (lighting) chunks */
      protected Set<ChunkPos> doneChunks = new java.util.HashSet<ChunkPos>();
      public List<Teleporter> customTeleporters = new ArrayList<Teleporter>();
@@ -43,8 +44,11 @@
 +        this.pvpMode = server.isPVPEnabled();
          this.mcServer = server;
          this.theEntityTracker = new EntityTracker(this);
-         this.thePlayerManager = new PlayerChunkMap(this);
-@@ -114,7 +127,8 @@
+-        this.thePlayerManager = new PlayerChunkMap(this);
++        this.thePlayerManager = new PlayerChunkMap(this, spigotConfig.viewDistance);
+         // Guarantee the dimension ID was not reset by the provider
+         int providerDim = this.provider.getDimension();
+         this.provider.registerWorld(this);
          this.provider.setDimension(providerDim);
          this.chunkProvider = this.createChunkProvider();
          perWorldStorage = new MapStorage(new net.minecraftforge.common.WorldSpecificSaveHandler((WorldServer)this, saveHandlerIn));
@@ -54,7 +58,7 @@
          this.calculateInitialSkylight();
          this.calculateInitialWeather();
          this.getWorldBorder().setSize(server.getMaxWorldSize());
-@@ -341,7 +355,7 @@
+@@ -341,7 +356,7 @@
          this.worldInfo.setSpawnZ(j);
      }
  
@@ -63,7 +67,7 @@
      {
          return this.getChunkProvider().chunkExists(x, z);
      }
-@@ -1303,12 +1317,25 @@
+@@ -1304,12 +1319,25 @@
  
      public void spawnParticle(EnumParticleTypes particleType, boolean longDistance, double xCoord, double yCoord, double zCoord, int numberOfParticles, double xOffset, double yOffset, double zOffset, double particleSpeed, int... particleArguments)
      {

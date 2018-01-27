@@ -32,7 +32,7 @@ public class CustomCraftProjectile extends CraftCustomEntity implements Projecti
             if(!(block.getWorld() instanceof WorldServer))return null;
             int x = block.getX(), y = block.getY(), z = block.getZ();
             WorldServer ws = (WorldServer)block.getWorld();
-            EntityPlayerMP fake_dropper = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), ws, dropper, new PlayerInteractionManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(0)));
+            EntityPlayerMP fake_dropper = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance().getServer(), ws, dropper, new PlayerInteractionManager(FMLCommonHandler.instance().getMinecraftServerInstance().getServer().worldServerForDimension(0)));
             fake_dropper.posX = x; fake_dropper.posY = y; fake_dropper.posZ = z;
             CraftEntity ce = org.bukkit.craftbukkit.entity.CraftEntity.getEntity(server, fake_dropper);
             if(ce instanceof LivingEntity) return (LivingEntity)ce;

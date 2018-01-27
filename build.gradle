@@ -5,10 +5,6 @@ buildscript {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
     }
     dependencies {
 		classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'//files('SForgeGradle-2.2-SNAPSHOT.jar')//'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
@@ -20,8 +16,9 @@ apply plugin: 'java'
 apply plugin: 'net.minecraftforge.gradle.patcher'
 apply plugin: 'net.minecraftforge.gradle.launch4j'
 
+
 group = 'fewizz.svarka'
-version = '0.0.2'
+version = '0.0.3'
 
 //afterEvaluate {
 //	patchSvarkaJar.addInject file('bukkit/src/main/java/')
@@ -33,26 +30,66 @@ version = '0.0.2'
 //	}
 //}
 
+repositories {
+    clear()
+    maven {
+        name 'sonatype'
+        url 'http://oss.sonatype.org/content/repositories/snapshots/'
+    }
+    maven {
+        name 'prok'
+        url 'https://repo.prok.pw/'
+    }
+    maven {
+        name 'forge'
+        url 'http://files.minecraftforge.net/maven'
+    }
+    maven {
+        name 'minecraft'
+        url 'https://libraries.minecraft.net/'
+    }
+    maven {
+        name 'spigot'
+        url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name 'maven'
+        url 'https://mvnrepository.com/artifact/'
+    }
+
+    mavenCentral()
+}
+
 dependencies {
+    compile 'net.sf.jopt-simple:jopt-simple:4.7'
 	compile 'commons-lang:commons-lang:2.6'
+    compile 'commons-io:commons-io:1.3.2'
 	compile 'org.avaje:ebean:2.8.1'
 	compile 'com.googlecode.json-simple:json-simple:1.1'
 	compile 'org.yaml:snakeyaml:1.15'
-	compile 'com.google.guava:guava:17.0'
+	compile 'com.google.guava:guava:20.0'
+    compile 'org.xerial:sqlite-jdbc:3.7.2'
+    compile 'mysql:mysql-connector-java:5.1.14'
+    compile 'net.sf.trove4j:trove4j:3.0.3'
+    compile 'org.apache.logging.log4j:log4j-core:2.10.0'
 }
+
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
+
+
 
 minecraft {
     version = "1.10.2"
     mappings = 'snapshot_nodoc_20161111'
     workspaceDir = "projects"
     versionJson = "jsons/1.10.2-svarka-dev.json"
-    buildUserdev = true
-    buildInstaller = true
+    buildUserdev = false
+    buildInstaller = false
     installerVersion = '1.5'
+
 
     def common = {
         patchPrefixOriginal "../src-base/minecraft"
@@ -88,9 +125,11 @@ minecraft {
 			//dchImports = true
 			//ignoreWhiteSpaces = false
             with common
-		}
+        }
     }
 }
+
+
 
 installer {
     classifier = 'installer'
@@ -110,7 +149,7 @@ launch4j {
 tasks.generateXmlConfig.dependsOn installer
 tasks.build.dependsOn 'launch4j'
 tasks.compileJava.enabled = false
-
+tasks.reobfuscate.setProperty("extraSrg",["PK: org/bukkit/craftbukkit org/bukkit/craftbukkit/v1_10_R1"])
 task signUniversal(type: SignJar, dependsOn: 'outputJar') {
     onlyIf {
         project.hasProperty('jarsigner')
@@ -136,9 +175,15 @@ outputJar {
     classifier = 'universal'
 	
     manifest.attributes([
-        "Main-Class": "net.minecraftforge.fml.relauncher.ServerLaunchWrapper",
-        "TweakClass": "net.minecraftforge.fml.common.launcher.FMLTweaker",
-        "Class-Path": getServerClasspath(file("jsons/1.10.2-svarka-rel.json"))
+            "Implementation-Title": "CraftBukkit",
+            "Implementation-Version": "CraftBukkit-1.10.2",
+            "Specification-Vendor": "Svarka Team",
+            "Specification-Title": "Bukkit",
+            "Specification-Version": "unknown",
+            "Implementation-Vendor": "Svarka Team",
+            "Main-Class": "net.minecraftforge.fml.relauncher.ServerLaunchWrapper",
+            "TweakClass": "net.minecraftforge.fml.common.launcher.FMLTweaker",
+            "Class-Path": getServerClasspath(file("jsons/1.10.2-svarka-rel.json"))
     ])
 }
 

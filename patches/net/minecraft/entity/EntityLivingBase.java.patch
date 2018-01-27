@@ -96,7 +96,22 @@
      protected boolean isJumping;
      public float moveStrafing;
      public float moveForward;
-@@ -154,7 +188,9 @@
+@@ -144,6 +178,14 @@
+     private BlockPos prevBlockpos;
+     private DamageSource lastDamageSource;
+     private long lastDamageStamp;
++    // CraftBukkit start
++    public int expToDrop;
++    public int maxAirTicks = 300;
++    boolean forceDrops;
++    ArrayList<org.bukkit.inventory.ItemStack> drops = new ArrayList<org.bukkit.inventory.ItemStack>();
++    public org.bukkit.craftbukkit.attribute.CraftAttributeMap craftAttributes;
++    public boolean collides = true;
++    // CraftBukkit end
+ 
+     public void onKillCommand()
+     {
+@@ -154,7 +196,9 @@
      {
          super(worldIn);
          this.applyEntityAttributes();
@@ -107,7 +122,7 @@
          this.preventEntitySpawning = true;
          this.randomUnused1 = (float)((Math.random() + 1.0D) * 0.009999999776482582D);
          this.setPosition(this.posX, this.posY, this.posZ);
-@@ -197,8 +233,17 @@
+@@ -197,8 +241,17 @@
              {
                  double d0 = Math.min((double)(0.2F + f / 15.0F), 2.5D);
                  int i = (int)(150.0D * d0);
@@ -127,7 +142,7 @@
              }
          }
  
-@@ -347,6 +392,13 @@
+@@ -347,6 +400,13 @@
          this.prevRotationYaw = this.rotationYaw;
          this.prevRotationPitch = this.rotationPitch;
          this.worldObj.theProfiler.endSection();
@@ -141,7 +156,7 @@
      }
  
      protected void frostWalk(BlockPos pos)
-@@ -368,28 +420,33 @@
+@@ -368,28 +428,33 @@
      {
          ++this.deathTime;
  
@@ -194,7 +209,7 @@
              }
          }
      }
-@@ -555,7 +612,17 @@
+@@ -555,7 +620,17 @@
                  }
              }
          }
@@ -213,7 +228,7 @@
          if (compound.hasKey("Health", 99))
          {
              this.setHealth(compound.getFloat("Health"));
-@@ -576,11 +643,14 @@
+@@ -576,11 +651,14 @@
              this.setFlag(7, true);
          }
      }
@@ -230,7 +245,7 @@
          while (iterator.hasNext())
          {
              Potion potion = (Potion)iterator.next();
-@@ -599,7 +669,17 @@
+@@ -599,7 +677,17 @@
                  this.onChangedPotionEffect(potioneffect, false);
              }
          }
@@ -249,7 +264,7 @@
          if (this.potionsNeedUpdate)
          {
              if (!this.worldObj.isRemote)
-@@ -708,6 +788,12 @@
+@@ -708,6 +796,12 @@
  
      public void addPotionEffect(PotionEffect potioneffectIn)
      {
@@ -262,7 +277,7 @@
          if (this.isPotionApplicable(potioneffectIn))
          {
              PotionEffect potioneffect = (PotionEffect)this.activePotionsMap.get(potioneffectIn.getPotion());
-@@ -748,6 +834,12 @@
+@@ -748,6 +842,12 @@
      @Nullable
      public PotionEffect removeActivePotionEffect(@Nullable Potion potioneffectin)
      {
@@ -275,7 +290,7 @@
          return (PotionEffect)this.activePotionsMap.remove(potioneffectin);
      }
  
-@@ -795,23 +887,52 @@
+@@ -795,23 +895,52 @@
  
      public void heal(float healAmount)
      {
@@ -329,7 +344,7 @@
          this.dataManager.set(HEALTH, Float.valueOf(MathHelper.clamp_float(health, 0.0F, this.getMaxHealth())));
      }
  
-@@ -840,15 +961,16 @@
+@@ -840,15 +969,16 @@
              }
              else
              {
@@ -354,7 +369,7 @@
                  {
                      this.damageShield(amount);
  
-@@ -867,7 +989,7 @@
+@@ -867,7 +997,7 @@
                      }
  
                      flag = true;
@@ -363,7 +378,7 @@
  
                  this.limbSwingAmount = 1.5F;
                  boolean flag1 = true;
-@@ -876,22 +998,39 @@
+@@ -876,22 +1006,39 @@
                  {
                      if (amount <= this.lastDamage)
                      {
@@ -407,7 +422,7 @@
                  this.attackedAtYaw = 0.0F;
                  Entity entity = source.getEntity();
  
-@@ -1084,6 +1223,12 @@
+@@ -1078,6 +1225,12 @@
                  {
                      boolean flag = this.recentlyHit > 0;
                      this.dropLoot(flag, i, cause);
@@ -420,7 +435,7 @@
                  }
  
                  captureDrops = false;
-@@ -1207,8 +1352,13 @@
+@@ -1201,8 +1354,13 @@
  
          if (i > 0)
          {
@@ -435,7 +450,7 @@
              int j = MathHelper.floor_double(this.posX);
              int k = MathHelper.floor_double(this.posY - 0.20000000298023224D);
              int l = MathHelper.floor_double(this.posZ);
-@@ -1248,7 +1398,7 @@
+@@ -1242,7 +1400,7 @@
      {
          if (!source.isUnblockable())
          {
@@ -444,7 +459,7 @@
              damage = CombatRules.getDamageAfterAbsorb(damage, (float)this.getTotalArmorValue(), (float)this.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
          }
  
-@@ -1262,14 +1412,14 @@
+@@ -1256,14 +1414,14 @@
              return damage;
          }
          else
@@ -462,7 +477,7 @@
  
              if (damage <= 0.0F)
              {
-@@ -1288,27 +1438,105 @@
+@@ -1282,27 +1440,105 @@
              }
          }
      }
@@ -585,7 +600,7 @@
      }
  
      public CombatTracker getCombatTracker()
-@@ -1455,6 +1683,7 @@
+@@ -1449,6 +1685,7 @@
          if (this.attributeMap == null)
          {
              this.attributeMap = new AttributeMap();
@@ -593,7 +608,7 @@
          }
  
          return this.attributeMap;
-@@ -1745,6 +1974,7 @@
+@@ -1739,6 +1976,7 @@
  
                          if (this.onGround && !this.worldObj.isRemote)
                          {
@@ -601,7 +616,7 @@
                              this.setFlag(7, false);
                          }
                      }
-@@ -2256,6 +2486,7 @@
+@@ -2250,6 +2488,7 @@
  
          if (!this.worldObj.isRemote)
          {
@@ -609,7 +624,7 @@
              this.setFlag(7, flag);
          }
      }
-@@ -2385,12 +2616,12 @@
+@@ -2379,12 +2618,12 @@
  
      public boolean canBeCollidedWith()
      {
@@ -624,7 +639,7 @@
      }
  
      protected void setBeenAttacked()
-@@ -2609,7 +2840,20 @@
+@@ -2603,7 +2842,20 @@
          if (this.activeItemStack != null && this.isHandActive())
          {
              this.updateItemUse(this.activeItemStack, 16);
@@ -646,7 +661,7 @@
  
              itemstack = net.minecraftforge.event.ForgeEventFactory.onItemUseFinish(this, activeItemStack, getItemInUseCount(), itemstack);
  
-@@ -2720,12 +2964,23 @@
+@@ -2714,12 +2966,23 @@
  
              if (flag1)
              {

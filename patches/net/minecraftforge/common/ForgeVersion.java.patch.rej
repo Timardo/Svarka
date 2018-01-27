@@ -1,4 +1,4 @@
-++++ REJECTED PATCH 3
+++++ REJECTED PATCH 2
          return ret == null ? PENDING_CHECK : ret;
      }
  }

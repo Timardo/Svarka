@@ -7,8 +7,9 @@ package org.bukkit.craftbukkit.scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.spigotmc.CustomTimingsHandler;
 
-class CraftTask implements BukkitTask, Runnable
+public class CraftTask implements BukkitTask, Runnable
 {
     private volatile CraftTask next;
     private volatile long period;
@@ -16,7 +17,9 @@ class CraftTask implements BukkitTask, Runnable
     private final Runnable task;
     private final Plugin plugin;
     private final int id;
-    
+    public CustomTimingsHandler timings;
+    public String timingName;
+
     CraftTask() {
         this(null, null, -1, -1L);
     }
@@ -24,13 +27,27 @@ class CraftTask implements BukkitTask, Runnable
     CraftTask(final Runnable task) {
         this(null, task, -1, -1L);
     }
+
+    CraftTask(final String timingName) {
+        this(timingName, null, null, -1, -1L);
+    }
+
+    CraftTask(final String timingName, final Runnable task) {
+        this(timingName, null, task, -1, -1L);
+    }
     
-    CraftTask(final Plugin plugin, final Runnable task, final int id, final long period) {
+    CraftTask(final String timingName, final Plugin plugin, final Runnable task, final int id, final long period) {
         this.next = null;
         this.plugin = plugin;
         this.task = task;
         this.id = id;
         this.period = period;
+        this.timingName = ((timingName == null && task == null) ? "Unknown" : timingName);
+        this.timings = (this.isSync() ? org.bukkit.craftbukkit.SpigotTimings.getPluginTaskTimings(this, period) : null);
+    }
+
+    CraftTask(final Plugin plugin, final Runnable task, final int id, final long period) {
+        this(null, plugin, task, id, period);
     }
     
     @Override
@@ -89,5 +106,12 @@ class CraftTask implements BukkitTask, Runnable
     boolean cancel0() {
         this.setPeriod(-2L);
         return true;
+    }
+
+    public String getTaskName() {
+        if (this.timingName != null) {
+            return this.timingName;
+        }
+        return this.task.getClass().getName();
     }
 }

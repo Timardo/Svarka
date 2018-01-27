@@ -1,4 +1,4 @@
-++++ REJECTED PATCH 3
+++++ REJECTED PATCH 1
              patcher.patch(sourceFile, patchFile, outputFile);
  
              System.out.println("finished patching file");

@@ -202,7 +202,7 @@ public class CraftMetaBlockState extends CraftMetaItem implements BlockStateMeta
         if (this.blockEntityTag != null && this.material == Material.SHIELD) {
             this.blockEntityTag.setString("id", "Banner");
         }
-        TileEntity te = (this.blockEntityTag == null) ? null : TileEntity.func_190200_a(null, this.blockEntityTag);
+        TileEntity te = (this.blockEntityTag == null) ? null : TileEntity.create(null, this.blockEntityTag);
         switch (this.material) {
             case SIGN_POST:
             case WALL_SIGN:

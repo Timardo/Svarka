@@ -1,0 +1,20 @@
+--- ../src-base/minecraft/net/minecraft/client/Minecraft.java
++++ ../src-work/minecraft/net/minecraft/client/Minecraft.java
+@@ -143,6 +143,7 @@
+ import net.minecraft.profiler.ISnooperInfo;
+ import net.minecraft.profiler.Profiler;
+ import net.minecraft.profiler.Snooper;
++import net.minecraft.server.ExceptionWorldConflict;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.integrated.IntegratedServer;
+ import net.minecraft.server.management.PlayerProfileCache;
+@@ -2867,8 +2868,7 @@
+         return this.theIntegratedServer;
+     }
+ 
+-    public static void stopIntegratedServer()
+-    {
++    public static void stopIntegratedServer() throws ExceptionWorldConflict {
+         if (theMinecraft != null)
+         {
+             IntegratedServer integratedserver = theMinecraft.getIntegratedServer();

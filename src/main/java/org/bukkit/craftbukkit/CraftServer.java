@@ -5,6 +5,7 @@
 package org.bukkit.craftbukkit;
 
 import net.minecraft.server.management.UserList;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.inventory.ItemFactory;
 import org.bukkit.map.MapView;
@@ -251,7 +252,7 @@ public final class CraftServer implements Server
         this.pluginManager = new SimplePluginManager(this, this.commandMap);
         this.worlds = new LinkedHashMap<String, World>();
         this.yaml = new Yaml((BaseConstructor)new SafeConstructor());
-        this.offlinePlayers = /*(Map<UUID, OfflinePlayer>)*/new MapMaker().softValues().makeMap();
+        this.offlinePlayers = /*(Map<UUID, OfflinePlayer>)*/new MapMaker().weakValues().makeMap();
         this.entityMetadata = new EntityMetadataStore();
         this.playerMetadata = new PlayerMetadataStore();
         this.worldMetadata = new WorldMetadataStore();
@@ -415,6 +416,7 @@ public final class CraftServer implements Server
     private void setVanillaCommands() {
         final Map<String, ICommand> commands = new ServerCommandManager(this.console).getCommands();
         for (final ICommand cmd : commands.values()) {
+            //TODO SPIGOT
             this.commandMap.register("minecraft", new VanillaCommandWrapper((CommandBase)cmd, I18n.translateToLocal(cmd.getCommandUsage(null))));
         }
     }
@@ -622,7 +624,11 @@ public final class CraftServer implements Server
     
     @Override
     public long getConnectionThrottle() {
-        return this.configuration.getInt("settings.connection-throttle");
+        if (org.spigotmc.SpigotConfig.bungee) {
+            return -1;
+        } else {
+            return this.configuration.getInt("settings.connection-throttle");
+        }
     }
     
     @Override
@@ -687,12 +693,8 @@ public final class CraftServer implements Server
         if (this.commandMap.dispatch(sender, commandLine)) {
             return true;
         }
-        if (sender instanceof Player) {
-            sender.sendMessage("Unknown command. Type \"/help\" for help.");
-        }
-        else {
-            sender.sendMessage("Unknown command. Type \"help\" for help.");
-        }
+        sender.sendMessage(org.spigotmc.SpigotConfig.unknownCommandMessage);
+
         return false;
     }
     
@@ -733,6 +735,7 @@ public final class CraftServer implements Server
         catch (IOException ex) {
             this.logger.log(Level.WARNING, "Failed to load banned-players.json, " + ex.getMessage());
         }
+        org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
         for (final WorldServer world : /*this.console.worlds*/this.console.worldServers) {
             world.worldInfo.setDifficulty(difficulty);
             world.setAllowedSpawnTypes(monsters, animals);
@@ -748,10 +751,12 @@ public final class CraftServer implements Server
             else {
                 world.ticksPerMonsterSpawns = this.getTicksPerMonsterSpawns();
             }
+            world.spigotConfig.init();
         }
         this.pluginManager.clearPlugins();
         this.commandMap.clearCommands();
         this.resetRecipes();
+        org.spigotmc.SpigotConfig.registerCommands(); // Spigot
         this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
         for (int pollCount = 0; pollCount < 50 && this.getScheduler().getActiveWorkers().size() > 0; ++pollCount) {
             try {
@@ -1284,7 +1289,12 @@ public final class CraftServer implements Server
         }
         OfflinePlayer result = this.getPlayerExact(name);
         if (result == null) {
-            final GameProfile profile = this.console.getPlayerProfileCache().getGameProfileForUsername(name);
+            GameProfile profile = null;
+            // Only fetch an online UUID in online mode
+            if ( FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getOnlineMode() || org.spigotmc.SpigotConfig.bungee )
+            {
+                profile = console.getPlayerProfileCache().getGameProfileForUsername( name );
+            }
             if (profile == null) {
                 result = this.getOfflinePlayer(new GameProfile(UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(Charsets.UTF_8)), name));
             }
@@ -1661,7 +1671,42 @@ public final class CraftServer implements Server
     public UnsafeValues getUnsafe() {
         return CraftMagicNumbers.INSTANCE;
     }
-    
+
+    private final Spigot spigot = new Spigot()
+    {
+
+        @Override
+        public YamlConfiguration getConfig()
+        {
+            return org.spigotmc.SpigotConfig.config;
+        }
+
+        @Override
+        public void restart() {
+            org.spigotmc.RestartCommand.restart();
+        }
+
+        //TODO BUNDGE.API
+        /*@Override
+        public void broadcast(BaseComponent component) {
+            for (Player player : getOnlinePlayers()) {
+                player.spigot().sendMessage(component);
+            }
+        }
+
+        @Override
+        public void broadcast(BaseComponent... components) {
+            for (Player player : getOnlinePlayers()) {
+                player.spigot().sendMessage(components);
+            }
+        }*/
+    };
+
+    public Spigot spigot()
+    {
+        return this.spigot;
+    }
+
     private static final class BooleanWrapper
     {
         private boolean value;

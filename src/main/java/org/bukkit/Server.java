@@ -21,6 +21,7 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -948,4 +949,24 @@ public interface Server extends PluginMessageRecipient {
      */
     @Deprecated
     UnsafeValues getUnsafe();
+    Spigot spigot();
+
+    public static class Spigot
+    {
+        public YamlConfiguration getConfig() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+       /* public void broadcast(final BaseComponent component) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void broadcast(final BaseComponent... components) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }*/
+
+        public void restart() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+    }
 }

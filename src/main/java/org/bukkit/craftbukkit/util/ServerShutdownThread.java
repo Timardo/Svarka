@@ -4,6 +4,7 @@
 
 package org.bukkit.craftbukkit.util;
 
+import net.minecraft.server.ExceptionWorldConflict;
 import net.minecraft.world.MinecraftException;
 import net.minecraft.server.MinecraftServer;
 
@@ -18,7 +19,11 @@ public class ServerShutdownThread extends Thread
     @Override
     public void run() {
         //try {
+        try {
             this.server.stopServer();
+        } catch (ExceptionWorldConflict exceptionWorldConflict) {
+            exceptionWorldConflict.printStackTrace();
+        }
         //}
         /*catch (MinecraftException ex) {
             ex.printStackTrace();

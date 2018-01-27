@@ -71,7 +71,7 @@
          Arrays.fill(this.blockBiomeArray, (byte) - 1);
 +        // CraftBukkit start
 +        this.bukkitChunk = new org.bukkit.craftbukkit.CraftChunk(this);
-+        this.chunkKey = ChunkPos.chunkXZ2Int(this.xPosition, this.zPosition);
++        this.chunkKey = ChunkPos.asLong(this.xPosition, this.zPosition);
      }
 +    public org.bukkit.Chunk bukkitChunk;
 +    public boolean mustSave;
