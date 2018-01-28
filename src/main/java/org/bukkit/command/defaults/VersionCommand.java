@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.minecraftforge.common.ForgeVersion;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -44,7 +46,9 @@ public class VersionCommand extends BukkitCommand {
         if (!testPermission(sender)) return true;
 
         if (args.length == 0) {
-            sender.sendMessage("This server is running " + Bukkit.getName() + " version " + Bukkit.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ") \nSvarka version " + Svarka.getVersions());
+            sender.sendMessage("This server is running " + Bukkit.getName() + " version " + Bukkit.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ") " +
+                    "\nSvarka version " + Svarka.getVersions() +
+                    "\nForge version " + ForgeVersion.getVersion());
             sender.sendMessage(Bukkit.getServer().getClass().getName());
             //sendVersion(sender);
         } else {

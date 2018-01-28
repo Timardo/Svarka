@@ -1,5 +1,6 @@
 package ru.svarka;
 
+import com.google.common.reflect.ClassPath;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
@@ -17,6 +18,9 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class SvarkaCommand extends Command {
@@ -174,7 +178,6 @@ public class SvarkaCommand extends Command {
                     }
                     writer.write("-------------------------\n");
                 }
-                writer.close();
                 sender.sendMessage(ChatColor.RED + "Dump saved to " + DUMP + "!");
             } catch (Exception e) {
                 e.printStackTrace();

@@ -20,6 +20,7 @@ apply plugin: 'net.minecraftforge.gradle.launch4j'
 group = 'fewizz.svarka'
 version = '0.0.3'
 
+
 //afterEvaluate {
 //	patchSvarkaJar.addInject file('bukkit/src/main/java/')
 //}
@@ -60,18 +61,24 @@ repositories {
     mavenCentral()
 }
 
+configurations{
+    compile.extendsFrom libraries
+    libraries
+}
+
 dependencies {
-    compile 'net.sf.jopt-simple:jopt-simple:4.7'
-	compile 'commons-lang:commons-lang:2.6'
-    compile 'commons-io:commons-io:1.3.2'
-	compile 'org.avaje:ebean:2.8.1'
-	compile 'com.googlecode.json-simple:json-simple:1.1'
-	compile 'org.yaml:snakeyaml:1.15'
-	compile 'com.google.guava:guava:20.0'
-    compile 'org.xerial:sqlite-jdbc:3.7.2'
-    compile 'mysql:mysql-connector-java:5.1.14'
-    compile 'net.sf.trove4j:trove4j:3.0.3'
-    compile 'org.apache.logging.log4j:log4j-core:2.10.0'
+    libraries 'net.sf.jopt-simple:jopt-simple:4.7'
+    libraries 'commons-lang:commons-lang:2.6'
+    libraries 'commons-io:commons-io:1.3.2'
+    libraries 'org.avaje:ebean:2.8.1'
+    libraries 'com.googlecode.json-simple:json-simple:1.1'
+    libraries 'org.yaml:snakeyaml:1.15'
+    libraries 'com.google.guava:guava:20.0'
+    libraries 'org.xerial:sqlite-jdbc:3.7.2'
+    libraries 'mysql:mysql-connector-java:5.1.14'
+    libraries 'net.sf.trove4j:trove4j:3.0.3'
+    libraries 'org.apache.logging.log4j:log4j-core:2.10.0'
+    libraries 'net.md-5:SpecialSource:1.8.0'
 }
 
 
@@ -79,7 +86,14 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-
+//jar{
+//    into('lib') {
+//        from configurations.libraries
+//    }
+//	exclude "**/configurations/**"
+//	exclude "**/META-INF/**"
+//	exclude "log4j2.xml"
+//}
 
 minecraft {
     version = "1.10.2"
@@ -94,8 +108,8 @@ minecraft {
     def common = {
         patchPrefixOriginal "../src-base/minecraft"
         patchPrefixChanged "../src-work/minecraft"
-        mainClassClient "net.minecraft.launchwrapper.Launch"
-        tweakClassClient "net.minecraftforge.fml.common.launcher.FMLTweaker"
+/*        mainClassClient "net.minecraft.launchwrapper.Launch"
+        tweakClassClient "net.minecraftforge.fml.common.launcher.FMLTweaker"*/
         mainClassServer "net.minecraft.launchwrapper.Launch"
         tweakClassServer "net.minecraftforge.fml.common.launcher.FMLServerTweaker"
     }
