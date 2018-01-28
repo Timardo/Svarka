@@ -4,6 +4,8 @@ jdk:
 before_install: git submodule update --init --recursive
 install: echo "Building Svakra for 1.10.2"
 before_script: find .
+before_install:
+  - chmod +x travii/make.sh
 before_cache:
 - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
