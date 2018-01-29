@@ -338,7 +338,7 @@ public class CraftEventFactory
     }
     
     public static CreatureSpawnEvent callCreatureSpawnEvent(final EntityLivingBase entityliving, final CreatureSpawnEvent.SpawnReason spawnReason) {
-        final LivingEntity entity = (LivingEntity)entityliving.getBukkitEntity();
+        final LivingEntity entity = (LivingEntity) entityliving.getBukkitEntity();
         final CraftServer craftServer = (CraftServer)entity.getServer();
         final CreatureSpawnEvent event = new CreatureSpawnEvent(entity, spawnReason);
         craftServer.getPluginManager().callEvent(event);
@@ -600,6 +600,8 @@ public class CraftEventFactory
             cause2 = EntityDamageEvent.DamageCause.FLY_INTO_WALL;
         }
         else if (source == DamageSource.generic) {
+            cause2 = EntityDamageEvent.DamageCause.CUSTOM;
+        } else {
             cause2 = EntityDamageEvent.DamageCause.CUSTOM;
         }
         if (cause2 != null) {
