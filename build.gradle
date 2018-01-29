@@ -86,14 +86,14 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-//jar{
-//    into('lib') {
-//        from configurations.libraries
-//    }
-//	exclude "**/configurations/**"
-//	exclude "**/META-INF/**"
-//	exclude "log4j2.xml"
-//}
+jar{
+    into('lib') {
+        from configurations.libraries
+    }
+	exclude "**/configurations/**"
+	exclude "**/META-INF/**"
+	exclude "log4j2.xml"
+}
 
 minecraft {
     version = "1.10.2"
