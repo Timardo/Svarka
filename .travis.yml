@@ -2,7 +2,7 @@ language: java
 jdk:
 - oraclejdk8
 before_install: git submodule update --init --recursive
-install: echo "Building Svakra for 1.10.2"
+install: echo "Building Svarka for 1.10.2"
 before_script: find .
 before_install:
   - chmod +x travii/make.sh
@@ -17,6 +17,8 @@ cache:
 script: "./travii/make.sh"
 deploy:
   provider: releases
+  api_key:
+    secure: VO0iNlGueyL+06yN6FFs0Cu5FK3J7oA7pDf9eRABFxNMMl/hlsg6gPOHyRPUqw8VhriJlLZTDTmcVnJAKJjeElXh5FeVX6j/JlIXaSg6XkJVIWB37C4rFRGbYxy9ESCAJoyfgbj4BTKdMEXH0YtQzcHkBL1wIOc2/kUCPtX0EzI6VIEetgiY8/a+9qgNaBfKg6ouanTatqWF70zPUhGpyqLeDnvOm+zLcxe9P9lk6UkyIDM3n9uHxOx2+q90xluWWSGFB4LExqqyDGw3O5jsj+xr/mxnUnAkFFVcbHZE5nJ7Xjj27zeZ7F6IoJghnmRWOE/iUhI30evAAjsY6gSvJyT11BwJc8Hq2FoGiM+dZu2GmtaFP9xnLDJeHCvDZPP1b2sFaR70fTN1qcRJPDBE27bgZlaM5oMrwEt2qtdc+BtPRTpvFVib1xEqQLJPKXFR/xZU+9AjDsBp21+sxYH4elBMFm7/e5rkjSgmekS5Bl8GShffyYaDYhEZdmtPr+RhhGBl6yRA10LairtGH2iDScoC0het3bmOgnHris6dFl3cVc7OBa3ONYtMLuIqPHwH48MWm2j6lCm6qwW8DHEziJD5J8RjhW2WwsscFW5mmm4Gi/p6yfkZT0810J1VomHtC4oNlmY79P5IZiOY4GIZuxWYrnTU1UjHr+nl/jVNQbw=
   file_glob: true
   skip_cleanup: true
   file: "$HOME/release/*"
