@@ -4,6 +4,6 @@ cp build/distributions/svarka*universal* $HOME/release/Svarka-1.10.2-2511-server
 ./gradlew jar
 cd build/libs/
 unzip svarka-*.jar
-mv svarka-*/lib libraries
+mv lib libraries
 zip -r libraries.zip libraries
 cp libraries.zip $HOME/release
