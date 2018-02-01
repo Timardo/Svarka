@@ -411,13 +411,13 @@
                      this.hurtTime = this.maxHurtTime;
                  }
 -
-+                // CB start
-+                if (this instanceof EntityAnimal) {
++                // CB start //TODO Crash error Pixelmon
++                /*if (this instanceof EntityAnimal) {
 +                    ((EntityAnimal)this).resetInLove();
 +                    if (this instanceof EntityTameable) {
 +                        ((EntityTameable)this).getAISit().setSitting(false);
 +                    }
-+                }
++                }*/
 +                // CB end
                  this.attackedAtYaw = 0.0F;
                  Entity entity = source.getEntity();

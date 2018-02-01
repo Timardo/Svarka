@@ -7,6 +7,7 @@ package org.bukkit.craftbukkit.entity;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
+import org.bukkit.entity.EntityType;
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
@@ -15,7 +16,7 @@ import net.minecraft.entity.item.EntityMinecart;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Minecart;
 
-public abstract class CraftMinecart extends CraftVehicle implements Minecart
+public class CraftMinecart extends CraftVehicle implements Minecart
 {
     public CraftMinecart(final CraftServer server, final EntityMinecart entity) {
         super(server, entity);
@@ -116,5 +117,10 @@ public abstract class CraftMinecart extends CraftVehicle implements Minecart
     @Override
     public int getDisplayBlockOffset() {
         return this.getHandle().getDisplayTileOffset();
+    }
+
+    @Override
+    public EntityType getType() {
+        return EntityType.MINECART;
     }
 }

@@ -4,6 +4,7 @@
 
 package org.bukkit.craftbukkit;
 
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import org.bukkit.*;
 import org.bukkit.metadata.MetadataStoreBase;
 import net.minecraft.world.gen.ChunkProviderServer;
@@ -543,8 +544,33 @@ public class CraftWorld implements World
     
     @Override
     public org.bukkit.entity.Entity spawnEntity(final Location loc, final EntityType entityType) {
+        if (EntityRegistry.entityClassMap.get(entityType.getName()) != null)
+        {
+            net.minecraft.entity.Entity entity = null;
+            entity = getEntity(EntityRegistry.entityClassMap.get(entityType.getName()), world);
+            if (entity != null)
+            {
+                entity.setLocationAndAngles(loc.getX(), loc.getY(), loc.getZ(), 0, 0);
+                world.addEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM);
+                return entity.getBukkitEntity();
+            }
+        }
         return this.spawn(loc, entityType.getEntityClass());
     }
+    // Cauldron start
+    public net.minecraft.entity.Entity getEntity(Class<? extends net.minecraft.entity.Entity> clazz, net.minecraft.world.World world)
+    {
+        net.minecraft.entity.EntityLiving entity = null;
+        try
+        {
+            entity = (net.minecraft.entity.EntityLiving) clazz.getConstructor(new Class[] { net.minecraft.world.World.class }).newInstance(new Object[] { world });
+        }
+        catch (Throwable throwable)
+        {
+        }
+        return entity;
+    }
+    // Cauldron end
     
     @Override
     public LightningStrike strikeLightning(final Location loc) {

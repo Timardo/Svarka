@@ -17,7 +17,7 @@
  import net.minecraft.init.Blocks;
  import net.minecraft.init.Items;
  import net.minecraft.inventory.EntityEquipmentSlot;
-@@ -57,7 +60,22 @@
+@@ -57,10 +60,25 @@
  import net.minecraft.world.storage.loot.LootTable;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
@@ -39,7 +39,11 @@
 +
  public abstract class EntityLiving extends EntityLivingBase
  {
-     private static final DataParameter<Byte> AI_FLAGS = EntityDataManager.<Byte>createKey(EntityLiving.class, DataSerializers.BYTE);
+-    private static final DataParameter<Byte> AI_FLAGS = EntityDataManager.<Byte>createKey(EntityLiving.class, DataSerializers.BYTE);
++    public static final DataParameter<Byte> AI_FLAGS = EntityDataManager.<Byte>createKey(EntityLiving.class, DataSerializers.BYTE);
+     public int livingSoundTime;
+     protected int experienceValue;
+     private final EntityLookHelper lookHelper;
 @@ -68,16 +86,16 @@
      protected EntityJumpHelper jumpHelper;
      private final EntityBodyHelper bodyHelper;

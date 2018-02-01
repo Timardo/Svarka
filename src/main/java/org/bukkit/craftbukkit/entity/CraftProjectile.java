@@ -4,6 +4,7 @@
 
 package org.bukkit.craftbukkit.entity;
 
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.entity.EntityLivingBase;
@@ -12,7 +13,7 @@ import net.minecraft.entity.Entity;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Projectile;
 
-public abstract class CraftProjectile extends AbstractProjectile implements Projectile
+public class CraftProjectile extends AbstractProjectile implements Projectile
 {
     public CraftProjectile(final CraftServer server, final net.minecraft.entity.Entity entity) {
         super(server, entity);
@@ -67,5 +68,10 @@ public abstract class CraftProjectile extends AbstractProjectile implements Proj
         if (shooter instanceof CraftHumanEntity) {
             this.getHandle().throwerName = ((CraftHumanEntity)shooter).getName();
         }
+    }
+
+    @Override
+    public EntityType getType() {
+        return EntityType.UNKNOWN;
     }
 }

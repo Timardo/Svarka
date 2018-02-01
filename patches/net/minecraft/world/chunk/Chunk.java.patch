@@ -1,6 +1,15 @@
 --- ../src-base/minecraft/net/minecraft/world/chunk/Chunk.java
 +++ ../src-work/minecraft/net/minecraft/world/chunk/Chunk.java
-@@ -39,7 +39,11 @@
+@@ -17,6 +17,8 @@
+ import net.minecraft.crash.CrashReportCategory;
+ import net.minecraft.crash.ICrashReportDetail;
+ import net.minecraft.entity.Entity;
++import net.minecraft.entity.EntityLiving;
++import net.minecraft.entity.EnumCreatureType;
+ import net.minecraft.init.Biomes;
+ import net.minecraft.init.Blocks;
+ import net.minecraft.network.PacketBuffer;
+@@ -39,7 +41,11 @@
  import net.minecraftforge.fml.relauncher.SideOnly;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
@@ -12,7 +21,7 @@
  public class Chunk
  {
      private static final Logger LOGGER = LogManager.getLogger();
-@@ -49,13 +53,13 @@
+@@ -49,13 +55,13 @@
      private final int[] precipitationHeightMap;
      private final boolean[] updateSkylightColumns;
      private boolean isChunkLoaded;
@@ -30,9 +39,11 @@
      private boolean isTerrainPopulated;
      private boolean isLightPopulated;
      private boolean chunkTicked;
-@@ -67,6 +71,34 @@
+@@ -66,7 +72,36 @@
+     private long inhabitedTime;
      private int queuedLightChecks;
      private ConcurrentLinkedQueue<BlockPos> tileEntityPosQueue;
++    public gnu.trove.map.hash.TObjectIntHashMap<Class> entityCount = new gnu.trove.map.hash.TObjectIntHashMap<Class>(); // Spigot
      public boolean unloaded;
 +    // CraftBukkit start - Neighbor loaded cache for chunk lighting and entity ticking
 +    private int neighbors = 0x1 << 12;
@@ -65,7 +76,7 @@
  
      public Chunk(World worldIn, int x, int z)
      {
-@@ -90,7 +122,13 @@
+@@ -90,7 +125,13 @@
  
          Arrays.fill((int[])this.precipitationHeightMap, (int) - 999);
          Arrays.fill(this.blockBiomeArray, (byte) - 1);
@@ -79,7 +90,23 @@
  
      public Chunk(World worldIn, ChunkPrimer primer, int x, int z)
      {
-@@ -951,9 +989,38 @@
+@@ -728,6 +769,15 @@
+         entityIn.chunkCoordY = k;
+         entityIn.chunkCoordZ = this.zPosition;
+         this.entityLists[k].add(entityIn);
++        if(entityIn instanceof EntityLiving){
++            EntityLiving entityLiving = (EntityLiving)entityIn;
++            if(entityLiving.isNoDespawnRequired() && entityLiving.canDespawn()) return;
++        }
++        for(EnumCreatureType enumCreatureType : EnumCreatureType.values()){
++            if(enumCreatureType.getCreatureClass().isAssignableFrom(entityIn.getClass())){
++                this.entityCount.adjustOrPutValue(enumCreatureType.getCreatureClass(),1,1);
++            }
++        }
+     }
+ 
+     public void removeEntity(Entity entityIn)
+@@ -951,9 +1001,38 @@
      {
          return false;
      }

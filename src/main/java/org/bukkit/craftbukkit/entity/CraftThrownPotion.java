@@ -5,6 +5,8 @@
 package org.bukkit.craftbukkit.entity;
 
 import net.minecraft.entity.projectile.EntityThrowable;
+import org.apache.commons.lang.Validate;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import java.util.Iterator;
@@ -18,7 +20,7 @@ import net.minecraft.entity.projectile.EntityPotion;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.ThrownPotion;
 
-public abstract class CraftThrownPotion extends CraftProjectile implements ThrownPotion
+public class CraftThrownPotion extends CraftProjectile implements ThrownPotion
 {
     public CraftThrownPotion(final CraftServer server, final EntityPotion entity) {
         super(server, entity);
@@ -37,7 +39,18 @@ public abstract class CraftThrownPotion extends CraftProjectile implements Throw
     public ItemStack getItem() {
         return CraftItemStack.asBukkitCopy(this.getHandle().getPotion());
     }
-    
+
+    @Override
+    public void setItem(ItemStack item) {
+        // The ItemStack must not be null.
+        Validate.notNull(item, "ItemStack cannot be null.");
+
+        // The ItemStack must be a potion.
+        Validate.isTrue(item.getType() == Material.POTION, "ItemStack must be a potion. This item stack was " + item.getType() + ".");
+
+        getHandle().setItem(CraftItemStack.asNMSCopy(item));
+    }
+
     @Override
     public EntityPotion getHandle() {
         return (EntityPotion)this.entity;

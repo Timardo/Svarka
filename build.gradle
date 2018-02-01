@@ -1,5 +1,5 @@
 buildscript {
-	repositories {
+    repositories {
         mavenCentral()
         maven {
             name = "forge"
@@ -7,9 +7,9 @@ buildscript {
         }
     }
     dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'//files('SForgeGradle-2.2-SNAPSHOT.jar')//'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-		//classpath files('FG.jar')
-	}
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'//files('SForgeGradle-2.2-SNAPSHOT.jar')//'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        //classpath files('FG.jar')
+    }
 }
 
 apply plugin: 'java'
@@ -67,6 +67,12 @@ configurations{
 }
 
 dependencies {
+    libraries 'it.unimi.dsi:fastutil:7.0.12_mojang'
+    libraries 'jline:jline:2.13'
+    libraries 'org.apache.commons:commons-lang3:3.3.2'
+    libraries 'com.mojang:authlib:1.5.22'
+    libraries 'com.mojang:realms:1.9.8'
+    libraries 'io.netty:netty-all:4.0.23.Final'
     libraries 'net.sf.jopt-simple:jopt-simple:4.7'
     libraries 'commons-lang:commons-lang:2.6'
     libraries 'commons-io:commons-io:1.3.2'
@@ -90,9 +96,9 @@ jar{
     into('lib') {
         from configurations.libraries
     }
-	exclude "**/configurations/**"
-	exclude "**/META-INF/**"
-	exclude "log4j2.xml"
+    exclude "**/configurations/**"
+    exclude "**/META-INF/**"
+    exclude "log4j2.xml"
 }
 
 minecraft {
@@ -123,21 +129,21 @@ minecraft {
             genMcpPatches = false
             applyMcpPatches = false
             s2sKeepImports = true
-			//dchImports = true
-			//ignoreWhiteSpaces = false
+            //dchImports = true
+            //ignoreWhiteSpaces = false
             with common
         }
-		
-		svarka {
-			rootDir "."
-			patchDir "patches/"
+
+        svarka {
+            rootDir "."
+            patchDir "patches/"
             patchAfter "forge"
             genPatchesFrom "forge"
             genMcpPatches = true
             applyMcpPatches = true
             s2sKeepImports = true
-			//dchImports = true
-			//ignoreWhiteSpaces = false
+            //dchImports = true
+            //ignoreWhiteSpaces = false
             with common
         }
     }
@@ -187,7 +193,7 @@ installer.dependsOn signUniversal
 
 outputJar {
     classifier = 'universal'
-	
+
     manifest.attributes([
             "Implementation-Title": "CraftBukkit",
             "Implementation-Version": "CraftBukkit-1.10.2",
@@ -204,21 +210,21 @@ outputJar {
 processJson {
     releaseJson = "jsons/1.10.2-svarka-rel.json"
     addReplacements([
-        "@minecraft_version@": project.minecraft.version,
-        "@version@": project.version,
-        "@project@": "svarka",
-        "@artifact@": "fewizz:svarka:${project.version}",
-        "@universal_jar@": { outputJar.archiveName },
-        "@timestamp@": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "@minecraft_version@": project.minecraft.version,
+            "@version@": project.version,
+            "@project@": "svarka",
+            "@artifact@": "fewizz:svarka:${project.version}",
+            "@universal_jar@": { outputJar.archiveName },
+            "@timestamp@": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
     ])
 }
 
-extractForgeSources { 
-	exclude "**/SideOnly.java", "**/Side.java" 
+extractForgeSources {
+    exclude "**/SideOnly.java", "**/Side.java"
 }
 
 genGradleProjects {
-	addCompileDep "junit:junit:4.12"
+    addCompileDep "junit:junit:4.12"
 }
 
 import groovy.json.JsonSlurper;
