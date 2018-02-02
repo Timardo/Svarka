@@ -333,7 +333,33 @@
              this.theProfiler.endSection();
          }
  
-@@ -1320,6 +1478,13 @@
+@@ -661,13 +819,23 @@
+     {
+         this.theProfiler.startSection("jobs");
+ 
+-        synchronized (this.futureTaskQueue)
++        Queue queue = this.futureTaskQueue;
++
++        // Spigot start
++        FutureTask<?> entry;
++        int count = this.futureTaskQueue.size();
++        while (count-- > 0 && (entry = this.futureTaskQueue.poll()) != null) {
++            Util.runTask(entry, MinecraftServer.LOG);
++        }
++        // Spigot end
++
++/*        synchronized (this.futureTaskQueue)
+         {
+             while (!this.futureTaskQueue.isEmpty())
+             {
+                 Util.runTask((FutureTask)this.futureTaskQueue.poll(), LOG);
+             }
+-        }
++        }*/
+ 
+         this.theProfiler.endStartSection("levels");
+         net.minecraftforge.common.chunkio.ChunkIOExecutor.tick();
+@@ -1320,6 +1488,13 @@
      {
          return this;
      }
@@ -347,7 +373,7 @@
  
      public int getMaxWorldSize()
      {
-@@ -1400,10 +1565,14 @@
+@@ -1400,10 +1575,14 @@
      @SideOnly(Side.SERVER)
      public static void main(String[] p_main_0_)
      {
@@ -362,7 +388,7 @@
              boolean flag = true;
              String s = null;
              String s1 = ".";
-@@ -1466,14 +1635,16 @@
+@@ -1466,14 +1645,16 @@
                  {
                      ++j;
                  }
@@ -382,7 +408,7 @@
              if (s != null)
              {
                  dedicatedserver.setServerOwner(s);
-@@ -1512,6 +1683,24 @@
+@@ -1512,6 +1693,24 @@
                      dedicatedserver.stopServer();
                  }
              });
@@ -407,7 +433,7 @@
          }
          catch (Exception exception)
          {
-@@ -1528,7 +1717,8 @@
+@@ -1528,7 +1727,8 @@
      @SideOnly(Side.SERVER)
      public boolean isDebuggingEnabled()
      {

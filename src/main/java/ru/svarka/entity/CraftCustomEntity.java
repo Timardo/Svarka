@@ -6,7 +6,6 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 
 public class CraftCustomEntity extends CraftEntity {
     public Class<? extends net.minecraft.entity.Entity> entityClass;
