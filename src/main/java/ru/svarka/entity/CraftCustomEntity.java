@@ -18,9 +18,9 @@ public class CraftCustomEntity extends CraftEntity {
         this.entityName = EntityRegistry.getCustomEntityTypeName(entityClass);
         if (entityName == null)
             entityName = entity.getCommandSenderEntity().getName();
-        entity.dataManager.set(EntityLiving.AI_FLAGS,Byte.valueOf((byte)0));
+        ((EntityLiving)entity).setNoAI(false);
         entity.dataManager.set(Entity.CUSTOM_NAME,entityName);
-        entity.dataManager.set(Entity.CUSTOM_NAME_VISIBLE,true);
+        //entity.dataManager.set(Entity.CUSTOM_NAME_VISIBLE,true);
 
     }
 

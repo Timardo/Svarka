@@ -4,16 +4,14 @@
 
 package org.bukkit.craftbukkit.inventory;
 
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.crafting.IRecipe;
-import ru.svarka.crafting.ICBRecipe;
+import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import ru.svarka.inventory.ICBInventory;
 
-import org.bukkit.inventory.Recipe;
 import java.util.Arrays;
-import org.bukkit.inventory.ItemStack;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.inventory.IInventory;
-import org.bukkit.inventory.CraftingInventory;
 
 public class CraftInventoryCrafting extends CraftInventory implements CraftingInventory
 {
@@ -142,8 +140,8 @@ public class CraftInventoryCrafting extends CraftInventory implements CraftingIn
     @Override
     public Recipe getRecipe() {
         final IRecipe recipe = ((InventoryCrafting)this.getInventory()).currentRecipe;
-        if(recipe instanceof ICBRecipe) {
-        	return (recipe == null) ? null : ((ICBRecipe)recipe).toBukkitRecipe();
+        if(recipe instanceof IRecipe) {
+        	return (recipe == null) ? null : recipe.toBukkitRecipe();
         }
         return null;
     }

@@ -1,32 +1,27 @@
 --- ../src-base/minecraft/net/minecraft/inventory/InventoryCrafting.java
 +++ ../src-work/minecraft/net/minecraft/inventory/InventoryCrafting.java
-@@ -3,16 +3,88 @@
- import javax.annotation.Nullable;
+@@ -1,18 +1,82 @@
+ package net.minecraft.inventory;
+ 
+-import javax.annotation.Nullable;
  import net.minecraft.entity.player.EntityPlayer;
  import net.minecraft.item.ItemStack;
 +import net.minecraft.item.crafting.IRecipe;
  import net.minecraft.util.text.ITextComponent;
  import net.minecraft.util.text.TextComponentString;
  import net.minecraft.util.text.TextComponentTranslation;
-+import ru.svarka.crafting.ICBRecipe;
++import org.bukkit.Location;
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++import org.bukkit.event.inventory.InventoryType;
 +import ru.svarka.inventory.ICBInventory;
  
 -public class InventoryCrafting implements IInventory
++import javax.annotation.Nullable;
 +import java.util.List;
-+import org.bukkit.Location;
-+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
-+import org.bukkit.entity.HumanEntity;
-+import org.bukkit.event.inventory.InventoryType;
 +
 +//CraftBukkit start
-+import java.util.List;
-+import org.bukkit.Location;
-+
-+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
-+import org.bukkit.entity.HumanEntity;
-+import org.bukkit.event.inventory.InventoryType;
 +// CraftBukkit end
-+import org.bukkit.inventory.InventoryHolder;
 +
 +public class InventoryCrafting implements ICBInventory
  {

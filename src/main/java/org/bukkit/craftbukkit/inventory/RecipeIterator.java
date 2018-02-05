@@ -4,34 +4,23 @@
 
 package org.bukkit.craftbukkit.inventory;
 
-import net.minecraft.item.crafting.FurnaceRecipes;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.item.crafting.IRecipe;
-import ru.svarka.crafting.ICBRecipe;
-
 import org.bukkit.inventory.Recipe;
+import ru.svarka.inventory.CustomModRecipe;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public class RecipeIterator implements Iterator<Recipe>
 {
-    private final Iterator<ICBRecipe> recipes;
+    private final Iterator<IRecipe> recipes;
     private final Iterator<ItemStack> smeltingCustom;
     private final Iterator<ItemStack> smeltingVanilla;
-    private Iterator<?> removeFrom;
+    private Iterator<?> removeFrom = null;
     
     public RecipeIterator() {
-        this.removeFrom = null;
-        List<ICBRecipe> list = new ArrayList<ICBRecipe>();
-        for(IRecipe recipe : CraftingManager.getInstance().getRecipeList()) {
-        	if(recipe instanceof ICBRecipe) {
-        		list.add((ICBRecipe) recipe);
-        	}
-        }
-        this.recipes = list.iterator();
+        this.recipes = net.minecraft.item.crafting.CraftingManager.getInstance().getRecipeList().iterator();
         this.smeltingCustom = FurnaceRecipes.instance().customRecipes.keySet().iterator();
         this.smeltingVanilla = FurnaceRecipes.instance().smeltingList.keySet().iterator();
     }
@@ -45,7 +34,15 @@ public class RecipeIterator implements Iterator<Recipe>
     public Recipe next() {
         if (this.recipes.hasNext()) {
             this.removeFrom = this.recipes;
-            return this.recipes.next().toBukkitRecipe();
+            // Svarka start - handle custom recipe classes without Bukkit API equivalents
+            net.minecraft.item.crafting.IRecipe iRecipe = recipes.next();
+            try {
+                return iRecipe.toBukkitRecipe();
+            } catch (AbstractMethodError ex) {
+                // No Bukkit wrapper provided
+                return new CustomModRecipe(iRecipe);
+            }
+            // Svarka end
         }
         ItemStack item;
         if (this.smeltingCustom.hasNext()) {

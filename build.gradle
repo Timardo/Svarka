@@ -20,7 +20,10 @@ apply plugin: 'net.minecraftforge.gradle.launch4j'
 group = 'fewizz.svarka'
 version = '0.0.3'
 
-
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
 //afterEvaluate {
 //	patchSvarkaJar.addInject file('bukkit/src/main/java/')
 //}
@@ -135,6 +138,10 @@ minecraft {
         }
 
         svarka {
+            sourceCompatibility = targetCompatibility = '1.8'
+            compileJava {
+                sourceCompatibility = targetCompatibility = '1.8'
+            }
             rootDir "."
             patchDir "patches/"
             patchAfter "forge"

@@ -755,7 +755,7 @@ public final class CraftServer implements Server
         }
         this.pluginManager.clearPlugins();
         this.commandMap.clearCommands();
-        this.resetRecipes();
+        //this.resetRecipes();
         org.spigotmc.SpigotConfig.registerCommands(); // Spigot
         this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
         for (int pollCount = 0; pollCount < 50 && this.getScheduler().getActiveWorkers().size() > 0; ++pollCount) {
@@ -1100,7 +1100,7 @@ public final class CraftServer implements Server
             toAdd = CraftFurnaceRecipe.fromBukkitRecipe((FurnaceRecipe)recipe);
         }
         toAdd.addToCraftingManager();
-        CraftingManager.getInstance();
+        //CraftingManager.getInstance();
         return true;
     }
     

@@ -599,9 +599,7 @@ public class CraftEventFactory
         else if (source == DamageSource.flyIntoWall) {
             cause2 = EntityDamageEvent.DamageCause.FLY_INTO_WALL;
         }
-        else if (source == DamageSource.generic) {
-            cause2 = EntityDamageEvent.DamageCause.CUSTOM;
-        } else {
+        else {
             cause2 = EntityDamageEvent.DamageCause.CUSTOM;
         }
         if (cause2 != null) {
