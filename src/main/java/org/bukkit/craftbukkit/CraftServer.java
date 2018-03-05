@@ -1547,7 +1547,7 @@ public final class CraftServer implements Server
     
     public List<String> tabComplete(final ICommandSender sender, final String message) {
         if (!(sender instanceof EntityPlayerMP)) {
-            return /*(List<String>)*/ImmutableList.of();
+            return ImmutableList.of();
         }
         final Player player = ((EntityPlayerMP)sender).getBukkitEntity();
         List<String> offers;
@@ -1563,6 +1563,12 @@ public final class CraftServer implements Server
     }
     
     public List<String> tabCompleteCommand(final Player player, final String message) {
+        // Spigot Start
+        if ( (org.spigotmc.SpigotConfig.tabComplete < 0 || message.length() <= org.spigotmc.SpigotConfig.tabComplete) && !message.contains( " " ) )
+        {
+            return ImmutableList.of();
+        }
+        // Spigot End
         List<String> completions = null;
         try {
             completions = this.getCommandMap().tabComplete(player, message.substring(1));

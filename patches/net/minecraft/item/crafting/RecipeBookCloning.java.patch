@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/item/crafting/RecipeBookCloning.java
 +++ ../src-work/minecraft/net/minecraft/item/crafting/RecipeBookCloning.java
-@@ -1,15 +1,21 @@
+@@ -1,16 +1,25 @@
  package net.minecraft.item.crafting;
  
 -import javax.annotation.Nullable;
@@ -14,24 +14,46 @@
 -public class RecipeBookCloning implements IRecipe
 +import javax.annotation.Nullable;
 +
-+public class RecipeBookCloning /*extends ShapelessRecipes*/ implements IRecipe
++public class RecipeBookCloning extends ShapelessRecipes implements IRecipe
  {
 -    public boolean matches(InventoryCrafting inv, World worldIn)
-+/*    public RecipeBookCloning() {
++    public RecipeBookCloning() {
 +		super(new ItemStack(Items.WRITTEN_BOOK, 0, -1), java.util.Arrays.asList(new ItemStack(Items.WRITABLE_BOOK, 0, 0)));
-+	}*/
++	}
++
++    private ItemStack resultItem = new ItemStack(Items.WRITTEN_BOOK, 0, -1);
 +
 +	public boolean matches(InventoryCrafting inv, World worldIn)
      {
++        this.resultItem = null;
          int i = 0;
          ItemStack itemstack = null;
-@@ -125,4 +131,9 @@
+ 
+@@ -27,7 +36,7 @@
+                         return false;
+                     }
+ 
+-                    itemstack = itemstack1;
++                    this.resultItem = itemstack = itemstack1;
+                 }
+                 else
+                 {
+@@ -104,7 +113,7 @@
+     @Nullable
+     public ItemStack getRecipeOutput()
+     {
+-        return null;
++        return this.resultItem;
+     }
+ 
+     public ItemStack[] getRemainingItems(InventoryCrafting inv)
+@@ -125,4 +134,9 @@
  
          return aitemstack;
      }
 +
-+    @Override
++/*    @Override
 +    public Recipe toBukkitRecipe() {
 +        return null;
-+    }
++    }*/
  }

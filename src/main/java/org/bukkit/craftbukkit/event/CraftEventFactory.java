@@ -4,6 +4,13 @@
 
 package org.bukkit.craftbukkit.event;
 
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.init.Enchantments;
+import net.minecraft.item.ItemSword;
+import net.minecraftforge.common.util.FakePlayer;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
@@ -36,12 +43,9 @@ import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import net.minecraft.world.Explosion;
-import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.Note;
 import org.bukkit.Instrument;
-import org.bukkit.event.block.NotePlayEvent;
-import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.entity.ThrownExpBottle;
 import org.bukkit.event.entity.ExpBottleEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -68,7 +72,6 @@ import org.bukkit.entity.Pig;
 import org.bukkit.event.entity.PigZapEvent;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.craftbukkit.block.CraftBlockState;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
@@ -93,8 +96,6 @@ import java.util.Iterator;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import java.util.ArrayList;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.block.BlockSpreadEvent;
-import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.event.entity.LingeringPotionSplashEvent;
 import net.minecraft.entity.EntityAreaEffectCloud;
@@ -110,7 +111,6 @@ import org.bukkit.entity.AnimalTamer;
 import org.bukkit.event.entity.EntityTameEvent;
 import net.minecraft.entity.EntityLiving;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
@@ -118,7 +118,6 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.EntityLivingBase;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.block.Action;
 import org.bukkit.block.BlockFace;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.block.CraftBlock;
@@ -131,9 +130,7 @@ import net.minecraft.init.Items;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import net.minecraft.util.EnumFacing;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.event.block.BlockMultiPlaceEvent;
 import org.bukkit.block.BlockState;
 import java.util.List;
 import net.minecraft.util.EnumHand;
@@ -1050,4 +1047,37 @@ public class CraftEventFactory
         child.worldObj.getServer().getPluginManager().callEvent(event);
         return event;
     }
+
+    // Svarka start
+    public static BlockBreakEvent callBlockBreakEvent(net.minecraft.world.World world, BlockPos pos, IBlockState iBlockState, net.minecraft.entity.player.EntityPlayerMP player)
+    {
+        org.bukkit.block.Block bukkitBlock = world.getWorld().getBlockAt(pos.getX(),pos.getY(),pos.getZ());
+        org.bukkit.event.block.BlockBreakEvent blockBreakEvent = new org.bukkit.event.block.BlockBreakEvent(bukkitBlock, ((EntityPlayerMP)player).getBukkitEntity());
+        EntityPlayerMP playermp = (EntityPlayerMP)player;
+        net.minecraft.block.Block block = iBlockState.getBlock();
+        if (!(playermp instanceof FakePlayer))
+        {
+            if (!(playermp.interactionManager.getGameType().isAdventure() && !playermp.interactionManager.tryHarvestBlock(pos)) && !(playermp.interactionManager.getGameType().isCreative() &&
+                    playermp.getHeldItem(EnumHand.OFF_HAND) != null &&
+                    playermp.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof  ItemSword &&
+                    playermp.getHeldItem(EnumHand.MAIN_HAND) != null &&
+                    playermp.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword))
+            {
+                int exp = 0;
+                if (!(block == null || !player.canHarvestBlock(block.getDefaultState()) || // Handle empty block or player unable to break block scenario
+                         block.canSilkHarvest(world, pos, block.getBlockState().getBaseState(), player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH,player.getHeldItemMainhand()) > 0)) // If the block is being silk harvested, the exp dropped is 0
+                {
+                    int meta = block.getMetaFromState(block.getBlockState().getBaseState());
+                    int bonusLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, player.getHeldItemMainhand());
+                    exp = block.getExpDrop(iBlockState,world, pos, bonusLevel);
+                }
+                blockBreakEvent.setExpToDrop(exp);
+            }
+            else blockBreakEvent.setCancelled(true);
+        }
+
+        world.getServer().getPluginManager().callEvent(blockBreakEvent);
+        return blockBreakEvent;
+    }
+    // Svarka end
 }

@@ -359,7 +359,26 @@
  
          this.theProfiler.endStartSection("levels");
          net.minecraftforge.common.chunkio.ChunkIOExecutor.tick();
-@@ -1320,6 +1488,13 @@
+@@ -831,7 +999,7 @@
+ 
+     public List<String> getTabCompletions(ICommandSender sender, String input, @Nullable BlockPos pos, boolean hasTargetBlock)
+     {
+-        List<String> list = Lists.<String>newArrayList();
++        /*List<String> list = Lists.<String>newArrayList();
+         boolean flag = input.startsWith("/");
+ 
+         if (flag)
+@@ -875,7 +1043,8 @@
+             }
+ 
+             return list;
+-        }
++        }*/
++        return server.tabComplete(sender,input);
+     }
+ 
+     public boolean isAnvilFileSet()
+@@ -1320,6 +1489,13 @@
      {
          return this;
      }
@@ -373,7 +392,7 @@
  
      public int getMaxWorldSize()
      {
-@@ -1400,10 +1575,14 @@
+@@ -1400,10 +1576,14 @@
      @SideOnly(Side.SERVER)
      public static void main(String[] p_main_0_)
      {
@@ -388,7 +407,7 @@
              boolean flag = true;
              String s = null;
              String s1 = ".";
-@@ -1466,14 +1645,16 @@
+@@ -1466,14 +1646,16 @@
                  {
                      ++j;
                  }
@@ -408,7 +427,7 @@
              if (s != null)
              {
                  dedicatedserver.setServerOwner(s);
-@@ -1512,6 +1693,24 @@
+@@ -1512,6 +1694,24 @@
                      dedicatedserver.stopServer();
                  }
              });
@@ -433,7 +452,7 @@
          }
          catch (Exception exception)
          {
-@@ -1528,7 +1727,8 @@
+@@ -1528,7 +1728,8 @@
      @SideOnly(Side.SERVER)
      public boolean isDebuggingEnabled()
      {

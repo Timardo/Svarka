@@ -110,13 +110,15 @@
     },
     {
       "name": "org.xerial:sqlite-jdbc:3.7.2",
-      "url" : "http://repo.maven.apache.org/maven2",
-      "serverreq":true
+      "url" : "http://repo.maven.apache.org/maven2"
     },
     {
       "name": "mysql:mysql-connector-java:5.1.14",
-      "url" : "http://repo.maven.apache.org/maven2",
-      "serverreq":true
+      "url" : "http://repo.maven.apache.org/maven2"
+    },
+    {
+      "name": "net.md-5:SpecialSource:1.8.2",
+      "url" : "http://repo.maven.apache.org/maven2"
     }
   ]
 }

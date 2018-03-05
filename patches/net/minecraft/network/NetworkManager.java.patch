@@ -1,6 +1,20 @@
 --- ../src-base/minecraft/net/minecraft/network/NetworkManager.java
 +++ ../src-work/minecraft/net/minecraft/network/NetworkManager.java
-@@ -157,7 +157,7 @@
+@@ -79,7 +79,12 @@
+     private final Queue<NetworkManager.InboundHandlerTuplePacketListener> outboundPacketsQueue = Queues.<NetworkManager.InboundHandlerTuplePacketListener>newConcurrentLinkedQueue();
+     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+     private Channel channel;
+-    private SocketAddress socketAddress;
++    public SocketAddress socketAddress;
++    // Spigot Start // PAIL
++    public java.util.UUID spoofedUUID;
++    public com.mojang.authlib.properties.Property[] spoofedProfile;
++    public boolean preparing = true;
++    // Spigot End
+     private INetHandler packetListener;
+     private ITextComponent terminationReason;
+     private boolean isEncrypted;
+@@ -157,7 +162,7 @@
  
      public void setNetHandler(INetHandler handler)
      {

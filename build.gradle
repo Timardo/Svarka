@@ -20,9 +20,9 @@ apply plugin: 'net.minecraftforge.gradle.launch4j'
 group = 'fewizz.svarka'
 version = '0.0.3'
 
-sourceCompatibility = targetCompatibility = '1.8'
+sourceCompatibility = targetCompatibility = 1.8
 compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
+    sourceCompatibility = targetCompatibility = 1.8
 }
 //afterEvaluate {
 //	patchSvarkaJar.addInject file('bukkit/src/main/java/')
@@ -71,23 +71,24 @@ configurations{
 
 dependencies {
     libraries 'it.unimi.dsi:fastutil:7.0.12_mojang'
+    libraries 'net.minecraft:launchwrapper:1.12@jar'
     libraries 'jline:jline:2.13'
     libraries 'org.apache.commons:commons-lang3:3.3.2'
     libraries 'com.mojang:authlib:1.5.22'
     libraries 'com.mojang:realms:1.9.8'
     libraries 'io.netty:netty-all:4.0.23.Final'
-    libraries 'net.sf.jopt-simple:jopt-simple:4.7'
+    libraries 'net.sf.jopt-simple:jopt-simple:4.9'
     libraries 'commons-lang:commons-lang:2.6'
     libraries 'commons-io:commons-io:1.3.2'
     libraries 'org.avaje:ebean:2.8.1'
     libraries 'com.googlecode.json-simple:json-simple:1.1'
     libraries 'org.yaml:snakeyaml:1.15'
-    libraries 'com.google.guava:guava:20.0'
+    libraries 'com.google.guava:guava:17.0'
     libraries 'org.xerial:sqlite-jdbc:3.7.2'
     libraries 'mysql:mysql-connector-java:5.1.14'
     libraries 'net.sf.trove4j:trove4j:3.0.3'
     libraries 'org.apache.logging.log4j:log4j-core:2.10.0'
-    libraries 'net.md-5:SpecialSource:1.8.0'
+    libraries 'net.md-5:SpecialSource:1.8.2@jar'
 }
 
 
@@ -112,7 +113,10 @@ minecraft {
     buildUserdev = false
     buildInstaller = false
     installerVersion = '1.5'
-
+    sourceCompatibility = targetCompatibility = 1.8
+    compileJava {
+        sourceCompatibility = targetCompatibility = 1.8
+    }
 
     def common = {
         patchPrefixOriginal "../src-base/minecraft"
@@ -138,10 +142,6 @@ minecraft {
         }
 
         svarka {
-            sourceCompatibility = targetCompatibility = '1.8'
-            compileJava {
-                sourceCompatibility = targetCompatibility = '1.8'
-            }
             rootDir "."
             patchDir "patches/"
             patchAfter "forge"
