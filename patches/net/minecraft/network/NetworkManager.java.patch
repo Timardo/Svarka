@@ -14,7 +14,7 @@
      private INetHandler packetListener;
      private ITextComponent terminationReason;
      private boolean isEncrypted;
-@@ -157,7 +162,7 @@
+@@ -157,13 +162,14 @@
  
      public void setNetHandler(INetHandler handler)
      {
@@ -23,3 +23,18 @@
          LOGGER.debug("Set listener of {} to {}", new Object[] {this, handler});
          this.packetListener = handler;
      }
+ 
+     public void sendPacket(Packet<?> packetIn)
+     {
++        if(packetIn == null) return;
+         if (this.isChannelOpen())
+         {
+             this.flushOutboundQueue();
+@@ -186,6 +192,7 @@
+ 
+     public void sendPacket(Packet<?> packetIn, GenericFutureListener <? extends Future <? super Void >> listener, GenericFutureListener <? extends Future <? super Void >> ... listeners)
+     {
++        if(packetIn == null) return;
+         if (this.isChannelOpen())
+         {
+             this.flushOutboundQueue();

@@ -664,8 +664,8 @@
  
      public void processPlayerDigging(CPacketPlayerDigging packetIn)
      {
-         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.playerEntity.getServerWorld());
 +        if (this.playerEntity.isDead) return; // CraftBukkit
+         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.playerEntity.getServerWorld());
          WorldServer worldserver = this.serverController.worldServerForDimension(this.playerEntity.dimension);
          BlockPos blockpos = packetIn.getPosition();
          this.playerEntity.markPlayerActive();

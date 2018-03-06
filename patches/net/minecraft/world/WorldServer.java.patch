@@ -58,7 +58,19 @@
          this.calculateInitialSkylight();
          this.calculateInitialWeather();
          this.getWorldBorder().setSize(server.getMaxWorldSize());
-@@ -341,7 +356,7 @@
+@@ -193,9 +208,10 @@
+ 
+         this.theProfiler.startSection("mobSpawner");
+ 
++        long time = this.worldInfo.getWorldTotalTime();
+         if (this.getGameRules().getBoolean("doMobSpawning") && this.worldInfo.getTerrainType() != WorldType.DEBUG_WORLD)
+         {
+-            this.entitySpawner.findChunksForSpawning(this, this.spawnHostileMobs, this.spawnPeacefulMobs, this.worldInfo.getWorldTotalTime() % 400L == 0L);
++            this.entitySpawner.findChunksForSpawning(this, this.spawnHostileMobs && (this.ticksPerMonsterSpawns != 0 && time % this.ticksPerMonsterSpawns == 0L), this.spawnPeacefulMobs && (this.ticksPerAnimalSpawns != 0 && time % this.ticksPerAnimalSpawns == 0L), this.worldInfo.getWorldTotalTime() % 400L == 0L);
+         }
+ 
+         this.theProfiler.endStartSection("chunkSource");
+@@ -341,7 +357,7 @@
          this.worldInfo.setSpawnZ(j);
      }
  
@@ -67,7 +79,7 @@
      {
          return this.getChunkProvider().chunkExists(x, z);
      }
-@@ -1304,12 +1319,25 @@
+@@ -1304,12 +1320,25 @@
  
      public void spawnParticle(EnumParticleTypes particleType, boolean longDistance, double xCoord, double yCoord, double zCoord, int numberOfParticles, double xOffset, double yOffset, double zOffset, double particleSpeed, int... particleArguments)
      {

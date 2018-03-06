@@ -31,7 +31,7 @@
  import net.minecraft.world.demo.DemoWorldServer;
  import net.minecraft.world.storage.ISaveFormat;
  import net.minecraft.world.storage.ISaveHandler;
-@@ -85,14 +81,33 @@
+@@ -85,14 +81,34 @@
  import org.apache.commons.lang3.Validate;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
@@ -40,6 +40,7 @@
 +import org.bukkit.Bukkit;
 +import org.bukkit.craftbukkit.*;
 +import org.bukkit.event.world.WorldInitEvent;
++import org.bukkit.event.world.WorldSaveEvent;
 +import org.bukkit.generator.ChunkGenerator;
  
 +//CraftBukkit start
@@ -68,7 +69,7 @@
      private final List<ITickable> tickables = Lists.<ITickable>newArrayList();
      public final ICommandManager commandManager;
      public final Profiler theProfiler = new Profiler();
-@@ -146,21 +161,64 @@
+@@ -146,21 +162,64 @@
      private long currentTime = getCurrentTimeMillis();
      @SideOnly(Side.CLIENT)
      private boolean worldIconSet;
@@ -136,7 +137,7 @@
      public ServerCommandManager createNewCommandManager()
      {
          return new ServerCommandManager(this);
-@@ -221,7 +279,7 @@
+@@ -221,7 +280,7 @@
          this.setUserMessage("menu.loadingLevel");
          ISaveHandler isavehandler = this.anvilConverterForAnvilFile.getSaveLoader(saveName, true);
          this.setResourcePackFromWorld(this.getFolderName(), isavehandler);
@@ -145,7 +146,7 @@
          WorldSettings worldsettings;
  
          if (worldinfo == null)
-@@ -249,31 +307,121 @@
+@@ -249,31 +308,121 @@
              worldsettings = new WorldSettings(worldinfo);
          }
  
@@ -277,15 +278,37 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
-@@ -337,6 +485,7 @@
+@@ -337,9 +486,10 @@
      {
          this.currentTask = null;
          this.percentDone = 0;
 +        this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.POSTWORLD); // CraftBukkit
      }
  
-     public void saveAllWorlds(boolean isSilent)
-@@ -362,7 +511,7 @@
+-    public void saveAllWorlds(boolean isSilent)
++    public void saveAllWorlds(boolean isSilent) throws MinecraftException
+     {
+         for (WorldServer worldserver : this.worldServers)
+         {
+@@ -349,23 +499,26 @@
+                 {
+                     LOG.info("Saving chunks for level \'{}\'/{}", new Object[] {worldserver.getWorldInfo().getWorldName(), worldserver.provider.getDimensionType().getName()});
+                 }
++                worldserver.saveAllChunks(true, (IProgressUpdate)null);
++                worldserver.flush();
++                WorldSaveEvent event = new WorldSaveEvent(worldserver.getWorld());
++                this.server.getPluginManager().callEvent(event);
++                //TODO save config Svarka
+ 
+-                try
+-                {
+-                    worldserver.saveAllChunks(true, (IProgressUpdate)null);
+-                }
+-                catch (MinecraftException minecraftexception)
+-                {
+-                    LOG.warn(minecraftexception.getMessage());
+-                }
+             }
          }
      }
  
@@ -294,7 +317,29 @@
      {
          LOG.info("Stopping server");
  
-@@ -437,6 +586,8 @@
++        // CraftBukkit start
++        if (this.server != null)
++        {
++            this.server.disablePlugins();
++        }
++        // CraftBukkit end
+         if (this.getNetworkSystem() != null)
+         {
+             this.getNetworkSystem().terminateEndpoints();
+@@ -390,7 +543,11 @@
+                 }
+             }
+ 
+-            this.saveAllWorlds(false);
++            try {
++                this.saveAllWorlds(false);
++            } catch (MinecraftException e) {
++                e.printStackTrace();
++            }
+ 
+             for (WorldServer worldserver1 : this.worldServers)
+             {
+@@ -437,6 +594,8 @@
                  this.statusResponse.setVersion(new ServerStatusResponse.Version("1.10.2", 210));
                  this.applyServerIconToResponse(this.statusResponse);
  
@@ -303,7 +348,7 @@
                  while (this.serverRunning)
                  {
                      long k = getCurrentTimeMillis();
-@@ -596,8 +747,9 @@
+@@ -596,8 +755,9 @@
      {
      }
  
@@ -314,7 +359,7 @@
          long i = System.nanoTime();
          net.minecraftforge.fml.common.FMLCommonHandler.instance().onPreServerTick();
          ++this.tickCounter;
-@@ -629,11 +781,17 @@
+@@ -629,11 +789,21 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -324,7 +369,12 @@
 +            SpigotTimings.worldSaveTimer.startTiming(); // Spigot
              this.theProfiler.startSection("save");
              this.playerList.saveAllPlayerData();
-             this.saveAllWorlds(true);
+-            this.saveAllWorlds(true);
++            try {
++                this.saveAllWorlds(true);
++            } catch (MinecraftException e) {
++                e.printStackTrace();
++            }
 +            server.playerCommandState = false;
 +            for (World world : worlds) {
 +                world.getWorld().save();
@@ -333,7 +383,7 @@
              this.theProfiler.endSection();
          }
  
-@@ -661,13 +819,23 @@
+@@ -661,13 +831,23 @@
      {
          this.theProfiler.startSection("jobs");
  
@@ -359,7 +409,7 @@
  
          this.theProfiler.endStartSection("levels");
          net.minecraftforge.common.chunkio.ChunkIOExecutor.tick();
-@@ -831,7 +999,7 @@
+@@ -831,7 +1011,7 @@
  
      public List<String> getTabCompletions(ICommandSender sender, String input, @Nullable BlockPos pos, boolean hasTargetBlock)
      {
@@ -368,7 +418,7 @@
          boolean flag = input.startsWith("/");
  
          if (flag)
-@@ -875,7 +1043,8 @@
+@@ -875,7 +1055,8 @@
              }
  
              return list;
@@ -378,7 +428,7 @@
      }
  
      public boolean isAnvilFileSet()
-@@ -1320,6 +1489,13 @@
+@@ -1320,6 +1501,13 @@
      {
          return this;
      }
@@ -392,7 +442,7 @@
  
      public int getMaxWorldSize()
      {
-@@ -1400,10 +1576,14 @@
+@@ -1400,10 +1588,14 @@
      @SideOnly(Side.SERVER)
      public static void main(String[] p_main_0_)
      {
@@ -407,7 +457,7 @@
              boolean flag = true;
              String s = null;
              String s1 = ".";
-@@ -1466,14 +1646,16 @@
+@@ -1466,14 +1658,16 @@
                  {
                      ++j;
                  }
@@ -427,7 +477,7 @@
              if (s != null)
              {
                  dedicatedserver.setServerOwner(s);
-@@ -1512,6 +1694,24 @@
+@@ -1512,6 +1706,24 @@
                      dedicatedserver.stopServer();
                  }
              });
@@ -452,7 +502,7 @@
          }
          catch (Exception exception)
          {
-@@ -1528,7 +1728,8 @@
+@@ -1528,7 +1740,8 @@
      @SideOnly(Side.SERVER)
      public boolean isDebuggingEnabled()
      {

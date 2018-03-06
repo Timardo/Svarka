@@ -203,11 +203,10 @@
  
      public Chunk getChunkFromBlockCoords(BlockPos pos)
      {
-@@ -313,7 +407,28 @@
+@@ -313,6 +407,27 @@
          {
              return false;
          }
--        else
 +        // CraftBukkit start - tree generation
 +        if (this.captureTreeGeneration) {
 +        	BlockState blockstate = null;
@@ -229,10 +228,9 @@
 +        	return true;
 +        }
 +        // CraftBukkit end
-+        //else
+         else
          {
              Chunk chunk = this.getChunkFromBlockCoords(pos);
-             Block block = newState.getBlock();
 @@ -324,6 +439,13 @@
                  blockSnapshot = net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(this, pos, flags);
                  this.capturedBlockSnapshots.add(blockSnapshot);
