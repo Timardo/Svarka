@@ -887,9 +887,9 @@ public class CraftEventFactory
     	if(!(human.openContainer instanceof Container)) {
     		return;
     	}
-        final InventoryCloseEvent event = new InventoryCloseEvent(((Container) human.openContainer).getBukkitView());
-        human.worldObj.getServer().getPluginManager().callEvent(event);
-        ((Container) human.openContainer).transferTo((Container) human.inventoryContainer, human.getBukkitEntity());
+        final InventoryCloseEvent event = new InventoryCloseEvent(((Container) human.openContainer).getBukkitView()); //TODO NULL
+        if(human.openContainer.getBukkitView() != null) human.worldObj.getServer().getPluginManager().callEvent(event);
+        human.openContainer.transferTo(human.inventoryContainer, human.getBukkitEntity());
     }
     
     public static void handleEditBookEvent(final EntityPlayerMP player, final net.minecraft.item.ItemStack newBookItem) {

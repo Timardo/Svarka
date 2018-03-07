@@ -55,11 +55,12 @@ public final class CraftItemStack extends ItemStack
         if (original == null) {
             return new ItemStack(Material.AIR);
         }
-        final ItemStack stack = new ItemStack(CraftMagicNumbers.getMaterial(original.getItem()), original.stackSize, (short)original.getMetadata());
+        return asCraftMirror(copyNMSStack(original, original.stackSize));
+       /* final ItemStack stack = new ItemStack(CraftMagicNumbers.getMaterial(original.getItem()), original.stackSize, (short)original.getMetadata());
         if (hasItemMeta(original)) {
             stack.setItemMeta(getItemMeta(original));
         }
-        return stack;
+        return stack;*/
     }
     
     public static CraftItemStack asCraftMirror(final net.minecraft.item.ItemStack original) {
@@ -388,9 +389,11 @@ public final class CraftItemStack extends ItemStack
         if (itemMeta == null) {
             return true;
         }
-        final NBTTagCompound tag = new NBTTagCompound();
-        item.setTagCompound(tag);
-        ((CraftMetaItem)itemMeta).applyToItem(tag);
+        if(item.getTagCompound() == null){
+            final NBTTagCompound tag = new NBTTagCompound();
+            item.setTagCompound(tag);
+        }
+        ((CraftMetaItem)itemMeta).applyToItem(item.getTagCompound());
         return true;
     }
     
