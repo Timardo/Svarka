@@ -33,7 +33,7 @@
  
      public PlayerInteractionManager(World worldIn)
      {
-@@ -143,7 +155,8 @@
+@@ -143,10 +155,13 @@
      public void onBlockClicked(BlockPos pos, EnumFacing side)
      {
          net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock event = net.minecraftforge.common.ForgeHooks.onLeftClickBlock(thisPlayerMP, pos, side, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(thisPlayerMP, getBlockReachDistance() + 1));
@@ -43,7 +43,21 @@
          {
              // Restore block and te data
              thisPlayerMP.connection.sendPacket(new SPacketBlockChange(theWorld, pos));
-@@ -204,7 +217,7 @@
++            TileEntity tileEntity = this.theWorld.getTileEntity(pos);
++            if(tileEntity != null) thisPlayerMP.connection.sendPacket(tileEntity.getUpdatePacket());
+             theWorld.notifyBlockUpdate(pos, theWorld.getBlockState(pos), theWorld.getBlockState(pos), 3);
+             return;
+         }
+@@ -191,7 +206,7 @@
+ 
+             if (!iblockstate.getBlock().isAir(iblockstate, theWorld, pos))
+             {
+-                if (event.getUseBlock() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY)
++                if (event.getUseBlock() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY || eventCB.useItemInHand() == Event.Result.DENY)
+                 {
+                     block.onBlockClicked(this.theWorld, pos, this.thisPlayerMP);
+                     this.theWorld.extinguishFire((EntityPlayer)null, pos, side);
+@@ -204,7 +219,7 @@
                  }
                  f = iblockstate.getPlayerRelativeBlockHardness(this.thisPlayerMP, this.thisPlayerMP.worldObj, pos);
              }
@@ -52,7 +66,7 @@
              {
                  if (f >= 1.0F)
                  {
-@@ -213,7 +226,16 @@
+@@ -213,7 +228,16 @@
                      theWorld.notifyBlockUpdate(pos, theWorld.getBlockState(pos), theWorld.getBlockState(pos), 3);
                  }
                  return;
@@ -69,7 +83,7 @@
  
              if (!iblockstate.getBlock().isAir(iblockstate, theWorld, pos) && f >= 1.0F)
              {
-@@ -283,7 +305,50 @@
+@@ -283,7 +307,49 @@
      }
  
      public boolean tryHarvestBlock(BlockPos pos)
@@ -101,11 +115,10 @@
 +    			
 +    			event.setExpToDrop(nmsBlock.getExpDrop(nmsData, this.theWorld, pos, bonusLevel));
 +    		}
-+    	}*/ // TOD
++    	}*/ // TODO
 +    	this.theWorld.getServer().getPluginManager().callEvent(event);
 +    	if (event.isCancelled()) {
-+    		if (isSwordNoBreak) {
-+    			return false;
++    		if (isSwordNoBreak) {    			return false;
 +    		}
 +    		// Let the client know the block still exists
 +    		((EntityPlayerMP) this.thisPlayerMP).connection.sendPacket(new SPacketBlockChange(this.theWorld, pos));
@@ -121,7 +134,7 @@
          int exp = net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(theWorld, gameType, thisPlayerMP, pos);
          if (exp == -1)
          {
-@@ -338,9 +403,9 @@
+@@ -338,9 +404,9 @@
                  }
  
                  // Drop experience
