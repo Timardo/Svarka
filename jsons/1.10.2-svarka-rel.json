@@ -29,7 +29,7 @@
       "serverreq":true
     },
     {
-      "name": "org.ow2.asm:asm-all:6.0_BETA",
+      "name": "org.ow2.asm:asm-all:5.0.3",
       "serverreq":true
     },
     {
@@ -145,7 +145,7 @@
       "serverreq":true
     },
     {
-      "name": "net.md-5:SpecialSource:1.8.2",
+      "name": "net.md-5:SpecialSource:1.7.4",
       "url" : "http://repo.maven.apache.org/maven2",
       "serverreq":true
     },
@@ -172,10 +172,6 @@
       "name": "org.xerial:sqlite-jdbc:3.7.2",
       "url" : "http://repo.maven.apache.org/maven2",
       "serverreq":true
-    },
-    {
-      "name": "net.md-5:SpecialSource:1.8.2",
-      "url" : "http://repo.maven.apache.org/maven2"
     }
   ]
 }

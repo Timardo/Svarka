@@ -88,7 +88,8 @@ dependencies {
     libraries 'mysql:mysql-connector-java:5.1.14'
     libraries 'net.sf.trove4j:trove4j:3.0.3'
     libraries 'org.apache.logging.log4j:log4j-core:2.10.0'
-    libraries 'net.md-5:SpecialSource:1.8.2@jar'
+    libraries 'net.md-5:SpecialSource:1.7.4@jar'
+    libraries 'org.ow2.asm:asm-all:5.0.3'
 }
 
 
