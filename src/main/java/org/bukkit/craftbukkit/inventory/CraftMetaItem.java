@@ -289,7 +289,7 @@ class CraftMetaItem implements ItemMeta, Repairable
     }
     
     static void applyEnchantments(final Map<Enchantment, Integer> enchantments, final NBTTagCompound tag, final ItemMetaKey key) {
-        if (enchantments == null || enchantments.size() == 0) {
+        if (enchantments == null /*|| enchantments.size() == 0*/) {// Spigot - remove size check
             return;
         }
         final NBTTagList list = new NBTTagList();

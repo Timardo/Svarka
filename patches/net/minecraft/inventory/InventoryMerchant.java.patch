@@ -17,16 +17,7 @@
  import net.minecraft.entity.player.EntityPlayer;
  import net.minecraft.item.ItemStack;
  import net.minecraft.util.text.ITextComponent;
-@@ -9,14 +18,48 @@
- import net.minecraft.util.text.TextComponentTranslation;
- import net.minecraft.village.MerchantRecipe;
- import net.minecraft.village.MerchantRecipeList;
-+import ru.svarka.inventory.ICBInventory;
- 
--public class InventoryMerchant implements IInventory
-+public class InventoryMerchant implements ICBInventory
- {
-     private final IMerchant theMerchant;
+@@ -16,7 +25,40 @@
      private final ItemStack[] theInventory = new ItemStack[3];
      private final EntityPlayer thePlayer;
      private MerchantRecipe currentRecipe;
@@ -68,7 +59,7 @@
  
      public InventoryMerchant(EntityPlayer thePlayerIn, IMerchant theMerchantIn)
      {
-@@ -98,7 +141,7 @@
+@@ -98,7 +140,7 @@
  
      public int getInventoryStackLimit()
      {

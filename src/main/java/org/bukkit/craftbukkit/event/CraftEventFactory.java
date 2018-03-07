@@ -5,7 +5,6 @@
 package org.bukkit.craftbukkit.event;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemSword;
@@ -30,13 +29,9 @@ import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.player.PlayerUnleashEntityEvent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.event.HoverEvent;
-import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.inventory.Slot;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.inventory.IInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import net.minecraft.util.text.ITextComponent;
 import org.bukkit.craftbukkit.inventory.CraftMetaBook;
 import org.bukkit.event.player.PlayerEditBookEvent;
@@ -50,13 +45,11 @@ import org.bukkit.entity.ThrownExpBottle;
 import org.bukkit.event.entity.ExpBottleEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.craftbukkit.inventory.CraftInventoryCrafting;
 import org.bukkit.inventory.InventoryView;
 import net.minecraft.inventory.InventoryCrafting;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 import net.minecraft.network.play.client.CPacketCloseWindow;
 import net.minecraft.inventory.Container;
 import org.bukkit.event.entity.EntityBreakDoorEvent;
@@ -70,7 +63,6 @@ import org.bukkit.event.entity.HorseJumpEvent;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Pig;
 import org.bukkit.event.entity.PigZapEvent;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.craftbukkit.block.CraftBlockState;
 import org.bukkit.event.player.PlayerExpChangeEvent;
@@ -92,7 +84,6 @@ import org.bukkit.Server;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
-import java.util.Iterator;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import java.util.ArrayList;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -139,8 +130,6 @@ import net.minecraft.world.World;
 import org.bukkit.event.Event;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
-import ru.svarka.inventory.CBContainer;
-import ru.svarka.inventory.ICBInventory;
 
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.Bukkit;
@@ -153,6 +142,7 @@ import net.minecraft.entity.Entity;
 import org.bukkit.block.Block;
 import net.minecraft.util.DamageSource;
 
+@SuppressWarnings("RedundantCast")
 public class CraftEventFactory
 {
     public static final DamageSource MELTING;
@@ -769,19 +759,19 @@ public class CraftEventFactory
         }
         final CraftServer server = player.worldObj.getServer();
         final CraftPlayer craftPlayer = player.getBukkitEntity();
-        ((CBContainer)player.openContainer).transferTo((CBContainer) container, craftPlayer);
-        final InventoryOpenEvent event = new InventoryOpenEvent(((CBContainer) container).getBukkitView());
+        player.openContainer.transferTo(container, craftPlayer);
+        final InventoryOpenEvent event = new InventoryOpenEvent(container.getBukkitView());
         event.setCancelled(cancelled);
         server.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
-            ((CBContainer) container).transferTo((CBContainer) player.openContainer, craftPlayer);
+            ((Container) container).transferTo(player.openContainer, craftPlayer);
             return null;
         }
         return container;
     }
     
     public static net.minecraft.item.ItemStack callPreCraftEvent(final InventoryCrafting matrix, final net.minecraft.item.ItemStack result, final InventoryView lastCraftView, final boolean isRepair) {
-        final CraftInventoryCrafting inventory = new CraftInventoryCrafting(matrix, (ICBInventory)matrix.resultInventory);
+        final CraftInventoryCrafting inventory = new CraftInventoryCrafting(matrix, (IInventory) matrix.resultInventory);
         inventory.setResult(CraftItemStack.asCraftMirror(result));
         final PrepareItemCraftEvent event = new PrepareItemCraftEvent(inventory, lastCraftView, isRepair);
         Bukkit.getPluginManager().callEvent(event);
@@ -894,12 +884,12 @@ public class CraftEventFactory
     }
     
     public static void handleInventoryCloseEvent(final EntityPlayer human) {
-    	if(!(human.openContainer instanceof CBContainer)) {
+    	if(!(human.openContainer instanceof Container)) {
     		return;
     	}
-        final InventoryCloseEvent event = new InventoryCloseEvent(((CBContainer) human.openContainer).getBukkitView());
+        final InventoryCloseEvent event = new InventoryCloseEvent(((Container) human.openContainer).getBukkitView());
         human.worldObj.getServer().getPluginManager().callEvent(event);
-        ((CBContainer) human.openContainer).transferTo((CBContainer) human.inventoryContainer, human.getBukkitEntity());
+        ((Container) human.openContainer).transferTo((Container) human.inventoryContainer, human.getBukkitEntity());
     }
     
     public static void handleEditBookEvent(final EntityPlayerMP player, final net.minecraft.item.ItemStack newBookItem) {

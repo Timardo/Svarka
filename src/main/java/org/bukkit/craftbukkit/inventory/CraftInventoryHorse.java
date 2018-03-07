@@ -4,15 +4,13 @@
 
 package org.bukkit.craftbukkit.inventory;
 
-import org.bukkit.inventory.ItemStack;
 import net.minecraft.inventory.IInventory;
-import ru.svarka.inventory.ICBInventory;
-
 import org.bukkit.inventory.HorseInventory;
+import org.bukkit.inventory.ItemStack;
 
 public class CraftInventoryHorse extends CraftInventory implements HorseInventory
 {
-    public CraftInventoryHorse(final ICBInventory inventory) {
+    public CraftInventoryHorse(final IInventory inventory) {
         super(inventory);
     }
     

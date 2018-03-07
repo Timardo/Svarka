@@ -6,7 +6,6 @@ package org.bukkit.craftbukkit.inventory;
 
 import org.bukkit.Location;
 import net.minecraft.util.text.TextComponentString;
-import ru.svarka.inventory.ICBInventory;
 import net.minecraft.util.text.ITextComponent;
 import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -37,7 +36,7 @@ public class CraftInventoryCustom extends CraftInventory
         super(new MinecraftInventory(owner, size, title));
     }
     
-    static class MinecraftInventory implements ICBInventory
+    static class MinecraftInventory implements IInventory
     {
         private final ItemStack[] items;
         private int maxStack;

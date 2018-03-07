@@ -341,12 +341,13 @@ public class CraftWorld implements World
     
     @Override
     public Chunk[] getLoadedChunks() {
-        final Object[] chunks = this.world.getChunkProvider().id2ChunkMap.values().toArray();
+        final Object[] chunks = this.world.getChunkProvider().getLoadedChunks().toArray();
         final Chunk[] craftChunks = new CraftChunk[chunks.length];
         for (int i = 0; i < chunks.length; ++i) {
             final net.minecraft.world.chunk.Chunk chunk = (net.minecraft.world.chunk.Chunk)chunks[i];
             craftChunks[i] = chunk.bukkitChunk;
         }
+
         return craftChunks;
     }
     

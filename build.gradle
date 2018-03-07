@@ -156,25 +156,6 @@ minecraft {
     }
 }
 
-
-
-installer {
-    classifier = 'installer'
-    from "forge/src/main/resources/forge_logo.png"
-    rename "forge_logo\\.png", "big_logo.png"
-}
-
-launch4j {
-    jar = installer.archivePath.canonicalPath
-    outfile = file("build/distributions/${project.name}-${project.version}-installer-win.exe").canonicalPath
-    icon = file('icon.ico').canonicalPath
-    manifest = file('l4jManifest.xml').canonicalPath
-    jreMinVersion = '1.8.0'
-    initialHeapPercent = 5;
-    maxHeapPercent = 100;
-}
-tasks.generateXmlConfig.dependsOn installer
-tasks.build.dependsOn 'launch4j'
 tasks.compileJava.enabled = false
 tasks.reobfuscate.setProperty("extraSrg",["PK: org/bukkit/craftbukkit org/bukkit/craftbukkit/v1_10_R1"])
 task signUniversal(type: SignJar, dependsOn: 'outputJar') {
@@ -202,11 +183,11 @@ outputJar {
     classifier = 'universal'
 
     manifest.attributes([
-            "Implementation-Title": "CraftBukkit",
-            "Implementation-Version": "CraftBukkit-1.10.2",
+            "Implementation-Title": "Svarka",
+            "Implementation-Version": "Svarka-1.10.2",
             "Specification-Vendor": "Svarka Team",
             "Specification-Title": "Bukkit",
-            "Specification-Version": "unknown",
+            "Specification-Version": version,
             "Implementation-Vendor": "Svarka Team",
             "Main-Class": "net.minecraftforge.fml.relauncher.ServerLaunchWrapper",
             "TweakClass": "net.minecraftforge.fml.common.launcher.FMLTweaker",

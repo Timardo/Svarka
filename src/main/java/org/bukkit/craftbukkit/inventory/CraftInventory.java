@@ -4,7 +4,6 @@
 
 package org.bukkit.craftbukkit.inventory;
 
-import java.util.Iterator;
 import org.bukkit.Location;
 import org.bukkit.inventory.InventoryHolder;
 import net.minecraft.tileentity.IHopper;
@@ -13,7 +12,6 @@ import net.minecraft.inventory.InventoryMerchant;
 import net.minecraft.inventory.InventoryEnderChest;
 import net.minecraft.tileentity.TileEntityBrewingStand;
 import net.minecraft.tileentity.TileEntityFurnace;
-import ru.svarka.inventory.ICBInventory;
 import net.minecraft.tileentity.TileEntityDispenser;
 import net.minecraft.tileentity.TileEntityDropper;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -31,13 +29,13 @@ import org.bukkit.inventory.Inventory;
 
 public class CraftInventory implements Inventory
 {
-    protected final ICBInventory inventory;
+    protected final IInventory inventory;
     
-    public CraftInventory(final ICBInventory inventory) {
+    public CraftInventory(final IInventory inventory) {
         this.inventory = inventory;
     }
     
-    public ICBInventory getInventory() {
+    public IInventory getInventory() {
         return this.inventory;
     }
     

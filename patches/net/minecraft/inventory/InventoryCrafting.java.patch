@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/inventory/InventoryCrafting.java
 +++ ../src-work/minecraft/net/minecraft/inventory/InventoryCrafting.java
-@@ -1,18 +1,82 @@
+@@ -1,18 +1,81 @@
  package net.minecraft.inventory;
  
 -import javax.annotation.Nullable;
@@ -14,16 +14,14 @@
 +import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 +import org.bukkit.entity.HumanEntity;
 +import org.bukkit.event.inventory.InventoryType;
-+import ru.svarka.inventory.ICBInventory;
  
--public class InventoryCrafting implements IInventory
 +import javax.annotation.Nullable;
 +import java.util.List;
 +
 +//CraftBukkit start
 +// CraftBukkit end
 +
-+public class InventoryCrafting implements ICBInventory
+ public class InventoryCrafting implements IInventory
  {
      private final ItemStack[] stackList;
      private final int inventoryWidth;
@@ -33,7 +31,7 @@
 +    // CraftBukkit start - add fields
 +    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
 +    public IRecipe currentRecipe;
-+    public ICBInventory resultInventory;
++    public IInventory resultInventory;
 +    private EntityPlayer owner;
 +    private int maxStack = MAX_STACK;
 +    	
@@ -69,7 +67,7 @@
 +    @Override
 +    public void setMaxStackSize(int size) {
 +    	maxStack = size;
-+    	((ICBInventory)resultInventory).setMaxStackSize(size);
++    	((IInventory)resultInventory).setMaxStackSize(size);
 +    }
 +    
 +    @Override

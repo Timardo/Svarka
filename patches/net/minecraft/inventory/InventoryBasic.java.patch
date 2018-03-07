@@ -1,27 +1,21 @@
 --- ../src-base/minecraft/net/minecraft/inventory/InventoryBasic.java
 +++ ../src-work/minecraft/net/minecraft/inventory/InventoryBasic.java
-@@ -10,17 +10,65 @@
- import net.minecraft.util.text.TextComponentTranslation;
+@@ -11,6 +11,14 @@
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import ru.svarka.inventory.ICBInventory;
  
--public class InventoryBasic implements IInventory
 +import org.bukkit.Location;
 +import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 +import org.bukkit.entity.HumanEntity;
 +
 +//CraftBukkit start
-+import java.util.List;
-+import org.bukkit.Location;
-+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
-+import org.bukkit.entity.HumanEntity;
++
 +// CraftBukkit end
 +
-+public class InventoryBasic implements ICBInventory
+ public class InventoryBasic implements IInventory
  {
      private String inventoryTitle;
-     private final int slotsCount;
+@@ -18,9 +26,45 @@
      private final ItemStack[] inventoryContents;
      private List<IInventoryChangedListener> changeListeners;
      private boolean hasCustomName;
