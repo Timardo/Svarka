@@ -10,6 +10,7 @@ import net.minecraft.item.crafting.IRecipe;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
+import ru.svarka.inventory.CustomModRecipe;
 
 import java.util.Arrays;
 
@@ -139,10 +140,14 @@ public class CraftInventoryCrafting extends CraftInventory implements CraftingIn
     
     @Override
     public Recipe getRecipe() {
-        final IRecipe recipe = ((InventoryCrafting)this.getInventory()).currentRecipe;
-        if(recipe instanceof IRecipe) {
-        	return (recipe == null) ? null : recipe.toBukkitRecipe();
+        net.minecraft.item.crafting.IRecipe recipe = ((net.minecraft.inventory.InventoryCrafting)getInventory()).currentRecipe;
+        // Svarka start - handle custom recipe classes without Bukkit API equivalents
+        try {
+            return recipe == null ? null : recipe.toBukkitRecipe();
+        } catch (AbstractMethodError ex) {
+            // No Bukkit wrapper provided
+            return new CustomModRecipe(recipe);
         }
-        return null;
+        // Svarka end
     }
 }
