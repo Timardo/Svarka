@@ -5,14 +5,14 @@
 package org.bukkit.craftbukkit.command;
 
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 import java.util.Collection;
 import org.bukkit.event.Event;
 import org.bukkit.event.server.TabCompleteEvent;
-
 import jline.console.completer.Completer;
-
+import ru.svarka.Svarka;
 import java.util.Collections;
+
+import org.apache.logging.log4j.Level;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.util.Waitable;
 import java.util.List;
@@ -51,7 +51,7 @@ public class ConsoleCommandCompleter implements Completer
             return cursor - (buffer.length() - lastSpace - 1);
         }
         catch (ExecutionException e) {
-            this.server.getLogger().log(Level.WARNING, "Unhandled exception when tab completing", e);
+        	Svarka.bukkitLog.log(Level.WARN, "Unhandled exception when tab completing", e);
         }
         catch (InterruptedException ex) {
             Thread.currentThread().interrupt();

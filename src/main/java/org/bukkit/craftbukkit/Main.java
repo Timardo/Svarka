@@ -8,15 +8,13 @@ import java.util.Arrays;
 import java.io.IOException;
 import java.io.OutputStream;
 import net.minecraft.server.MinecraftServer;
+import ru.svarka.Svarka;
+import org.apache.logging.log4j.Level;
 import org.fusesource.jansi.AnsiConsole;
-
 import jline.UnsupportedTerminal;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.text.SimpleDateFormat;
 import java.io.File;
 import java.util.List;
@@ -63,17 +61,17 @@ public class Main
             options = parser.parse(args);
         }
         catch (OptionException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage());
+        	Svarka.bukkitLog.log(Level.ERROR, ex.getLocalizedMessage());
         }
         if (options != null) {
             if (!options.has("?")) {
                 //if (options.has("v")) {
-                //    System.out.println(CraftServer.class.getPackage().getImplementationVersion());
+                //    Svarka.bukkitLog.info(CraftServer.class.getPackage().getImplementationVersion());
                 //    return null;
                 //}
                 final String path = new File(".").getAbsolutePath();
                 if (path.contains("!") || path.contains("+")) {
-                    System.err.println("Cannot run server in a directory with ! or + in the pathname. Please rename the affected folders and try again.");
+                	Svarka.bukkitLog.log(Level.ERROR, "Cannot run server in a directory with ! or + in the pathname. Please rename the affected folders and try again.");
                     return null;
                 }
                 try {
@@ -93,7 +91,7 @@ public class Main
                     if (options.has("noconsole")) {
                         Main.useConsole = false;
                     }
-                    System.out.println("Loading libraries, please wait...");
+                    Svarka.bukkitLog.info("Loading libraries, please wait...");
                     //MinecraftServer.main(options);
                 }
                 catch (Throwable t) {
@@ -106,7 +104,7 @@ public class Main
             parser.printHelpOn(System.out);
         }
         catch (IOException ex2) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex2);
+        	Svarka.bukkitLog.log(Level.ERROR, ex2);
         }
         return null;
     }

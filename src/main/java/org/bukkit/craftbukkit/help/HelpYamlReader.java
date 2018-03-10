@@ -6,16 +6,19 @@ package org.bukkit.craftbukkit.help;
 
 import java.util.Iterator;
 import org.bukkit.configuration.ConfigurationSection;
+import org.apache.logging.log4j.Level;
 import org.bukkit.ChatColor;
 import java.util.LinkedList;
 import org.bukkit.help.HelpTopic;
 import java.util.List;
 import java.io.IOException;
-import java.util.logging.Level;
 import org.bukkit.configuration.Configuration;
 import java.io.Reader;
 import java.io.InputStreamReader;
 import com.google.common.base.Charsets;
+
+import ru.svarka.Svarka;
+
 import java.io.File;
 import org.bukkit.Server;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -40,11 +43,11 @@ public class HelpYamlReader
                 }
             }
             catch (IOException ex) {
-                server.getLogger().log(Level.SEVERE, "Could not save " + helpYamlFile, ex);
+            	Svarka.bukkitLog.log(Level.ERROR, "Could not save " + helpYamlFile, ex);
             }
         }
         catch (Exception ex2) {
-            server.getLogger().severe("Failed to load help.yml. Verify the yaml indentation is correct. Reverting to default help.yml.");
+        	Svarka.bukkitLog.log(Level.ERROR, "Failed to load help.yml. Verify the yaml indentation is correct. Reverting to default help.yml.");
             this.helpYaml = defaultConfig;
         }
     }

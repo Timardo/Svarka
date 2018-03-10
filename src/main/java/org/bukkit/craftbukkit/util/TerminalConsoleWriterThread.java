@@ -5,13 +5,12 @@
 package org.bukkit.craftbukkit.util;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.fusesource.jansi.Ansi;
+import org.apache.logging.log4j.Level;
 import org.bukkit.craftbukkit.Main;
 import com.mojang.util.QueueLogAppender;
-
 import jline.console.ConsoleReader;
+import ru.svarka.Svarka;
 
 import java.io.OutputStream;
 //import org.bukkit.craftbukkit.libs.jline.console.ConsoleReader;
@@ -53,7 +52,7 @@ public class TerminalConsoleWriterThread implements Runnable
                 }
             }
             catch (IOException ex) {
-                Logger.getLogger(TerminalConsoleWriterThread.class.getName()).log(Level.SEVERE, null, ex);
+            	Svarka.bukkitLog.log(Level.ERROR, ex);
             }
         }
     }

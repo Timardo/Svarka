@@ -3,6 +3,7 @@ package org.spigotmc;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import ru.svarka.Svarka;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -50,7 +51,7 @@ public class RestartCommand extends Command
         {
             if ( script.isFile() )
             {
-                System.out.println( "Attempting to restart with " + SpigotConfig.restartScript );
+                Svarka.spigotLog.info( "Attempting to restart with " + SpigotConfig.restartScript );
 
                 //Deny new logins
 
@@ -121,7 +122,7 @@ public class RestartCommand extends Command
                 Runtime.getRuntime().addShutdownHook( shutdownHook );
             } else
             {
-                System.out.println( "Startup script '" + SpigotConfig.restartScript + "' does not exist! Stopping server." );
+            	Svarka.spigotLog.info( "Startup script '" + SpigotConfig.restartScript + "' does not exist! Stopping server." );
 
                 // Actually shutdown
                 try

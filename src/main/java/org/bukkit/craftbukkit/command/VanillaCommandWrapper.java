@@ -28,6 +28,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
+import ru.svarka.Svarka;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import org.apache.commons.lang.Validate;
@@ -139,14 +140,14 @@ public final class VanillaCommandWrapper extends VanillaCommand
                 chatmessage4.getStyle().setColor(TextFormatting.RED);
                 icommandlistener.addChatMessage(chatmessage4);
                 if (icommandlistener.getCommandSenderEntity() instanceof EntityMinecartCommandBlock) {
-                    MinecraftServer.LOG.log(Level.WARN, String.format("MinecartCommandBlock at (%d,%d,%d) failed to handle command", icommandlistener.getPosition().getX(), icommandlistener.getPosition().getY(), icommandlistener.getPosition().getZ()), throwable);
+                	Svarka.bukkitLog.log(Level.WARN, String.format("MinecartCommandBlock at (%d,%d,%d) failed to handle command", icommandlistener.getPosition().getX(), icommandlistener.getPosition().getY(), icommandlistener.getPosition().getZ()), throwable);
                 }
                 else if (icommandlistener instanceof CommandBlockBaseLogic) {
                     final CommandBlockBaseLogic listener = (CommandBlockBaseLogic)icommandlistener;
-                    MinecraftServer.LOG.log(Level.WARN, String.format("CommandBlock at (%d,%d,%d) failed to handle command", listener.getPosition().getX(), listener.getPosition().getY(), listener.getPosition().getZ()), throwable);
+                    Svarka.bukkitLog.log(Level.WARN, String.format("CommandBlock at (%d,%d,%d) failed to handle command", listener.getPosition().getX(), listener.getPosition().getY(), listener.getPosition().getZ()), throwable);
                 }
                 else {
-                    MinecraftServer.LOG.log(Level.WARN, String.format("Unknown CommandBlock failed to handle command", new Object[0]), throwable);
+                	Svarka.bukkitLog.log(Level.WARN, String.format("Unknown CommandBlock failed to handle command", new Object[0]), throwable);
                 }
             }
             //finally {

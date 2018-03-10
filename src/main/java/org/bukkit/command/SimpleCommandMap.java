@@ -11,10 +11,13 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.Level;
 import org.bukkit.Server;
 import org.bukkit.command.defaults.*;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+
+import ru.svarka.Svarka;
 
 public class SimpleCommandMap implements CommandMap {
     private static final Pattern PATTERN_ON_SPACE = Pattern.compile(" ", Pattern.LITERAL);
@@ -222,7 +225,7 @@ public class SimpleCommandMap implements CommandMap {
 
         for (String alias : values.keySet()) {
             if (alias.contains(" ")) {
-                server.getLogger().warning("Could not register alias " + alias + " because it contains illegal characters");
+            	Svarka.bukkitLog.log(Level.ERROR, "Could not register alias " + alias + " because it contains illegal characters");
                 continue;
             }
 
@@ -245,7 +248,7 @@ public class SimpleCommandMap implements CommandMap {
             }
 
             if (bad.length() > 0) {
-                server.getLogger().warning("Could not register alias " + alias + " because it contains commands that do not exist: " + bad);
+            	Svarka.bukkitLog.log(Level.ERROR, "Could not register alias " + alias + " because it contains commands that do not exist: " + bad);
                 continue;
             }
 

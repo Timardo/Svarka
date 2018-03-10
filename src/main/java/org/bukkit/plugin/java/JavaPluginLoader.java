@@ -8,15 +8,14 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import net.md_5.specialsource.InheritanceMap;
 import net.md_5.specialsource.JarMapping;
 import net.md_5.specialsource.transformer.MavenShade;
+import ru.svarka.Svarka;
 import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.Warning;
 import org.bukkit.Warning.WarningState;
@@ -89,7 +88,7 @@ public final class JavaPluginLoader implements PluginLoader {
         if (dataFolder.equals(oldDataFolder)) {
             // They are equal -- nothing needs to be done!
         } else if (dataFolder.isDirectory() && oldDataFolder.isDirectory()) {
-            server.getLogger().log(Level.INFO,String.format(
+        	Svarka.bukkitLog.info(String.format(
                 "While loading %s (%s) found old-data folder: '%s' next to the new one '%s'",
                 description.getFullName(),
                 file,
@@ -100,7 +99,7 @@ public final class JavaPluginLoader implements PluginLoader {
             if (!oldDataFolder.renameTo(dataFolder)) {
                 throw new InvalidPluginException("Unable to rename old data folder: '" + oldDataFolder + "' to: '" + dataFolder + "'");
             }
-            server.getLogger().log(Level.INFO, String.format(
+            Svarka.bukkitLog.info(String.format(
                 "While loading %s (%s) renamed data folder: '%s' to '%s'",
                 description.getFullName(),
                 file,
@@ -372,7 +371,7 @@ public final class JavaPluginLoader implements PluginLoader {
                 ex.printStackTrace();
                 throw new RuntimeException(ex);
             }
-            System.out.println("Loaded inheritance map of "+globalInheritanceMap.size()+" classes");
+            Svarka.bukkitLog.info("Loaded inheritance map of "+globalInheritanceMap.size()+" classes");
             }
             return globalInheritanceMap;
     }
@@ -395,7 +394,7 @@ public final class JavaPluginLoader implements PluginLoader {
             try {
                 jPlugin.setEnabled(true);
             } catch (Throwable ex) {
-                server.getLogger().log(Level.SEVERE, "Error occurred while enabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
+            	Svarka.bukkitLog.log(org.apache.logging.log4j.Level.ERROR, "Error occurred while enabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             // Perhaps abort here, rather than continue going, but as it stands,
@@ -419,7 +418,7 @@ public final class JavaPluginLoader implements PluginLoader {
             try {
                 jPlugin.setEnabled(false);
             } catch (Throwable ex) {
-                server.getLogger().log(Level.SEVERE, "Error occurred while disabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
+            	Svarka.bukkitLog.log(org.apache.logging.log4j.Level.ERROR, "Error occurred while disabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             loaders.remove(jPlugin.getDescription().getName());

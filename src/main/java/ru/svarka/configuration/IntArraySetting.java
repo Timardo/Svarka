@@ -2,6 +2,7 @@ package ru.svarka.configuration;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import ru.svarka.Svarka;
 
 public class IntArraySetting extends ArraySetting<Integer> 
 {
@@ -29,7 +30,7 @@ public class IntArraySetting extends ArraySetting<Integer>
 			} 
 			catch ( Throwable t) 
 			{
-				System.out.println("[Thermos] Failed to add an option from config file");
+				Svarka.LOG.info("Failed to add an option from config file");
 				t.printStackTrace();
 			}
 		}

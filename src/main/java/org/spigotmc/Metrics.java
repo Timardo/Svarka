@@ -28,6 +28,8 @@
 package org.spigotmc;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import ru.svarka.Svarka;
+
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -39,7 +41,6 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 /**
  * <p> The metrics class obtains data about a plugin and submits statistics about it to the metrics backend. </p> <p>
@@ -229,7 +230,7 @@ public class Metrics {
                         firstPost = false;
                     } catch (IOException e) {
                         if (debug) {
-                            Bukkit.getLogger().log(Level.INFO, "[Metrics] " + e.getMessage());
+                        	Svarka.spigotLog.info("[Metrics] " + e.getMessage());
                         }
                     }
                 }
@@ -251,12 +252,12 @@ public class Metrics {
                 configuration.load(getConfigFile());
             } catch (IOException ex) {
                 if (debug) {
-                    Bukkit.getLogger().log(Level.INFO, "[Metrics] " + ex.getMessage());
+                	Svarka.spigotLog.info("[Metrics] " + ex.getMessage());
                 }
                 return true;
             } catch (InvalidConfigurationException ex) {
                 if (debug) {
-                    Bukkit.getLogger().log(Level.INFO, "[Metrics] " + ex.getMessage());
+                	Svarka.spigotLog.info("[Metrics] " + ex.getMessage());
                 }
                 return true;
             }

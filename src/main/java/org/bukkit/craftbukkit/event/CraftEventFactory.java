@@ -5,6 +5,7 @@
 package org.bukkit.craftbukkit.event;
 
 import net.minecraft.block.state.IBlockState;
+import org.apache.logging.log4j.Level;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemSword;
@@ -130,7 +131,6 @@ import net.minecraft.world.World;
 import org.bukkit.event.Event;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
-
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -141,6 +141,7 @@ import com.google.common.base.Function;
 import net.minecraft.entity.Entity;
 import org.bukkit.block.Block;
 import net.minecraft.util.DamageSource;
+import ru.svarka.Svarka;
 
 @SuppressWarnings("RedundantCast")
 public class CraftEventFactory
@@ -964,7 +965,7 @@ public class CraftEventFactory
         else {
             final Statistic stat = CraftStatistic.getBukkitStatistic(statistic);
             if (stat == null) {
-                System.err.println("Unhandled statistic: " + statistic);
+            	Svarka.bukkitLog.log(Level.ERROR, "Unhandled statistic: " + statistic);
                 return null;
             }
             switch (stat) {

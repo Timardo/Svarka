@@ -13,7 +13,7 @@ public class SvarkaUtils {
             byte[] bs = ((net.minecraft.launchwrapper.LaunchClassLoader)SvarkaUtils.class.getClassLoader()).getClassBytes("net.minecraft.world.World");
             if (bs != null)
             {
-                //FMLRelaunchLog.info("Managed to load a deobfuscated Minecraft name- we are in a deobfuscated environment. Skipping runtime deobfuscation");
+                //Svara.LOG.info("Managed to load a deobfuscated Minecraft name- we are in a deobfuscated environment. Skipping runtime deobfuscation");
                 deobfuscated = true;
             }
         }

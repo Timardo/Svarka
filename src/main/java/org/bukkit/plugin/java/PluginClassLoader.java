@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import net.md_5.specialsource.JarMapping;
 import net.md_5.specialsource.JarRemapper;
 import net.md_5.specialsource.RemapperProcessor;
@@ -21,10 +20,12 @@ import net.md_5.specialsource.repo.RuntimeRepo;
 import net.md_5.specialsource.transformer.MavenShade;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.Level;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.PluginDescriptionFile;
 import ru.svarka.SvarkaRemapper;
 import ru.svarka.SvarkaUtils;
+import ru.svarka.Svarka;
 
 /**
  * A ClassLoader for plugins, to allow shared classes across multiple plugins
@@ -74,7 +75,7 @@ final class PluginClassLoader extends URLClassLoader {
         boolean remapOBC1102 = true;
         boolean remapNMS1102 = true;
         boolean remapOBCPre = true;
-        System.out.println("PluginClassLoader debugging enabled for "+pluginName);
+        Svarka.bukkitLog.info("PluginClassLoader debugging enabled for "+pluginName);
         if(!useCustomClassLoader){
             remapper = null;
             return;
@@ -89,7 +90,7 @@ final class PluginClassLoader extends URLClassLoader {
         // Load inheritance map
         if ((flags & F_GLOBAL_INHERIT) != 0) {
             if (debug) {
-                System.out.println("Enabling global inheritance remapping");
+            	Svarka.bukkitLog.info("Enabling global inheritance remapping");
             }
             jarMapping.setInheritanceMap(loader.getGlobalInheritanceMap());
             jarMapping.setFallbackInheritanceProvider(new ClassLoaderProvider(this));
@@ -197,7 +198,7 @@ final class PluginClassLoader extends URLClassLoader {
 
         if (jarMapping != null) {
             if (debug) {
-                System.out.println("Mapping reused for "+Integer.toHexString(flags));
+            	Svarka.bukkitLog.info("Mapping reused for "+Integer.toHexString(flags));
             }
             return jarMapping;
         }
@@ -246,7 +247,7 @@ final class PluginClassLoader extends URLClassLoader {
                         null, false);
             }
 
-            System.out.println("Mapping loaded "+jarMapping.packages.size()+" packages, "+jarMapping.classes.size()+" classes, "+jarMapping.fields.size()+" fields, "+jarMapping.methods.size()+" methods, flags "+Integer.toHexString(flags));
+            Svarka.bukkitLog.info("Mapping loaded "+jarMapping.packages.size()+" packages, "+jarMapping.classes.size()+" classes, "+jarMapping.fields.size()+" fields, "+jarMapping.methods.size()+" methods, flags "+Integer.toHexString(flags));
 
             JarMapping currentJarMapping = jarMappings.putIfAbsent(flags, jarMapping);
             return currentJarMapping == null ? jarMapping : currentJarMapping;
@@ -267,7 +268,7 @@ final class PluginClassLoader extends URLClassLoader {
         }
         if (name.startsWith("org.bukkit.")) {
             if (debug) {
-                System.out.println("Unexpected plugin findClass on OBC/NMS: name="+name+", checkGlobal="+checkGlobal+"; returning not found");
+            	Svarka.bukkitLog.info("Unexpected plugin findClass on OBC/NMS: name="+name+", checkGlobal="+checkGlobal+"; returning not found");
             }
             throw new ClassNotFoundException(name);
         }
@@ -295,7 +296,7 @@ final class PluginClassLoader extends URLClassLoader {
                     loader.setClass(name, result);
                     Class<?> old = classes.putIfAbsent(name, result);
                     if (old != null && old != result) {
-                        System.err.println("Defined class " + name + " twice as different classes, " + result + " and " + old);
+                    	Svarka.bukkitLog.log(Level.ERROR, "Defined class " + name + " twice as different classes, " + result + " and " + old);
                         result = old;
                     }
                 }
@@ -362,7 +363,7 @@ final class PluginClassLoader extends URLClassLoader {
             }
         } catch (Throwable t) {
             if (debug) {
-                System.out.println("remappedFindClass("+name+") exception: "+t);
+            	Svarka.bukkitLog.info("remappedFindClass("+name+") exception: "+t);
                 t.printStackTrace();
             }
             throw new ClassNotFoundException("Failed to remap class "+name, t);

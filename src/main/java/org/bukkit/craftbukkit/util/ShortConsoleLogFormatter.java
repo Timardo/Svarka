@@ -8,12 +8,13 @@ import java.io.Writer;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.LogRecord;
-
+import org.apache.logging.log4j.Level;
 import joptsimple.OptionException;
 import joptsimple.OptionSet;
 //import org.bukkit.craftbukkit.libs.joptsimple.OptionSet;
 //import org.bukkit.craftbukkit.libs.joptsimple.OptionException;
 import net.minecraft.server.MinecraftServer;
+import ru.svarka.Svarka;
 import java.text.SimpleDateFormat;
 import java.util.logging.Formatter;
 
@@ -32,7 +33,7 @@ public class ShortConsoleLogFormatter extends Formatter
                 }
             }
             catch (OptionException ex) {
-                System.err.println("Given date format is not valid. Falling back to default.");
+            	Svarka.bukkitLog.log(Level.ERROR, "Given date format is not valid. Falling back to default.");
             }
         }
         else if (options.has("nojline")) {

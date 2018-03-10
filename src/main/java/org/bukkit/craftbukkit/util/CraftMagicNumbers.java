@@ -6,12 +6,12 @@ package org.bukkit.craftbukkit.util;
 
 import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatList;
+
+import org.apache.logging.log4j.Level;
 import org.bukkit.Achievement;
 import org.bukkit.craftbukkit.CraftStatistic;
 import org.bukkit.Statistic;
 import net.minecraft.nbt.NBTException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.minecraft.nbt.JsonToNBT;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
@@ -21,6 +21,7 @@ import org.bukkit.util.StringUtil;
 import com.google.common.collect.Lists;
 import java.util.List;
 import net.minecraft.util.ResourceLocation;
+import ru.svarka.Svarka;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import org.bukkit.Material;
@@ -108,7 +109,7 @@ public final class CraftMagicNumbers implements UnsafeValues
             nmsStack.setTagCompound(JsonToNBT.getTagFromJson(arguments));
         }
         catch (NBTException ex) {
-            Logger.getLogger(CraftMagicNumbers.class.getName()).log(Level.SEVERE, null, ex);
+        	Svarka.bukkitLog.log(Level.ERROR, ex);
         }
         stack.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
         return stack;

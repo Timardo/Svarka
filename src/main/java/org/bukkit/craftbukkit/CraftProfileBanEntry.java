@@ -6,12 +6,15 @@ package org.bukkit.craftbukkit;
 
 import net.minecraft.server.management.UserList;
 import java.io.IOException;
-import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import net.minecraft.server.management.UserListBansEntry;
+import ru.svarka.Svarka;
+
 import java.util.Date;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.management.UserListBans;
+
+import org.apache.logging.log4j.Level;
 import org.bukkit.BanEntry;
 
 public final class CraftProfileBanEntry implements BanEntry
@@ -88,7 +91,7 @@ public final class CraftProfileBanEntry implements BanEntry
             this.list.writeChanges();
         }
         catch (IOException ex) {
-            Bukkit.getLogger().log(Level.SEVERE, "Failed to save banned-players.json, {0}", ex.getMessage());
+        	Svarka.bukkitLog.log(Level.ERROR, "Failed to save banned-players.json, {0}", ex.getMessage());
         }
     }
 }
