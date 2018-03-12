@@ -7,9 +7,8 @@ package org.bukkit.craftbukkit.command;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.fusesource.jansi.Ansi;
-
 import jline.Terminal;
-
+import ru.svarka.Svarka;
 import org.bukkit.craftbukkit.CraftServer;
 import java.util.EnumMap;
 import org.bukkit.ChatColor;
@@ -64,7 +63,7 @@ public class ColouredConsoleSender extends CraftConsoleCommandSender
                         result = result.replaceAll("(?i)" + color.toString(), "");
                     }
                 }
-                System.out.println(String.valueOf(result) + Ansi.ansi().reset().toString());
+                Svarka.bukkitLog.info(String.valueOf(result) + Ansi.ansi().reset().toString());
             }
         }
         else {

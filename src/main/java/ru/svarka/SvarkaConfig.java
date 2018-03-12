@@ -1,6 +1,8 @@
 package ru.svarka;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
+
+import org.apache.logging.log4j.Level;
 import org.bukkit.configuration.file.YamlConfiguration;
 import ru.svarka.configuration.BoolSetting;
 import ru.svarka.configuration.ConfigBase;
@@ -52,7 +54,7 @@ public class SvarkaConfig extends ConfigBase {
             config.options().copyDefaults(true);
             save();
         } catch (Exception ex) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logSevere(
+            Svarka.LOG.log(Level.ERROR, 
                     "Could not load " + this.configFile);
             ex.printStackTrace();
         }

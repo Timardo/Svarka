@@ -2,12 +2,11 @@ package ru.svarka.configuration;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-
 import org.bukkit.World;
-
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import ru.svarka.Svarka;
 
 public class ItemDataArraySetting extends ArraySetting<Long> 
 {
@@ -63,7 +62,7 @@ public class ItemDataArraySetting extends ArraySetting<Long>
 			} 
 			catch ( Throwable t) 
 			{
-				System.out.println("[Thermos] Failed to add an option from config file");
+				Svarka.LOG.info("Failed to add an option from config file");
 				t.printStackTrace();
 			}
 		}

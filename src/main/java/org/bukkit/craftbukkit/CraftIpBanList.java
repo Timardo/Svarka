@@ -10,12 +10,14 @@ import java.net.InetSocketAddress;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import java.io.IOException;
-import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.apache.commons.lang.StringUtils;
 import java.util.Date;
 import net.minecraft.server.management.UserListIPBansEntry;
+import ru.svarka.Svarka;
+
 import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.Level;
 import org.bukkit.BanEntry;
 import net.minecraft.server.management.UserListIPBans;
 import org.bukkit.BanList;
@@ -47,7 +49,7 @@ public class CraftIpBanList implements BanList
             this.list.writeChanges();
         }
         catch (IOException ex) {
-            Bukkit.getLogger().log(Level.SEVERE, "Failed to save banned-ips.json, {0}", ex.getMessage());
+        	Svarka.bukkitLog.log(Level.ERROR, "Failed to save banned-ips.json, {0}", ex.getMessage());
         }
         return new CraftIpBanEntry(target, entry, this.list);
     }

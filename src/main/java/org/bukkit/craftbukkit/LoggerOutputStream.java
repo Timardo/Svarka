@@ -7,17 +7,18 @@ package org.bukkit.craftbukkit;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import ru.svarka.Svarka;
 import java.io.ByteArrayOutputStream;
 
 public class LoggerOutputStream extends ByteArrayOutputStream
 {
     private final String separator;
-    private final Logger logger;
     private final Level level;
+	private Logger logger;
     
     public LoggerOutputStream(final Logger logger, final Level level) {
         this.separator = System.getProperty("line.separator");
-        this.logger = logger;
+        this.logger = Svarka.bukkitLog;
         this.level = level;
     }
     

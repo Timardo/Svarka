@@ -6,10 +6,10 @@ package org.bukkit.craftbukkit.util;
 
 import java.io.InputStream;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.Properties;
+import org.apache.logging.log4j.Level;
 import org.bukkit.Bukkit;
+import ru.svarka.Svarka;
 
 public final class Versioning
 {
@@ -23,7 +23,7 @@ public final class Versioning
                 result = properties.getProperty("version");
             }
             catch (IOException ex) {
-                Logger.getLogger(Versioning.class.getName()).log(Level.SEVERE, "Could not get Bukkit version!", ex);
+            	Svarka.bukkitLog.log(Level.ERROR, "Could not get Bukkit version!", ex);
             }
         }
         return result;

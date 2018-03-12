@@ -1,8 +1,6 @@
 package org.bukkit.command;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;

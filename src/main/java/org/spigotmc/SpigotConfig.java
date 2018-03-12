@@ -12,12 +12,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import ru.svarka.Svarka;
+
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -61,7 +63,7 @@ public class SpigotConfig
         {
         } catch ( InvalidConfigurationException ex )
         {
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getLogger().log( Level.SEVERE, "Could not load spigot.yml, please correct your syntax errors", ex );
+        	Svarka.spigotLog.log( Level.ERROR, "Could not load spigot.yml, please correct your syntax errors", ex );
             throw Throwables.propagate( ex );
         }
 
@@ -90,7 +92,7 @@ public class SpigotConfig
                 metrics.start();
             } catch ( IOException ex )
             {
-                FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getLogger().log( Level.SEVERE, "Could not start metrics service", ex );
+            	Svarka.spigotLog.log( Level.ERROR, "Could not start metrics service", ex );
             }
         }
     }
@@ -112,7 +114,7 @@ public class SpigotConfig
                         throw Throwables.propagate( ex.getCause() );
                     } catch ( Exception ex )
                     {
-                        FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getLogger().log( Level.SEVERE, "Error invoking " + method, ex );
+                    	Svarka.spigotLog.log( Level.ERROR, "Error invoking " + method, ex );
                     }
                 }
             }
@@ -123,7 +125,7 @@ public class SpigotConfig
             config.save( CONFIG_FILE );
         } catch ( IOException ex )
         {
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getLogger().log( Level.SEVERE, "Could not save " + CONFIG_FILE, ex );
+        	Svarka.spigotLog.log( Level.ERROR, "Could not save " + CONFIG_FILE, ex );
         }
     }
 
@@ -228,7 +230,7 @@ public class SpigotConfig
         if ( version < 4 )
         {
             set( "settings.bungeecord", false );
-            System.out.println( "Oudated config, disabling BungeeCord support!" );
+            Svarka.spigotLog.info( "Oudated config, disabling BungeeCord support!" );
         }
         bungee = getBoolean( "settings.bungeecord", false );
     }
@@ -237,7 +239,7 @@ public class SpigotConfig
     {
         int count = getInt( "settings.netty-threads", 4 );
         System.setProperty( "io.netty.eventLoopThreads", Integer.toString( count ) );
-        FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getLogger().log( Level.INFO, "Using {0} threads for Netty based IO", count );
+        Svarka.spigotLog.log( Level.INFO, "Using {0} threads for Netty based IO", count );
     }
 
     public static boolean lateBind;
@@ -266,7 +268,7 @@ public class SpigotConfig
 
         if ( disableStatSaving && section.getInt( "achievement.openInventory", 0 ) < 1 )
         {
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getLogger().warning( "*** WARNING *** stats.disable-saving is true but stats.forced-stats.achievement.openInventory" +
+        	Svarka.spigotLog.log(Level.WARN,  "*** WARNING *** stats.disable-saving is true but stats.forced-stats.achievement.openInventory" +
                     " isn't set to 1. Disabling stat saving without forcing the achievement may cause it to get stuck on the player's " +
                     "screen." );
         }
@@ -281,7 +283,7 @@ public class SpigotConfig
     private static void playerSample()
     {
         playerSample = getInt( "settings.sample-count", 12 );
-        System.out.println( "Server Ping Player Sample Count: " + playerSample );
+        Svarka.spigotLog.info( "Server Ping Player Sample Count: " + playerSample );
     }
 
     public static int playerShuffle;
@@ -382,10 +384,10 @@ public class SpigotConfig
 
         if ( LogManager.getRootLogger().isTraceEnabled() )
         {
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getLogger().info( "Debug logging is enabled" );
+            Svarka.LOG.info( "Debug logging is enabled" );
         } else
         {
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getLogger().info( "Debug logging is disabled" );
+        	Svarka.LOG.info( "Debug logging is disabled" );
         }
     }
 

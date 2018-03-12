@@ -7,6 +7,7 @@ package org.bukkit.craftbukkit.inventory;
 import java.util.NoSuchElementException;
 import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.Level;
 import java.lang.reflect.Constructor;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -26,8 +27,6 @@ import com.google.common.base.Strings;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.Overridden;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.io.InputStream;
 import net.minecraft.nbt.CompressedStreamTools;
 import java.io.ByteArrayInputStream;
@@ -35,6 +34,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.bukkit.inventory.ItemFlag;
 import java.util.Iterator;
 import net.minecraft.nbt.NBTTagString;
+import ru.svarka.Svarka;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagCompound;
 import java.util.Collection;
@@ -234,7 +234,7 @@ class CraftMetaItem implements ItemMeta, Repairable
                 }
             }
             catch (IOException ex) {
-                Logger.getLogger(CraftMetaItem.class.getName()).log(Level.SEVERE, null, ex);
+            	Svarka.bukkitLog.log(Level.ERROR, ex);
             }
         }
     }
@@ -583,7 +583,7 @@ class CraftMetaItem implements ItemMeta, Repairable
                 builder.put("internal", Base64.encodeBase64String(buf.toByteArray()));
             }
             catch (IOException ex) {
-                Logger.getLogger(CraftMetaItem.class.getName()).log(Level.SEVERE, null, ex);
+            	Svarka.bukkitLog.log(Level.ERROR, ex);
             }
         }
         return builder;

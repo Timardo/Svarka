@@ -5,10 +5,10 @@
 package org.bukkit.craftbukkit.conversations;
 
 import java.util.Iterator;
-import java.util.logging.Level;
-import org.bukkit.Bukkit;
+import org.apache.logging.log4j.Level;
 import org.bukkit.conversations.ConversationCanceller;
 import org.bukkit.conversations.ManuallyAbandonedConversationCanceller;
+import ru.svarka.Svarka;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.conversations.Conversation;
 import java.util.LinkedList;
@@ -55,7 +55,7 @@ public class ConversationTracker
                 conversation.abandon(new ConversationAbandonedEvent(conversation, new ManuallyAbandonedConversationCanceller()));
             }
             catch (Throwable t) {
-                Bukkit.getLogger().log(Level.SEVERE, "Unexpected exception while abandoning a conversation", t);
+            	Svarka.bukkitLog.log(Level.ERROR, "Unexpected exception while abandoning a conversation", t);
             }
         }
     }

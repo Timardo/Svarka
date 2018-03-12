@@ -7,6 +7,8 @@ import org.spigotmc.RestartCommand;
 
 public class Svarka {
 	public static final Logger LOG = LogManager.getLogger("Svarka");
+	public static final Logger spigotLog = LogManager.getLogger("Spigot");
+	public static final Logger bukkitLog = LogManager.getLogger("Bukkit");
 	public static final boolean DEBUG = true;
 	private static final String versions = "0.0.3";
 	public static void debug(String str) {

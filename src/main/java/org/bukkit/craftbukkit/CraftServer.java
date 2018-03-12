@@ -7,6 +7,7 @@ package org.bukkit.craftbukkit;
 import net.minecraft.server.management.UserList;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import ru.svarka.Svarka;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.inventory.ItemFactory;
 import org.bukkit.map.MapView;
@@ -23,7 +24,6 @@ import org.bukkit.craftbukkit.generator.CraftChunkData;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.base64.Base64;
 import jline.console.ConsoleReader;
-
 import java.io.OutputStream;
 import java.awt.image.RenderedImage;
 import io.netty.buffer.ByteBufOutputStream;
@@ -134,7 +134,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.Iterator;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.PluginLoadOrder;
@@ -178,6 +177,8 @@ import org.bukkit.craftbukkit.metadata.PlayerMetadataStore;
 import org.bukkit.craftbukkit.metadata.EntityMetadataStore;
 import org.bukkit.OfflinePlayer;
 import java.util.UUID;
+import java.util.logging.Logger;
+
 import org.yaml.snakeyaml.Yaml;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.World;
@@ -190,9 +191,9 @@ import org.bukkit.craftbukkit.help.SimpleHelpMap;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.craftbukkit.scheduler.CraftScheduler;
 import org.bukkit.plugin.ServicesManager;
-import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.Server;
+import org.apache.logging.log4j.Level;
 
 public final class CraftServer implements Server
 {
@@ -283,7 +284,7 @@ public final class CraftServer implements Server
         MobEffects.BLINDNESS.getClass();
         PotionEffectType.stopAcceptingRegistrations();
         if (!Main.useConsole) {
-            this.getLogger().info("Console input is disabled due to --noconsole command argument");
+        	Svarka.bukkitLog.info("Console input is disabled due to --noconsole command argument");
         }
         this.configuration = YamlConfiguration.loadConfiguration(this.getConfigFile());
         this.configuration.options().copyDefaults(true);
@@ -349,7 +350,7 @@ public final class CraftServer implements Server
             this.configuration.save(this.getConfigFile());
         }
         catch (IOException ex) {
-            Logger.getLogger(CraftServer.class.getName()).log(Level.SEVERE, "Could not save " + this.getConfigFile(), ex);
+            Svarka.bukkitLog.log(Level.ERROR, "Could not save " + this.getConfigFile(), ex);
         }
     }
     
@@ -358,7 +359,7 @@ public final class CraftServer implements Server
             this.commandsConfiguration.save(this.getCommandsConfigFile());
         }
         catch (IOException ex) {
-            Logger.getLogger(CraftServer.class.getName()).log(Level.SEVERE, "Could not save " + this.getCommandsConfigFile(), ex);
+        	Svarka.bukkitLog.log(Level.ERROR, "Could not save " + this.getCommandsConfigFile(), ex);
         }
     }
     
@@ -376,7 +377,7 @@ public final class CraftServer implements Server
                     plugin.onLoad();
                 }
                 catch (Throwable ex) {
-                    Logger.getLogger(CraftServer.class.getName()).log(Level.SEVERE, String.valueOf(ex.getMessage()) + " initializing " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
+                	Svarka.bukkitLog.log(Level.ERROR, String.valueOf(ex.getMessage()) + " initializing " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
                 }
             }
         }
@@ -430,12 +431,12 @@ public final class CraftServer implements Server
                     this.pluginManager.addPermission(perm);
                 }
                 catch (IllegalArgumentException ex) {
-                    this.getLogger().log(Level.WARNING, "Plugin " + plugin.getDescription().getFullName() + " tried to register permission '" + perm.getName() + "' but it's already registered", ex);
+                	Svarka.bukkitLog.log(Level.WARN, "Plugin " + plugin.getDescription().getFullName() + " tried to register permission '" + perm.getName() + "' but it's already registered", ex);
                 }
             }
         }
         catch (Throwable ex2) {
-            Logger.getLogger(CraftServer.class.getName()).log(Level.SEVERE, String.valueOf(ex2.getMessage()) + " loading " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex2);
+        	Svarka.bukkitLog.log(Level.ERROR, String.valueOf(ex2.getMessage()) + " loading " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex2);
         }
     }
     
@@ -678,7 +679,7 @@ public final class CraftServer implements Server
             return this.dispatchCommand(sender, serverCommand.command);
         }
         catch (Exception ex) {
-            this.getLogger().log(Level.WARNING, "Unexpected exception while parsing console command \"" + serverCommand.command + '\"', ex);
+        	Svarka.bukkitLog.log(Level.WARN, "Unexpected exception while parsing console command \"" + serverCommand.command + '\"', ex);
             return false;
         }
         finally {
@@ -727,13 +728,13 @@ public final class CraftServer implements Server
             this.playerList.getBannedIPs().readSavedFile();
         }
         catch (IOException ex) {
-            this.logger.log(Level.WARNING, "Failed to load banned-ips.json, " + ex.getMessage());
+        	Svarka.bukkitLog.log(Level.WARN, "Failed to load banned-ips.json, " + ex.getMessage());
         }
         try {
             this.playerList.getBannedPlayers().readSavedFile();
         }
         catch (IOException ex) {
-            this.logger.log(Level.WARNING, "Failed to load banned-players.json, " + ex.getMessage());
+        	Svarka.bukkitLog.log(Level.WARN, "Failed to load banned-players.json, " + ex.getMessage());
         }
         org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
         for (final WorldServer world : /*this.console.worlds*/this.console.worldServers) {
@@ -771,7 +772,7 @@ public final class CraftServer implements Server
             if (plugin.getDescription().getAuthors().size() > 0) {
                 author = plugin.getDescription().getAuthors().get(0);
             }
-            this.getLogger().log(Level.SEVERE, String.format("Nag author: '%s' of '%s' about the following: %s", author, plugin.getDescription().getName(), "This plugin is not properly shutting down its async tasks when it is being reloaded.  This may cause conflicts with the newly loaded version of the plugin"));
+            Svarka.bukkitLog.log(Level.ERROR, String.format("Nag author: '%s' of '%s' about the following: %s", author, plugin.getDescription().getName(), "This plugin is not properly shutting down its async tasks when it is being reloaded.  This may cause conflicts with the newly loaded version of the plugin"));
         }
         this.loadPlugins();
         this.enablePlugins(PluginLoadOrder.STARTUP);
@@ -787,7 +788,7 @@ public final class CraftServer implements Server
             }
         }
         catch (Exception ex) {
-            this.getLogger().log(Level.WARNING, "Couldn't load server icon", ex);
+        	Svarka.bukkitLog.log(Level.WARN, "Couldn't load server icon", ex);
         }
     }
     
@@ -811,11 +812,11 @@ public final class CraftServer implements Server
             perms = (Map<String, Map<String, Object>>)this.yaml.load((InputStream)stream);
         }
         catch (MarkedYAMLException ex) {
-            this.getLogger().log(Level.WARNING, "Server permissions file " + file + " is not valid YAML: " + ex.toString());
+        	Svarka.bukkitLog.log(Level.WARN, "Server permissions file " + file + " is not valid YAML: " + ex.toString());
             return;
         }
         catch (Throwable ex2) {
-            this.getLogger().log(Level.WARNING, "Server permissions file " + file + " is not valid YAML.", ex2);
+        	Svarka.bukkitLog.log(Level.WARN, "Server permissions file " + file + " is not valid YAML.", ex2);
             return;
         }
         finally {
@@ -829,7 +830,7 @@ public final class CraftServer implements Server
         }
         catch (IOException ex6) {}
         if (perms == null) {
-            this.getLogger().log(Level.INFO, "Server permissions file " + file + " is empty, ignoring it");
+        	Svarka.bukkitLog.log(Level.INFO, "Server permissions file " + file + " is empty, ignoring it");
             return;
         }
         final List<Permission> permsList = Permission.loadPermissions(perms, "Permission node '%s' in " + file + " is invalid", Permission.DEFAULT_PERMISSION);
@@ -838,7 +839,7 @@ public final class CraftServer implements Server
                 this.pluginManager.addPermission(perm);
             }
             catch (IllegalArgumentException ex3) {
-                this.getLogger().log(Level.SEVERE, "Permission in " + file + " was already defined", ex3);
+            	Svarka.bukkitLog.log(Level.ERROR, "Permission in " + file + " was already defined", ex3);
             }
         }
     }
@@ -934,7 +935,7 @@ public final class CraftServer implements Server
         }
         final ISaveFormat converter = new AnvilSaveConverter(this.getWorldContainer(), this.getHandle().getServerInstance().getDataFixer());
         if (converter.isOldMapFormat(name)) {
-            this.getLogger().info("Converting world '" + name + "'");
+            Svarka.bukkitLog.info("Converting world '" + name + "'");
             converter.convertMapFormat(name, new IProgressUpdate() {
                 private long b = System.currentTimeMillis();
                 
@@ -946,7 +947,7 @@ public final class CraftServer implements Server
                 public void setLoadingProgress(final int i) {
                     if (System.currentTimeMillis() - this.b >= 1000L) {
                         this.b = System.currentTimeMillis();
-                        MinecraftServer.LOG.info("Converting... " + i + "%");
+                        Svarka.bukkitLog.info("Converting... " + i + "%");
                     }
                 }
                 
@@ -1011,7 +1012,7 @@ public final class CraftServer implements Server
                     if (l > i + 1000L) {
                         final int i2 = (short1 * 2 + 1) * (short1 * 2 + 1);
                         final int j2 = (j + short1) * (short1 * 2 + 1) + k + 1;
-                        System.out.println("Preparing spawn area for " + name + ", " + j2 * 100 / i2 + "%");
+                        Svarka.bukkitLog.info("Preparing spawn area for " + name + ", " + j2 * 100 / i2 + "%");
                         i = l;
                     }
                     final BlockPos chunkcoordinates = internal.getSpawnPoint();
@@ -1054,7 +1055,7 @@ public final class CraftServer implements Server
                 handle.flush();
             }
             catch (MinecraftException ex) {
-                this.getLogger().log(Level.SEVERE, null, ex);
+                Svarka.bukkitLog.log(Level.ERROR, ex);
             }
         }
         this.worlds.remove(world.getName().toLowerCase(Locale.ENGLISH));
@@ -1084,7 +1085,7 @@ public final class CraftServer implements Server
     
     public void addWorld(World world) {
         if (this.getWorld(world.getUID()) != null) {
-            System.out.println("World " + world.getName() + " is a duplicate of another world and has been prevented from loading. Please delete the uid.dat file from " + world.getName() + "'s world directory if you want to be able to load the duplicate world.");
+        	Svarka.bukkitLog.info("World " + world.getName() + " is a duplicate of another world and has been prevented from loading. Please delete the uid.dat file from " + world.getName() + "'s world directory if you want to be able to load the duplicate world.");
             return;
         }
         this.worlds.put(world.getName().toLowerCase(), world);
@@ -1269,20 +1270,20 @@ public final class CraftServer implements Server
                     final String id = (split.length > 1) ? split[1] : null;
                     final Plugin plugin = this.pluginManager.getPlugin(split[0]);
                     if (plugin == null) {
-                        this.getLogger().severe("Could not set generator for default world '" + world + "': Plugin '" + split[0] + "' does not exist");
+                    	Svarka.bukkitLog.log(Level.ERROR, "Could not set generator for default world '" + world + "': Plugin '" + split[0] + "' does not exist");
                     }
                     else if (!plugin.isEnabled()) {
-                        this.getLogger().severe("Could not set generator for default world '" + world + "': Plugin '" + plugin.getDescription().getFullName() + "' is not enabled yet (is it load:STARTUP?)");
+                    	Svarka.bukkitLog.info("Could not set generator for default world '" + world + "': Plugin '" + plugin.getDescription().getFullName() + "' is not enabled yet (is it load:STARTUP?)");
                     }
                     else {
                         try {
                             result = plugin.getDefaultWorldGenerator(world, id);
                             if (result == null) {
-                                this.getLogger().severe("Could not set generator for default world '" + world + "': Plugin '" + plugin.getDescription().getFullName() + "' lacks a default world generator");
+                            	Svarka.bukkitLog.info("Could not set generator for default world '" + world + "': Plugin '" + plugin.getDescription().getFullName() + "' lacks a default world generator");
                             }
                         }
                         catch (Throwable t) {
-                            plugin.getLogger().log(Level.SEVERE, "Could not set generator for default world '" + world + "': Plugin '" + plugin.getDescription().getFullName(), t);
+                        	Svarka.bukkitLog.log(Level.ERROR, "Could not set generator for default world '" + world + "': Plugin '" + plugin.getDescription().getFullName(), t);
                         }
                     }
                 }
@@ -1625,7 +1626,7 @@ public final class CraftServer implements Server
         }
         catch (CommandException ex) {
             player.sendMessage(ChatColor.RED + "An internal error occurred while attempting to tab-complete this command");
-            this.getLogger().log(Level.SEVERE, "Exception when " + player.getName() + " attempted to tab complete " + message, ex);
+            Svarka.bukkitLog.log(Level.ERROR, "Exception when " + player.getName() + " attempted to tab complete " + message, ex);
         }
         return (List<String>)((completions == null) ? ImmutableList.of() : completions);
     }
@@ -1666,7 +1667,7 @@ public final class CraftServer implements Server
             return;
         }
         this.printSaveWarning = true;
-        this.getLogger().log(Level.WARNING, "A manual (plugin-induced) save has been detected while server is configured to auto-save. This may affect performance.", (this.warningState == Warning.WarningState.ON) ? new Throwable() : null);
+        Svarka.bukkitLog.log(Level.WARN, "A manual (plugin-induced) save has been detected while server is configured to auto-save. This may affect performance.", (this.warningState == Warning.WarningState.ON) ? new Throwable() : null);
     }
     
     @Override

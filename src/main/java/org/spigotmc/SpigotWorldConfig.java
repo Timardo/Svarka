@@ -3,6 +3,7 @@ package org.spigotmc;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
+import ru.svarka.Svarka;
 
 public class SpigotWorldConfig
 {
@@ -30,7 +31,7 @@ public class SpigotWorldConfig
     {
         if ( verbose )
         {
-            Bukkit.getLogger().info( s );
+            Svarka.spigotLog.info( s );
         }
     }
 

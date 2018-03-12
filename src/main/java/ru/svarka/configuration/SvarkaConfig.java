@@ -4,7 +4,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
+
+import org.apache.logging.log4j.Level;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import ru.svarka.Svarka;
 import ru.svarka.SvarkaCommand;
 
 public class SvarkaConfig extends ConfigBase{
@@ -81,7 +85,7 @@ public class SvarkaConfig extends ConfigBase{
             }
             catch (Exception ex)
             {
-                FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logSevere("Could not load " + this.configFile);
+                Svarka.LOG.log(Level.ERROR, "Could not load " + this.configFile);
                 ex.printStackTrace();
             }
         }

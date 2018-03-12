@@ -10,6 +10,7 @@ import org.bukkit.conversations.ManuallyAbandonedConversationCanceller;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.conversations.ConversationTracker;
+import ru.svarka.Svarka;
 import org.bukkit.command.ConsoleCommandSender;
 
 public class CraftConsoleCommandSender extends ServerCommandSender implements ConsoleCommandSender
@@ -27,7 +28,7 @@ public class CraftConsoleCommandSender extends ServerCommandSender implements Co
     
     @Override
     public void sendRawMessage(final String message) {
-        System.out.println(ChatColor.stripColor(message));
+    	Svarka.bukkitLog.info(ChatColor.stripColor(message));
     }
     
     @Override

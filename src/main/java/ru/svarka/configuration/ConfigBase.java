@@ -3,6 +3,8 @@ package ru.svarka.configuration;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+
+import org.apache.logging.log4j.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -69,7 +71,7 @@ public abstract class ConfigBase
         }
         catch (IOException ex)
         {
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logSevere("Could not save " + configFile);
+        	Svarka.LOG.log(Level.ERROR, "Could not save " + configFile);
             ex.printStackTrace();
         }
     }
