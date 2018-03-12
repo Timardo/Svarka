@@ -7,7 +7,8 @@ import ru.svarka.configuration.ConfigBase;
 import ru.svarka.configuration.Setting;
 
 public class SvarkaConfig extends ConfigBase {
-    public BoolSetting commandEnable = new BoolSetting(this, "command.enable", true, "Enable Thermos command");
+    public BoolSetting commandEnable = new BoolSetting(this, "command.enable", true, "Enable Svarka command");
+    public BoolSetting loadChunkOnRequest = new BoolSetting(this,"utils.enable", false, "Allows mods to force load chunks.");
 
     public SvarkaConfig() {
         super("svarka.yml", "svarka");

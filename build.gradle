@@ -90,6 +90,7 @@ dependencies {
     libraries 'org.apache.logging.log4j:log4j-core:2.10.0'
     libraries 'net.md-5:SpecialSource:1.7.4@jar'
     libraries 'org.ow2.asm:asm-all:5.0.3'
+    libraries 'com.koloboke:koloboke-impl-jdk8:1.0.0'
 }
 
 
@@ -143,6 +144,10 @@ minecraft {
         }
 
         svarka {
+            sourceCompatibility = targetCompatibility = 1.8
+            compileJava {
+                sourceCompatibility = targetCompatibility = 1.8
+            }
             rootDir "."
             patchDir "patches/"
             patchAfter "forge"

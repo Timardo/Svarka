@@ -5,6 +5,7 @@
 package org.bukkit.craftbukkit;
 
 import net.minecraft.server.management.UserList;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.inventory.ItemFactory;
@@ -208,7 +209,7 @@ public final class CraftServer implements Server
     private final PluginManager pluginManager;
     protected final MinecraftServer console;
     protected final DedicatedPlayerList playerList;
-    private final Map<String, World> worlds;
+    private final Map<String, World> worlds = new LinkedHashMap<String, World>();
     private YamlConfiguration configuration;
     private YamlConfiguration commandsConfiguration;
     private final Yaml yaml;
@@ -250,7 +251,6 @@ public final class CraftServer implements Server
         this.helpMap = new SimpleHelpMap(this);
         this.messenger = new StandardMessenger();
         this.pluginManager = new SimplePluginManager(this, this.commandMap);
-        this.worlds = new LinkedHashMap<String, World>();
         this.yaml = new Yaml((BaseConstructor)new SafeConstructor());
         this.offlinePlayers = /*(Map<UUID, OfflinePlayer>)*/new MapMaker().weakValues().makeMap();
         this.entityMetadata = new EntityMetadataStore();
@@ -866,6 +866,56 @@ public final class CraftServer implements Server
     
     @Override
     public World createWorld(final WorldCreator creator) {
+        Validate.notNull(creator, "Creator may not be null");
+
+        String name = creator.name();
+        ChunkGenerator generator = creator.generator();
+        File folder = new File(getWorldContainer(), name);
+        World world = getWorld(name);
+        net.minecraft.world.WorldType type = net.minecraft.world.WorldType.parseWorldType(creator.type().getName());
+        boolean generateStructures = creator.generateStructures();
+
+        if ((folder.exists()) && (!folder.isDirectory())) {
+            throw new IllegalArgumentException("File exists with the name '" + name + "' and isn't a folder");
+        }
+
+        if (world != null) {
+            return world;
+        }
+
+        boolean hardcore = false;
+        WorldSettings worldSettings = new WorldSettings(creator.seed(), net.minecraft.world.WorldSettings.getGameTypeById(getDefaultGameMode().getValue()), generateStructures, hardcore, type);
+        net.minecraft.world.WorldServer worldserver = DimensionManager.initDimension(creator, worldSettings);
+
+        pluginManager.callEvent(new WorldInitEvent(worldserver.getWorld()));
+        System.out.print("Preparing start region for level " + (console.worlds.size() - 1) + " (Dimension: " + worldserver.provider.getDimension() + ", Seed: " + worldserver.getSeed() + ")"); // Cauldron - log dimension
+
+        if (worldserver.getWorld().getKeepSpawnInMemory()) {
+            short short1 = 196;
+            long i = System.currentTimeMillis();
+            for (int j = -short1; j <= short1; j += 16) {
+                for (int k = -short1; k <= short1; k += 16) {
+                    long l = System.currentTimeMillis();
+
+                    if (l < i) {
+                        i = l;
+                    }
+
+                    if (l > i + 1000L) {
+                        int i1 = (short1 * 2 + 1) * (short1 * 2 + 1);
+                        int j1 = (j + short1) * (short1 * 2 + 1) + k + 1;
+
+                        System.out.println("Preparing spawn area for " + worldserver.getWorld().getName() + ", " + (j1 * 100 / i1) + "%");
+                        i = l;
+                    }
+
+                    final BlockPos chunkcoordinates = worldserver.getSpawnPoint();
+                    worldserver.getChunkProvider().provideChunk(chunkcoordinates.getX() + j >> 4, chunkcoordinates.getZ() + k >> 4);
+                }
+            }
+        }
+        pluginManager.callEvent(new WorldLoadEvent(worldserver.getWorld()));
+        return worldserver.getWorld();
         /*Validate.notNull((Object)creator, "Creator may not be null");
         final String name = creator.name();
         ChunkGenerator generator = creator.generator();
@@ -970,8 +1020,7 @@ public final class CraftServer implements Server
             }
         }
         this.pluginManager.callEvent(new WorldLoadEvent(internal.getWorld()));
-        return internal.getWorld();*/ // TODO!!!
-    	return null;
+        return internal.getWorld();*/ //
     }
     
     @Override
@@ -1018,13 +1067,13 @@ public final class CraftServer implements Server
     }
     
     @Override
-    public World getWorld(final String name) {
+    public World getWorld(String name) {
         Validate.notNull((Object)name, "Name cannot be null");
         return this.worlds.get(name.toLowerCase(Locale.ENGLISH));
     }
     
     @Override
-    public World getWorld(final UUID uid) {
+    public World getWorld(UUID uid) {
         for (final World world : this.worlds.values()) {
             if (world.getUID().equals(uid)) {
                 return world;
@@ -1033,12 +1082,12 @@ public final class CraftServer implements Server
         return null;
     }
     
-    public void addWorld(final World world) {
+    public void addWorld(World world) {
         if (this.getWorld(world.getUID()) != null) {
             System.out.println("World " + world.getName() + " is a duplicate of another world and has been prevented from loading. Please delete the uid.dat file from " + world.getName() + "'s world directory if you want to be able to load the duplicate world.");
             return;
         }
-        this.worlds.put(world.getName().toLowerCase(Locale.ENGLISH), world);
+        this.worlds.put(world.getName().toLowerCase(), world);
     }
     
     @Override
@@ -1431,8 +1480,9 @@ public final class CraftServer implements Server
     
     @Override
     public File getWorldContainer() {
-        if (this.getServer().anvilFile != null) {
-            return this.getServer().anvilFile;
+        if (DimensionManager.getWorld(0) != null)
+        {
+            return ((SaveHandler)DimensionManager.getWorld(0).getSaveHandler()).getWorldDirectory();
         }
         if (this.container == null) {
             this.container = new File(this.configuration.getString("settings.world-container", "."));

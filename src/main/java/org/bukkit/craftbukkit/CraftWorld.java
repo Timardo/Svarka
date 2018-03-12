@@ -6,6 +6,7 @@ package org.bukkit.craftbukkit;
 
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import org.bukkit.*;
+import org.bukkit.craftbukkit.util.LongHash;
 import org.bukkit.metadata.MetadataStoreBase;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -253,10 +254,10 @@ public class CraftWorld implements World
     private final WorldServer world;
     private WorldBorder worldBorder;
     private Environment environment;
-    private final CraftServer server;
-    private final ChunkGenerator generator;
-    private final List<BlockPopulator> populators;
-    private final BlockMetadataStore blockMetadata;
+    private final CraftServer server = (CraftServer)Bukkit.getServer();
+    private ChunkGenerator generator;
+    private final List<BlockPopulator> populators = new ArrayList<BlockPopulator>();
+    private final BlockMetadataStore blockMetadata = new BlockMetadataStore(this);
     private int monsterSpawn;
     private int animalSpawn;
     private int waterAnimalSpawn;
@@ -270,9 +271,6 @@ public class CraftWorld implements World
     }
     
     public CraftWorld(final WorldServer world, final ChunkGenerator gen, final Environment env) {
-        this.server = (CraftServer)Bukkit.getServer();
-        this.populators = new ArrayList<BlockPopulator>();
-        this.blockMetadata = new BlockMetadataStore(this);
         this.monsterSpawn = -1;
         this.animalSpawn = -1;
         this.waterAnimalSpawn = -1;
@@ -341,7 +339,7 @@ public class CraftWorld implements World
     
     @Override
     public Chunk[] getLoadedChunks() {
-        final Object[] chunks = this.world.getChunkProvider().getLoadedChunks().toArray();
+        final Object[] chunks = this.world.getChunkProvider().id2ChunkMap.values().toArray();
         final Chunk[] craftChunks = new CraftChunk[chunks.length];
         for (int i = 0; i < chunks.length; ++i) {
             final net.minecraft.world.chunk.Chunk chunk = (net.minecraft.world.chunk.Chunk)chunks[i];
@@ -421,7 +419,7 @@ public class CraftWorld implements World
         if (chunk != null) {
             this.world.getChunkProvider().id2ChunkMap.put(chunkKey, /*(Object)*/chunk);
             chunk.onChunkLoad();
-            chunk.loadNearby(this.world.getChunkProvider(), this.world.getChunkProvider().chunkGenerator, true);
+            chunk.populateChunk(this.world.getChunkProvider(), this.world.getChunkProvider().chunkGenerator);
             this.refreshChunk(x, z);
         }
         return chunk != null;
@@ -455,7 +453,10 @@ public class CraftWorld implements World
         }
         return this.world.getChunkProvider().loadChunk(x, z) != null;
     }
-    
+
+
+
+
     @Override
     public boolean isChunkLoaded(final Chunk chunk) {
         return this.isChunkLoaded(chunk.getX(), chunk.getZ());

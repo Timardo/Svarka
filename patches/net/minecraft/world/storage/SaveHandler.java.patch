@@ -34,7 +34,26 @@
  
      public SaveHandler(File p_i46648_1_, String saveDirectoryNameIn, boolean p_i46648_3_, DataFixer dataFixerIn)
      {
-@@ -219,6 +229,13 @@
+@@ -93,7 +103,7 @@
+             {
+                 if (datainputstream.readLong() != this.initializationTime)
+                 {
+-                    throw new MinecraftException("The save is being accessed from another location, aborting");
++                    //throw new MinecraftException("The save is being accessed from another location, aborting");
+                 }
+             }
+             finally
+@@ -103,7 +113,8 @@
+         }
+         catch (IOException var7)
+         {
+-            throw new MinecraftException("Failed to check session lock, aborting");
++            var7.printStackTrace();
++            throw new MinecraftException("Failed to check session lock for world " + this.worldDirectory + ", aborting");
+         }
+     }
+ 
+@@ -219,6 +230,13 @@
  
          if (nbttagcompound != null)
          {
@@ -48,7 +67,7 @@
              player.readFromNBT(this.dataFixer.process(FixTypes.PLAYER, nbttagcompound));
          }
  
-@@ -226,6 +243,19 @@
+@@ -226,6 +244,19 @@
          return nbttagcompound;
      }
  
@@ -68,7 +87,7 @@
      public IPlayerFileData getPlayerNBTManager()
      {
          return this;
-@@ -282,4 +312,75 @@
+@@ -282,4 +313,75 @@
          }
          return null;
      }

@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/world/storage/WorldInfo.java
 +++ ../src-work/minecraft/net/minecraft/world/storage/WorldInfo.java
-@@ -856,4 +856,10 @@
+@@ -856,4 +856,25 @@
      {
          return this.versionName;
      }
@@ -10,4 +10,19 @@
 +            this.levelName = name;
 +        }
 +    }
++
++    // Svarka start
++    /**
++     * Sets the Dimension.
++     */
++    public void setDimension(int dim)
++    {
++        this.dimension = dim;
++    }
++
++    public int getDimension()
++    {
++        return this.dimension;
++    }
++    // Svarka end
  }
