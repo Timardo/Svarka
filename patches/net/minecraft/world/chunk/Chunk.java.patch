@@ -106,43 +106,24 @@
      }
  
      public void removeEntity(Entity entityIn)
-@@ -951,9 +1001,38 @@
+@@ -951,9 +1001,8 @@
      {
          return false;
      }
+-
+-    public void populateChunk(IChunkProvider chunkProvider, IChunkGenerator chunkGenrator)
+-    {
 +    
 +    public void populateChunk(IChunkProvider chunkProvider, IChunkGenerator chunkGenrator) {
-+    	this.loadNearby(chunkProvider, chunkGenrator, true);
-+    }
- 
--    public void populateChunk(IChunkProvider chunkProvider, IChunkGenerator chunkGenrator)
-+    public void loadNearby(IChunkProvider chunkProvider, IChunkGenerator chunkGenrator, boolean newChunk)
-     {
-+    	Server server = worldObj.getServer();
-+    	if (server != null) {
-+    		/*
-+    		 * If it's a new world, the first few chunks are generated inside
-+    		 * the World constructor. We can't reliably alter that, so we have
-+    		 * no way of creating a CraftWorld/CraftServer at that point.
-+    		 */
-+    		server.getPluginManager().callEvent(new org.bukkit.event.world.ChunkLoadEvent(bukkitChunk, newChunk));
-+    	}
-+    	
-+    	// Update neighbor counts
-+    	for (int x = -2; x < 3; x++) {
-+    		for (int z = -2; z < 3; z++) {
-+    			if (x == 0 && z == 0) {
-+    				continue;
-+    			}
-+    	
-+    			Chunk neighbor = getWorld().getChunkIfLoaded(xPosition + x, zPosition + z);
-+    			if (neighbor != null) {
-+    				neighbor.setNeighborLoaded(-x, -z);
-+    				setNeighborLoaded(x, z);
-+    			}
-+    		}
-+    	}
-+    	// CraftBukkit end
          Chunk chunk = chunkProvider.getLoadedChunk(this.xPosition, this.zPosition - 1);
          Chunk chunk1 = chunkProvider.getLoadedChunk(this.xPosition + 1, this.zPosition);
          Chunk chunk2 = chunkProvider.getLoadedChunk(this.xPosition, this.zPosition + 1);
+@@ -985,6 +1034,8 @@
+         }
+     }
+ 
++
++
+     protected void populateChunk(IChunkGenerator generator)
+     {
+         if (this.isTerrainPopulated())

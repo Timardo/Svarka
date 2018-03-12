@@ -90,7 +90,7 @@
  public abstract class PlayerList
  {
      public static final File FILE_PLAYERBANS = new File("banned-players.json");
-@@ -74,23 +126,34 @@
+@@ -74,23 +126,32 @@
      private static final Logger LOG = LogManager.getLogger();
      private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd \'at\' HH:mm:ss z");
      private final MinecraftServer mcServer;
@@ -116,8 +116,6 @@
      public PlayerList(MinecraftServer server)
      {
 +    	this.cserver = server.server = new CraftServer(server, this);
-+        RecipeBookCloning recipeBookCloning = new RecipeBookCloning();
-+        Svarka.debug("Size:" + recipeBookCloning.getRecipeSize() + "Out" + recipeBookCloning.getRecipeOutput().toString());
 +        server.svarkaConfig.registerCommands();
 +        org.spigotmc.SpigotConfig.init((File) server.options.valueOf("spigot-settings"));
 +        org.spigotmc.SpigotConfig.registerCommands();
@@ -127,7 +125,7 @@
          this.bannedPlayers = new UserListBans(FILE_PLAYERBANS);
          this.bannedIPs = new UserListIPBans(FILE_IPBANS);
          this.ops = new UserListOps(FILE_OPS);
-@@ -130,13 +193,15 @@
+@@ -130,13 +191,15 @@
              s1 = netManager.getRemoteAddress().toString();
          }
  
@@ -144,7 +142,7 @@
          nethandlerplayserver.sendPacket(new SPacketCustomPayload("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(this.getServerInstance().getServerModName())));
          nethandlerplayserver.sendPacket(new SPacketServerDifficulty(worldinfo.getDifficulty(), worldinfo.isDifficultyLocked()));
          nethandlerplayserver.sendPacket(new SPacketSpawnPosition(blockpos));
-@@ -147,20 +212,25 @@
+@@ -147,20 +210,25 @@
          playerIn.getStatFile().sendAchievements(playerIn);
          this.sendScoreboard((ServerScoreboard)worldserver.getScoreboard(), playerIn);
          this.mcServer.refreshStatusNextTick();
@@ -177,7 +175,7 @@
          nethandlerplayserver.setPlayerLocation(playerIn.posX, playerIn.posY, playerIn.posZ, playerIn.rotationYaw, playerIn.rotationPitch);
          this.updateTimeAndWeatherForPlayer(playerIn, worldserver);
  
-@@ -226,9 +296,11 @@
+@@ -226,9 +294,11 @@
  
          playerIn.addSelfToInternalCraftingInventory();
          net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerLoggedIn(playerIn);
@@ -190,7 +188,7 @@
      {
          Set<ScoreObjective> set = Sets.<ScoreObjective>newHashSet();
  
-@@ -352,21 +424,47 @@
+@@ -352,21 +422,47 @@
          }
      }
  
@@ -245,7 +243,7 @@
      }
  
      public void serverUpdateMountedMovingPlayer(EntityPlayerMP playerIn)
-@@ -374,11 +472,18 @@
+@@ -374,11 +470,18 @@
          playerIn.getServerWorld().getPlayerChunkMap().updateMountedMovingPlayer(playerIn);
      }
  
@@ -265,7 +263,7 @@
          this.writePlayerData(playerIn);
  
          if (playerIn.isRiding())
-@@ -412,13 +517,50 @@
+@@ -412,13 +515,50 @@
              this.playerStatFiles.remove(uuid);
          }
          net.minecraftforge.common.chunkio.ChunkIOExecutor.adjustPoolSize(this.getCurrentPlayerCount());
@@ -320,7 +318,7 @@
          {
              UserListBansEntry userlistbansentry = (UserListBansEntry)this.bannedPlayers.getEntry(profile);
              String s1 = "You are banned from this server!\nReason: " + userlistbansentry.getBanReason();
-@@ -428,15 +570,16 @@
+@@ -428,15 +568,16 @@
                  s1 = s1 + "\nYour ban will be removed on " + DATE_FORMAT.format(userlistbansentry.getBanEndDate());
              }
  
@@ -341,7 +339,7 @@
              String s = "Your IP address is banned from this server!\nReason: " + userlistipbansentry.getBanReason();
  
              if (userlistipbansentry.getBanEndDate() != null)
-@@ -444,17 +587,27 @@
+@@ -444,17 +585,27 @@
                  s = s + "\nYour ban will be removed on " + DATE_FORMAT.format(userlistipbansentry.getBanEndDate());
              }
  
@@ -373,7 +371,7 @@
          List<EntityPlayerMP> list = Lists.<EntityPlayerMP>newArrayList();
  
          for (int i = 0; i < this.playerEntityList.size(); ++i)
-@@ -490,11 +643,17 @@
+@@ -490,11 +641,17 @@
              playerinteractionmanager = new PlayerInteractionManager(this.mcServer.worldServerForDimension(0));
          }
  
@@ -392,7 +390,7 @@
          World world = mcServer.worldServerForDimension(dimension);
          if (world == null)
          {
-@@ -502,82 +661,186 @@
+@@ -502,82 +659,186 @@
          }
          else if (!world.provider.canRespawnHere())
          {
@@ -633,7 +631,7 @@
  
      public void updatePermissionLevel(EntityPlayerMP player)
      {
-@@ -620,8 +883,75 @@
+@@ -620,8 +881,75 @@
  
      public void transferEntityToWorld(Entity entityIn, int lastDimension, WorldServer oldWorldIn, WorldServer toWorldIn)
      {
@@ -710,7 +708,7 @@
  
      @SuppressWarnings("unused")
      public void transferEntityToWorld(Entity entityIn, int lastDimension, WorldServer oldWorldIn, WorldServer toWorldIn, net.minecraft.world.Teleporter teleporter)
-@@ -720,7 +1050,22 @@
+@@ -720,7 +1048,22 @@
              ((EntityPlayerMP)this.playerEntityList.get(i)).connection.sendPacket(packetIn);
          }
      }
@@ -734,7 +732,7 @@
      public void sendPacketToAllPlayersInDimension(Packet<?> packetIn, int dimension)
      {
          for (int i = 0; i < this.playerEntityList.size(); ++i)
-@@ -836,12 +1181,24 @@
+@@ -836,12 +1179,24 @@
          int i = this.mcServer.getOpPermissionLevel();
          this.ops.addEntry(new UserListOpsEntry(profile, this.mcServer.getOpPermissionLevel(), this.ops.bypassesPlayerLimit(profile)));
          this.sendPlayerPermissionLevel(this.getPlayerByUUID(profile.getId()), i);
@@ -759,7 +757,7 @@
      }
  
      private void sendPlayerPermissionLevel(EntityPlayerMP player, int permLevel)
-@@ -896,7 +1253,11 @@
+@@ -896,7 +1251,11 @@
          for (int i = 0; i < this.playerEntityList.size(); ++i)
          {
              EntityPlayerMP entityplayermp = (EntityPlayerMP)this.playerEntityList.get(i);
@@ -772,7 +770,7 @@
              if (entityplayermp != except && entityplayermp.dimension == dimension)
              {
                  double d0 = x - entityplayermp.posX;
-@@ -961,16 +1322,21 @@
+@@ -961,16 +1320,21 @@
  
          if (worldIn.isRaining())
          {
@@ -798,7 +796,7 @@
          playerIn.connection.sendPacket(new SPacketHeldItemChange(playerIn.inventory.currentItem));
      }
  
-@@ -1054,15 +1420,21 @@
+@@ -1054,15 +1418,21 @@
      {
          for (int i = 0; i < this.playerEntityList.size(); ++i)
          {
