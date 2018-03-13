@@ -1088,7 +1088,7 @@ public final class CraftServer implements Server
         	Svarka.bukkitLog.info("World " + world.getName() + " is a duplicate of another world and has been prevented from loading. Please delete the uid.dat file from " + world.getName() + "'s world directory if you want to be able to load the duplicate world.");
             return;
         }
-        this.worlds.put(world.getName().toLowerCase(), world);
+        this.worlds.put(world.getName().toLowerCase(Locale.ENGLISH), world);
     }
     
     @Override

@@ -52,7 +52,25 @@
      public static void registerDimension(int id, DimensionType type)
      {
          DimensionType.getById(type.getId()); //Check if type is invalid {will throw an error} No clue how it would be invalid tho...
-@@ -209,6 +211,7 @@
+@@ -176,11 +178,17 @@
+         {
+             worlds.put(id, world);
+             weakWorldMap.put(world, world);
++            // handle all world adds here for Bukkit
++            if (!FMLCommonHandler.instance().getMinecraftServerInstance().worlds.contains(world))
++            {
++                FMLCommonHandler.instance().getMinecraftServerInstance().worlds.add(world);
++            }
+             server.worldTickTimes.put(id, new long[100]);
+             FMLLog.info("Loading dimension %d (%s) (%s)", id, world.getWorldInfo().getWorldName(), world.getMinecraftServer());
+         }
+         else
+         {
++            FMLCommonHandler.instance().getMinecraftServerInstance().worlds.remove(getWorld(id)); // Cauldron - remove world from our new world arraylist
+             worlds.remove(id);
+             server.worldTickTimes.remove(id);
+             FMLLog.info("Unloading dimension %d", id);
+@@ -209,6 +217,7 @@
  
      public static void initDimension(int dim)
      {
@@ -60,7 +78,7 @@
          WorldServer overworld = getWorld(0);
          if (overworld == null)
          {
-@@ -225,11 +228,50 @@
+@@ -225,11 +234,50 @@
          }
          MinecraftServer mcServer = overworld.getMinecraftServer();
          ISaveHandler savehandler = overworld.getSaveHandler();
@@ -113,7 +131,7 @@
          if (!mcServer.isSinglePlayer())
          {
              world.getWorldInfo().setGameType(mcServer.getGameType());
-@@ -391,17 +433,125 @@
+@@ -391,17 +439,125 @@
      {
          if (DimensionManager.getWorld(0) != null)
          {

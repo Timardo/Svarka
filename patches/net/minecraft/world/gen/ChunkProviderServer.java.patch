@@ -51,7 +51,7 @@
      public final IChunkGenerator chunkGenerator;
      public final IChunkLoader chunkLoader;
 -    public final Long2ObjectMap<Chunk> id2ChunkMap = new Long2ObjectOpenHashMap(8192);
-+    public final Long2ObjectOpenHashMap<Chunk> id2ChunkMap = new Long2ObjectOpenHashMap(8192);
++    public final Long2ObjectMap<Chunk> id2ChunkMap = new Long2ObjectOpenHashMap<Chunk>(8192);
      public final WorldServer worldObj;
      private Set<Long> loadingChunks = com.google.common.collect.Sets.newHashSet();
 +    public boolean loadChunkOnProvideRequest = FMLCommonHandler.instance().getMinecraftServerInstance().svarkaConfig.loadChunkOnRequest.getValue(); // TODO Svarka - if true, allows mods to force load chunks. to disable, set load-chunk-on-request in cauldron.yml to false
@@ -72,11 +72,7 @@
              this.unload(chunk);
          }
      }
-@@ -98,12 +113,13 @@
-             {
-                 if (!loadingChunks.add(pos)) net.minecraftforge.fml.common.FMLLog.bigWarning("There is an attempt to load a chunk (%d,%d) in dimension %d that is already being loaded. This will cause weird chunk breakages.", x, z, this.worldObj.provider.getDimension());
-                 if (chunk == null) chunk = this.loadChunkFromFile(x, z);
-+                AnvilChunkLoader loader = null;
+@@ -101,9 +116,9 @@
  
                  if (chunk != null)
                  {
@@ -89,7 +85,7 @@
                  }
  
                  loadingChunks.remove(pos);
-@@ -122,8 +138,26 @@
+@@ -122,6 +137,24 @@
              }
          }
  
@@ -110,14 +106,11 @@
 +        } else if (chunk == null) {
 +            chunk = this.provideChunk(x,z);
 +        }
-+
++*/
          // If we didn't load the chunk async and have a callback run it now
--        if (runnable != null) runnable.run();
-+        if (runnable != null) runnable.run();*/
+         if (runnable != null) runnable.run();
          return chunk;
-     }
- 
-@@ -156,7 +190,51 @@
+@@ -156,7 +189,51 @@
  
          return chunk;
      }

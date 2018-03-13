@@ -339,7 +339,7 @@ public class CraftWorld implements World
     
     @Override
     public Chunk[] getLoadedChunks() {
-        final Object[] chunks = this.world.getChunkProvider().id2ChunkMap.values().toArray();
+        final Object[] chunks = this.world.getChunkProvider().getLoadedChunks().toArray();
         final Chunk[] craftChunks = new CraftChunk[chunks.length];
         for (int i = 0; i < chunks.length; ++i) {
             final net.minecraft.world.chunk.Chunk chunk = (net.minecraft.world.chunk.Chunk)chunks[i];
@@ -1788,7 +1788,7 @@ public class CraftWorld implements World
             this.chunkGCTickCount = 0;
         }
         final ChunkProviderServer cps = this.world.getChunkProvider();
-        for (final net.minecraft.world.chunk.Chunk chunk : cps.id2ChunkMap.values()) {
+        for (final net.minecraft.world.chunk.Chunk chunk : cps.getLoadedChunks()) {
             if (this.isChunkInUse(chunk.xPosition, chunk.zPosition)) {
                 continue;
             }
@@ -1885,5 +1885,11 @@ public class CraftWorld implements World
     public Server.Spigot spigot()
     {
         return spigot;
+    }
+
+    public void setGenerator(ChunkGenerator generator) {
+        if (this.generator == null) {
+            this.generator = generator;
+        }
     }
 }
