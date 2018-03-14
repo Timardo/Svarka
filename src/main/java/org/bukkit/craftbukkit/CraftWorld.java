@@ -254,10 +254,10 @@ public class CraftWorld implements World
     private final WorldServer world;
     private WorldBorder worldBorder;
     private Environment environment;
-    private final CraftServer server = (CraftServer)Bukkit.getServer();
+    private final CraftServer server;
     private ChunkGenerator generator;
-    private final List<BlockPopulator> populators = new ArrayList<BlockPopulator>();
-    private final BlockMetadataStore blockMetadata = new BlockMetadataStore(this);
+    private final List<BlockPopulator> populators;
+    private final BlockMetadataStore blockMetadata;
     private int monsterSpawn;
     private int animalSpawn;
     private int waterAnimalSpawn;
@@ -271,6 +271,9 @@ public class CraftWorld implements World
     }
     
     public CraftWorld(final WorldServer world, final ChunkGenerator gen, final Environment env) {
+        this.server = (CraftServer)Bukkit.getServer();
+        this.populators = new ArrayList<BlockPopulator>();
+        this.blockMetadata = new BlockMetadataStore(this);
         this.monsterSpawn = -1;
         this.animalSpawn = -1;
         this.waterAnimalSpawn = -1;
@@ -419,7 +422,7 @@ public class CraftWorld implements World
         if (chunk != null) {
             this.world.getChunkProvider().id2ChunkMap.put(chunkKey, /*(Object)*/chunk);
             chunk.onChunkLoad();
-            chunk.populateChunk(this.world.getChunkProvider(), this.world.getChunkProvider().chunkGenerator);
+            chunk.loadNearby(this.world.getChunkProvider(), this.world.getChunkProvider().chunkGenerator,true);
             this.refreshChunk(x, z);
         }
         return chunk != null;

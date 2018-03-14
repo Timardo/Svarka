@@ -35,7 +35,7 @@
      private final Map<UUID, Entity> entitiesByUuid = Maps.<UUID, Entity>newHashMap();
      public boolean disableLevelSaving;
      private boolean allPlayersSleeping;
-@@ -101,29 +114,52 @@
+@@ -101,29 +114,30 @@
      /** Stores the recently processed (lighting) chunks */
      protected Set<ChunkPos> doneChunks = new java.util.HashSet<ChunkPos>();
      public List<Teleporter> customTeleporters = new ArrayList<Teleporter>();
@@ -59,67 +59,72 @@
          this.chunkProvider = this.createChunkProvider();
 -        perWorldStorage = new MapStorage(new net.minecraftforge.common.WorldSpecificSaveHandler((WorldServer)this, saveHandlerIn));
 -        this.worldTeleporter = new Teleporter(this);
-+        this.perWorldStorage = new MapStorage(new WorldSpecificSaveHandler((WorldServer) this, saveHandlerIn));
 +        //this.worldTeleporter = new Teleporter(this);
 +        this.worldTeleporter = new org.bukkit.craftbukkit.CraftTravelAgent(this); // CraftBukkit
++        this.perWorldStorage = new MapStorage(new WorldSpecificSaveHandler((WorldServer) this, saveHandler));
          this.calculateInitialSkylight();
          this.calculateInitialWeather();
          this.getWorldBorder().setSize(server.getMaxWorldSize());
          net.minecraftforge.common.DimensionManager.setWorld(dimensionId, this, mcServer);
 -    }
-+        this.worldScoreboard = new ServerScoreboard(this.mcServer);
- 
+-
 -    public World init()
 -    {
 -        this.mapStorage = new MapStorage(this.saveHandler);
-+        this.worldInfo.setWorldName(worldInfo.getWorldName());
-+        // Svarka start - Use saved dimension from level.dat. Fixes issues with MultiVerse
-+        if (this.worldInfo.getDimension() != 0)
-+            this.provider.setDimension(this.worldInfo.getDimension());
-+        else
-+        {
-+            this.worldInfo.setDimension(this.provider.getDimension());
-+        }
-+        // Svarka end
++        this.worldScoreboard = new ServerScoreboard(this.mcServer);
++        ((WorldServer) this).worldInfo.setDimension(dimensionId);
+         String s = VillageCollection.fileNameForProvider(this.provider);
+         VillageCollection villagecollection = (VillageCollection)this.perWorldStorage.getOrLoadData(VillageCollection.class, s);
+ 
+@@ -138,7 +152,10 @@
+             this.villageCollectionObj.setWorldsForAll(this);
+         }
+ 
+-        this.worldScoreboard = new ServerScoreboard(this.mcServer);
++    }
 +
-+        ScoreboardSaveData scoreboardsavedata = (ScoreboardSaveData)this.mapStorage.getOrLoadData(ScoreboardSaveData.class, "scoreboard");
-+
-+        if (scoreboardsavedata == null)
-+        {
-+            scoreboardsavedata = new ScoreboardSaveData();
-+            this.mapStorage.setData("scoreboard", scoreboardsavedata);
-+        }
++    public World init()
++    {
+         ScoreboardSaveData scoreboardsavedata = (ScoreboardSaveData)this.mapStorage.getOrLoadData(ScoreboardSaveData.class, "scoreboard");
+ 
+         if (scoreboardsavedata == null)
+@@ -146,16 +163,11 @@
+             scoreboardsavedata = new ScoreboardSaveData();
+             this.mapStorage.setData("scoreboard", scoreboardsavedata);
+         }
+-
+-        scoreboardsavedata.setScoreboard(this.worldScoreboard);
 +        if (!(this instanceof WorldServerMulti)) //Forge: We fix the global mapStorage, which causes us to share scoreboards early. So don't associate the save data with the temporary scoreboard
 +        {
 +            scoreboardsavedata.setScoreboard(this.worldScoreboard);
 +        }
-+        ((ServerScoreboard)this.worldScoreboard).addDirtyRunnable(new WorldSavedDataCallableSave(scoreboardsavedata));
-         String s = VillageCollection.fileNameForProvider(this.provider);
-         VillageCollection villagecollection = (VillageCollection)this.perWorldStorage.getOrLoadData(VillageCollection.class, s);
- 
-@@ -137,18 +173,11 @@
-             this.villageCollectionObj = villagecollection;
-             this.villageCollectionObj.setWorldsForAll(this);
-         }
-+    }
- 
--        this.worldScoreboard = new ServerScoreboard(this.mcServer);
--        ScoreboardSaveData scoreboardsavedata = (ScoreboardSaveData)this.mapStorage.getOrLoadData(ScoreboardSaveData.class, "scoreboard");
-+    public World init()
-+    {
- 
--        if (scoreboardsavedata == null)
--        {
--            scoreboardsavedata = new ScoreboardSaveData();
--            this.mapStorage.setData("scoreboard", scoreboardsavedata);
--        }
+         ((ServerScoreboard)this.worldScoreboard).addDirtyRunnable(new WorldSavedDataCallableSave(scoreboardsavedata));
+-        this.lootTable = new LootTableManager(new File(new File(this.saveHandler.getWorldDirectory(), "data"), "loot_tables"));
+-        this.getWorldBorder().setCenter(this.worldInfo.getBorderCenterX(), this.worldInfo.getBorderCenterZ());
+-        this.getWorldBorder().setDamageAmount(this.worldInfo.getBorderDamagePerBlock());
+-        this.getWorldBorder().setDamageBuffer(this.worldInfo.getBorderSafeZone());
+-        this.getWorldBorder().setWarningDistance(this.worldInfo.getBorderWarningDistance());
+-        this.getWorldBorder().setWarningTime(this.worldInfo.getBorderWarningTime());
 -
--        scoreboardsavedata.setScoreboard(this.worldScoreboard);
--        ((ServerScoreboard)this.worldScoreboard).addDirtyRunnable(new WorldSavedDataCallableSave(scoreboardsavedata));
-         this.lootTable = new LootTableManager(new File(new File(this.saveHandler.getWorldDirectory(), "data"), "loot_tables"));
-         this.getWorldBorder().setCenter(this.worldInfo.getBorderCenterX(), this.worldInfo.getBorderCenterZ());
-         this.getWorldBorder().setDamageAmount(this.worldInfo.getBorderDamagePerBlock());
-@@ -193,9 +222,10 @@
+         if (this.worldInfo.getBorderLerpTime() > 0L)
+         {
+             this.getWorldBorder().setTransition(this.worldInfo.getBorderSize(), this.worldInfo.getBorderLerpTarget(), this.worldInfo.getBorderLerpTime());
+@@ -165,6 +177,14 @@
+             this.getWorldBorder().setTransition(this.worldInfo.getBorderSize());
+         }
+ 
++        this.lootTable = new LootTableManager(new File(new File(this.saveHandler.getWorldDirectory(), "data"), "loot_tables"));
++        this.getWorldBorder().setCenter(this.worldInfo.getBorderCenterX(), this.worldInfo.getBorderCenterZ());
++        this.getWorldBorder().setDamageAmount(this.worldInfo.getBorderDamagePerBlock());
++        this.getWorldBorder().setDamageBuffer(this.worldInfo.getBorderSafeZone());
++        this.getWorldBorder().setWarningDistance(this.worldInfo.getBorderWarningDistance());
++        this.getWorldBorder().setWarningTime(this.worldInfo.getBorderWarningTime());
++
++
+         this.initCapabilities();
+         return this;
+     }
+@@ -193,9 +213,10 @@
  
          this.theProfiler.startSection("mobSpawner");
  
@@ -131,7 +136,7 @@
          }
  
          this.theProfiler.endStartSection("chunkSource");
-@@ -341,7 +371,7 @@
+@@ -341,7 +362,7 @@
          this.worldInfo.setSpawnZ(j);
      }
  
@@ -140,7 +145,41 @@
      {
          return this.getChunkProvider().chunkExists(x, z);
      }
-@@ -1304,12 +1334,25 @@
+@@ -998,6 +1019,7 @@
+ 
+         if (chunkproviderserver.canSave())
+         {
++            org.bukkit.Bukkit.getPluginManager().callEvent(new org.bukkit.event.world.WorldSaveEvent(getWorld())); // CraftBukkit
+             if (progressCallback != null)
+             {
+                 progressCallback.displaySavingString("Saving level");
+@@ -1012,9 +1034,10 @@
+ 
+             chunkproviderserver.saveChunks(p_73044_1_);
+             net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.WorldEvent.Save(this));
+-
+-            for (Chunk chunk : Lists.newArrayList(chunkproviderserver.getLoadedChunks()))
+-            {
++            Collection<Chunk> chunkList = chunkproviderserver.getLoadedChunks();
++            Iterator iterator = chunkList.iterator();
++            while (iterator.hasNext()){
++                Chunk chunk = (Chunk) iterator.next();
+                 if (chunk != null && !this.thePlayerManager.contains(chunk.xPosition, chunk.zPosition))
+                 {
+                     chunkproviderserver.unload(chunk);
+@@ -1044,7 +1067,10 @@
+                 ((WorldServerMulti)worldserver).saveAdditionalData();
+             }
+         }
+-
++        if (this instanceof WorldServerMulti)
++        {
++            ((WorldServerMulti)this).saveAdditionalData();
++        }
+         this.worldInfo.setBorderSize(this.getWorldBorder().getDiameter());
+         this.worldInfo.getBorderCenterX(this.getWorldBorder().getCenterX());
+         this.worldInfo.getBorderCenterZ(this.getWorldBorder().getCenterZ());
+@@ -1304,12 +1330,25 @@
  
      public void spawnParticle(EnumParticleTypes particleType, boolean longDistance, double xCoord, double yCoord, double zCoord, int numberOfParticles, double xOffset, double yOffset, double zOffset, double particleSpeed, int... particleArguments)
      {

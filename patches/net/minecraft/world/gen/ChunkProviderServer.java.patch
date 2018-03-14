@@ -18,7 +18,7 @@
  import net.minecraft.util.ReportedException;
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.ChunkPos;
-@@ -21,22 +17,39 @@
+@@ -21,22 +17,40 @@
  import net.minecraft.world.WorldServer;
  import net.minecraft.world.biome.Biome;
  import net.minecraft.world.chunk.Chunk;
@@ -37,6 +37,7 @@
 +import org.bukkit.Server;
 +import org.bukkit.craftbukkit.util.LongHash;
 +import org.bukkit.craftbukkit.util.LongHashSet;
++import org.bukkit.event.world.ChunkUnloadEvent;
  
 +import javax.annotation.Nullable;
 +import java.io.IOException;
@@ -60,7 +61,7 @@
      public ChunkProviderServer(WorldServer worldObjIn, IChunkLoader chunkLoaderIn, IChunkGenerator chunkGeneratorIn)
      {
          this.worldObj = worldObjIn;
-@@ -60,8 +73,10 @@
+@@ -60,8 +74,10 @@
  
      public void unloadAllChunks()
      {
@@ -72,7 +73,7 @@
              this.unload(chunk);
          }
      }
-@@ -101,9 +116,9 @@
+@@ -101,9 +117,9 @@
  
                  if (chunk != null)
                  {
@@ -85,7 +86,7 @@
                  }
  
                  loadingChunks.remove(pos);
-@@ -122,6 +137,24 @@
+@@ -122,6 +138,24 @@
              }
          }
  
@@ -110,7 +111,7 @@
          // If we didn't load the chunk async and have a callback run it now
          if (runnable != null) runnable.run();
          return chunk;
-@@ -156,7 +189,51 @@
+@@ -156,7 +190,51 @@
  
          return chunk;
      }
@@ -162,3 +163,81 @@
      @Nullable
      private Chunk loadChunkFromFile(int x, int z)
      {
+@@ -212,11 +290,10 @@
+     {
+         int i = 0;
+         List<Chunk> list = Lists.newArrayList(this.id2ChunkMap.values());
++        Iterator<Chunk> iterator = this.getLoadedChunks().iterator();
++        while (iterator.hasNext()){
++            Chunk chunk = iterator.next();
+ 
+-        for (int j = 0; j < ((List)list).size(); ++j)
+-        {
+-            Chunk chunk = (Chunk)list.get(j);
+-
+             if (p_186027_1_)
+             {
+                 this.saveChunkExtraData(chunk);
+@@ -228,7 +305,7 @@
+                 chunk.setModified(false);
+                 ++i;
+ 
+-                if (i == 24 && !p_186027_1_)
++                if (i == 24 && !p_186027_1_ && false) //Spigot patch..
+                 {
+                     return false;
+                 }
+@@ -263,10 +340,10 @@
+ 
+                     if (chunk != null && chunk.unloaded)
+                     {
+-                        chunk.onChunkUnload();
+-                        this.saveChunkData(chunk);
+-                        this.saveChunkExtraData(chunk);
+-                        this.id2ChunkMap.remove(olong);
++                        if (!unloadChunk(chunk, true)) {
++                            continue;
++                        }
++
+                         ++i;
+                         net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(chunk.xPosition, chunk.zPosition), chunk);
+                         if (id2ChunkMap.size() == 0 && net.minecraftforge.common.ForgeChunkManager.getPersistentChunksFor(this.worldObj).size() == 0 && !this.worldObj.provider.getDimensionType().shouldLoadSpawn()){
+@@ -283,6 +360,38 @@
+         return false;
+     }
+ 
++    private boolean unloadChunk(Chunk chunk, boolean save) {
++        ChunkUnloadEvent event = new ChunkUnloadEvent(chunk.bukkitChunk, save);
++        this.worldObj.getServer().getPluginManager().callEvent(event);
++        if (event.isCancelled()) {
++            return false;
++        }
++        save = event.isSaveChunk();
++
++        // Update neighbor counts
++        for (int x = -2; x < 3; x++) {
++            for (int z = -2; z < 3; z++) {
++                if (x == 0 && z == 0) {
++                    continue;
++                }
++
++                Chunk neighbor = this.getLoadedChunk(chunk.xPosition + x, chunk.zPosition + z);
++                if (neighbor != null) {
++                    neighbor.setNeighborUnloaded(-x, -z);
++                    chunk.setNeighborUnloaded(x, z);
++                }
++            }
++        }
++        // Moved from unloadChunks above
++        chunk.onChunkUnload();
++        if(save){
++            this.saveChunkData(chunk);
++            this.saveChunkExtraData(chunk);
++        }
++        this.id2ChunkMap.remove(chunk.chunkKey);
++        return true;
++    }
++
+     public boolean canSave()
+     {
+         return !this.worldObj.disableLevelSaving;

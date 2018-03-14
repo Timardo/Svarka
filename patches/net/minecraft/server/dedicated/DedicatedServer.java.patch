@@ -134,6 +134,15 @@
                  long j = System.nanoTime();
  
                  if (this.getFolderName() == null)
+@@ -263,7 +298,7 @@
+                 PlayerProfileCache.setOnlineMode(this.isServerInOnlineMode());
+                 if (!net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerAboutToStart(this)) return false;
+                 LOGGER.info("Preparing level \"{}\"", new Object[] {this.getFolderName()});
+-                this.loadAllWorlds(this.getFolderName(), this.getFolderName(), k, worldtype, s2);
++                    this.loadAllWorlds(this.getFolderName(), this.getFolderName(), k, worldtype, s2);
+                 long i1 = System.nanoTime() - j;
+                 String s3 = String.format("%.3fs", new Object[] {Double.valueOf((double)i1 / 1.0E9D)});
+                 LOGGER.info("Done ({})! For help, type \"help\" or \"?\"", new Object[] {s3});
 @@ -280,8 +315,29 @@
                      LOGGER.info("Starting remote control listener");
                      this.theRConThreadMain = new RConThreadMain(this);
