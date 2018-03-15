@@ -96,7 +96,7 @@
      private final List<ITickable> tickables = Lists.<ITickable>newArrayList();
      public final ICommandManager commandManager;
      public final Profiler theProfiler = new Profiler();
-@@ -146,21 +162,64 @@
+@@ -146,21 +162,67 @@
      private long currentTime = getCurrentTimeMillis();
      @SideOnly(Side.CLIENT)
      private boolean worldIconSet;
@@ -112,6 +112,9 @@
 +    public java.util.Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
 +    public int autosavePeriod;
 +    public SvarkaConfig svarkaConfig;
++    private static final int TPS = 20;
++    private static final int TICK_TIME = 1000000000 / TPS;
++    private static final int SAMPLE_INTERVAL = 100;
 +    public final double[] recentTps = new double[ 3 ];
 +    // CraftBukkit end
  
@@ -164,7 +167,7 @@
      public ServerCommandManager createNewCommandManager()
      {
          return new ServerCommandManager(this);
-@@ -219,41 +278,52 @@
+@@ -219,41 +281,52 @@
      {
          this.convertMapIfNeeded(saveName);
          this.setUserMessage("menu.loadingLevel");
@@ -248,7 +251,7 @@
              world.addEventListener(new ServerWorldEventHandler(this, world));
  
              if (!this.isSinglePlayer())
-@@ -261,44 +331,52 @@
+@@ -261,44 +334,52 @@
                  world.getWorldInfo().setGameType(this.getGameType());
              }
              net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.WorldEvent.Load(world));
@@ -325,7 +328,7 @@
          this.clearCurrentTask();
      }
  
-@@ -337,81 +415,94 @@
+@@ -337,81 +418,100 @@
      {
          this.currentTask = null;
          this.percentDone = 0;
@@ -346,21 +349,26 @@
                  {
                      LOG.info("Saving chunks for level \'{}\'/{}", new Object[] {worldserver.getWorldInfo().getWorldName(), worldserver.provider.getDimensionType().getName()});
                  }
-+                worldserver.saveAllChunks(true, (IProgressUpdate)null);
-+                worldserver.flush();
-+                WorldSaveEvent event = new WorldSaveEvent(worldserver.getWorld());
-+                this.server.getPluginManager().callEvent(event);
-+                // Svarka - save world configs
-+                svarkaConfig.save();
- 
+-
 -                try
 -                {
--                    worldserver.saveAllChunks(true, (IProgressUpdate)null);
--                }
++                try {
+                     worldserver.saveAllChunks(true, (IProgressUpdate)null);
++                    worldserver.saveLevel();
++                    worldserver.flush();
++                } catch (MinecraftException e){
++
+                 }
 -                catch (MinecraftException minecraftexception)
 -                {
 -                    LOG.warn(minecraftexception.getMessage());
 -                }
++
++                WorldSaveEvent event = new WorldSaveEvent(worldserver.getWorld());
++                this.server.getPluginManager().callEvent(event);
++                // Svarka - save world configs
++                svarkaConfig.save();
++
              }
          }
      }
@@ -393,21 +401,22 @@
 -            this.playerList.saveAllPlayerData();
 -            this.playerList.removeAllPlayers();
 -        }
-+            if (this.playerList != null)
-+            {
-+                LOG.info("Saving players");
-+                this.playerList.saveAllPlayerData();
-+                this.playerList.removeAllPlayers();
-+            }
- 
+-
 -        if (this.worldServers != null)
 -        {
 -            LOG.info("Saving worlds");
 -
 -            for (WorldServer worldserver : this.worldServers)
-+            if (this.worldServers != null)
++            if (this.playerList != null)
              {
 -                if (worldserver != null)
++                LOG.info("Saving players");
++                this.playerList.saveAllPlayerData();
++                this.playerList.removeAllPlayers();
++            }
++            try { Thread.sleep(100); } catch (InterruptedException ex) {} // CraftBukkit - SPIGOT-625 - give server at least a chance to send packets
++            if (this.worldServers != null)
++            {
 +                LOG.info("Saving worlds");
 +
 +                for (WorldServer worldserver : this.worldServers)
@@ -464,7 +473,7 @@
      }
  
      public boolean isServerRunning()
-@@ -436,7 +527,10 @@
+@@ -436,43 +536,34 @@
                  this.statusResponse.setServerDescription(new TextComponentString(this.motd));
                  this.statusResponse.setVersion(new ServerStatusResponse.Version("1.10.2", 210));
                  this.applyServerIconToResponse(this.statusResponse);
@@ -475,7 +484,70 @@
                  while (this.serverRunning)
                  {
                      long k = getCurrentTimeMillis();
-@@ -596,8 +690,9 @@
+                     long j = k - this.currentTime;
++                    curTime = System.nanoTime();
++                    wait = TICK_TIME - (curTime - lastTick) - catchupTime;
+ 
+-                    if (j > 2000L && this.currentTime - this.timeOfLastWarning >= 15000L)
+-                    {
+-                        LOG.warn("Can\'t keep up! Did the system time change, or is the server overloaded? Running {}ms behind, skipping {} tick(s)", new Object[] {Long.valueOf(j), Long.valueOf(j / 50L)});
+-                        j = 2000L;
+-                        this.timeOfLastWarning = this.currentTime;
++                    if (wait > 0) {
++                        Thread.sleep(wait / 1000000);
++                        catchupTime = 0;
++                        continue;
++                    } else {
++                        catchupTime = Math.min(1000000000, Math.abs(wait));
+                     }
+-
+-                    if (j < 0L)
++                    if ( MinecraftServer.currentTick++ % SAMPLE_INTERVAL == 0 )
+                     {
+-                        LOG.warn("Time ran backwards! Did the system time change?");
+-                        j = 0L;
++                        double currentTps = 1E9 / ( curTime - tickSection ) * SAMPLE_INTERVAL;
++                        recentTps[0] = calcTps( recentTps[0], 0.92, currentTps ); // 1/exp(5sec/1min)
++                        recentTps[1] = calcTps( recentTps[1], 0.9835, currentTps ); // 1/exp(5sec/5min)
++                        recentTps[2] = calcTps( recentTps[2], 0.9945, currentTps ); // 1/exp(5sec/15min)
++                        tickSection = curTime;
+                     }
+-
+-                    i += j;
+-                    this.currentTime = k;
+-
+-                    if (this.worldServers[0].areAllPlayersAsleep())
+-                    {
+-                        this.tick();
+-                        i = 0L;
+-                    }
+-                    else
+-                    {
+-                        while (i > 50L)
+-                        {
+-                            i -= 50L;
+-                            this.tick();
+-                        }
+-                    }
+-
+-                    Thread.sleep(Math.max(1L, 50L - i));
++                    lastTick = curTime;
++                    this.tick();
+                     this.serverIsRunning = true;
+                 }
+                 net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStopping();
+@@ -537,6 +628,10 @@
+         }
+     }
+ 
++    private double calcTps(double avg, double exp, double tps) {
++        return (avg * exp) + (tps * (1 - exp));
++    }
++
+     public void applyServerIconToResponse(ServerStatusResponse response)
+     {
+         File file1 = this.getFile("server-icon.png");
+@@ -596,8 +691,9 @@
      {
      }
  
@@ -486,12 +558,12 @@
          long i = System.nanoTime();
          net.minecraftforge.fml.common.FMLCommonHandler.instance().onPreServerTick();
          ++this.tickCounter;
-@@ -629,11 +724,21 @@
+@@ -629,11 +725,21 @@
              this.statusResponse.invalidateJson();
          }
  
 -        if (this.tickCounter % 900 == 0)
-+        if (autosavePeriod > 0 && this.tickCounter % autosavePeriod == 0) //Svarka
++        if ((autosavePeriod > 0) && ((this.tickCounter % autosavePeriod) == 0)) //Svarka
          {
 +            SpigotTimings.worldSaveTimer.startTiming(); // Spigot
              this.theProfiler.startSection("save");
@@ -510,7 +582,7 @@
              this.theProfiler.endSection();
          }
  
-@@ -661,13 +766,23 @@
+@@ -661,13 +767,23 @@
      {
          this.theProfiler.startSection("jobs");
  
@@ -536,7 +608,7 @@
  
          this.theProfiler.endStartSection("levels");
          net.minecraftforge.common.chunkio.ChunkIOExecutor.tick();
-@@ -831,7 +946,7 @@
+@@ -831,7 +947,7 @@
  
      public List<String> getTabCompletions(ICommandSender sender, String input, @Nullable BlockPos pos, boolean hasTargetBlock)
      {
@@ -545,7 +617,7 @@
          boolean flag = input.startsWith("/");
  
          if (flag)
-@@ -875,7 +990,8 @@
+@@ -875,7 +991,8 @@
              }
  
              return list;
@@ -555,7 +627,7 @@
      }
  
      public boolean isAnvilFileSet()
-@@ -1320,6 +1436,13 @@
+@@ -1320,6 +1437,13 @@
      {
          return this;
      }
@@ -569,7 +641,7 @@
  
      public int getMaxWorldSize()
      {
-@@ -1400,10 +1523,14 @@
+@@ -1400,10 +1524,14 @@
      @SideOnly(Side.SERVER)
      public static void main(String[] p_main_0_)
      {
@@ -584,7 +656,7 @@
              boolean flag = true;
              String s = null;
              String s1 = ".";
-@@ -1466,14 +1593,16 @@
+@@ -1466,14 +1594,16 @@
                  {
                      ++j;
                  }
@@ -604,7 +676,7 @@
              if (s != null)
              {
                  dedicatedserver.setServerOwner(s);
-@@ -1512,6 +1641,24 @@
+@@ -1512,6 +1642,24 @@
                      dedicatedserver.stopServer();
                  }
              });
@@ -629,7 +701,7 @@
          }
          catch (Exception exception)
          {
-@@ -1528,7 +1675,8 @@
+@@ -1528,7 +1676,8 @@
      @SideOnly(Side.SERVER)
      public boolean isDebuggingEnabled()
      {

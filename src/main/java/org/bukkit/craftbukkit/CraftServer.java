@@ -6,7 +6,11 @@ package org.bukkit.craftbukkit;
 
 import net.minecraft.server.management.UserList;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.FMLLog;
+import org.bukkit.event.world.WorldSaveEvent;
 import ru.svarka.Svarka;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.inventory.ItemFactory;
@@ -1060,6 +1064,40 @@ public final class CraftServer implements Server
         }
         this.worlds.remove(world.getName().toLowerCase(Locale.ENGLISH));
         this.console.worlds.remove(this.console.worlds.indexOf(handle));*/ //TODO!!!
+        if (world == null) {
+            return false;
+        }
+
+        net.minecraft.world.WorldServer handle = ((CraftWorld) world).getHandle();
+
+        if (!(console.worlds.contains(handle))) {
+            return false;
+        }
+
+        if (handle.playerEntities.size() > 0) {
+            return false;
+        }
+
+        WorldUnloadEvent e = new WorldUnloadEvent(handle.getWorld());
+        pluginManager.callEvent(e);
+
+        if (e.isCancelled()) {
+            return false;
+        }
+
+        if (save) {
+            try {
+                handle.saveAllChunks(true, null);
+                handle.flush();
+                WorldSaveEvent event = new WorldSaveEvent(handle.getWorld());
+                getPluginManager().callEvent(event);
+            } catch (net.minecraft.world.MinecraftException ex) {
+                FMLLog.log(org.apache.logging.log4j.Level.ERROR, ex, "Failed to save world " + handle.getWorld().getName() + " while unloading it.");
+            }
+        }
+        MinecraftForge.EVENT_BUS.post(new WorldEvent.Unload(handle)); // Cauldron - fire unload event before removing world
+        worlds.remove(world.getName().toLowerCase());
+        DimensionManager.setWorld(handle.provider.getDimension(), null, FMLCommonHandler.instance().getMinecraftServerInstance()); // Cauldron - remove world from DimensionManager
         return true;
     }
     

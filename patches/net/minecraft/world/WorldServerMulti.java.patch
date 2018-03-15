@@ -20,3 +20,12 @@
          this.delegate = delegate;
          this.borderListener = new IBorderListener()
          {
+@@ -51,7 +53,7 @@
+         this.delegate.getWorldBorder().addListener(this.borderListener);
+     }
+ 
+-    protected void saveLevel() throws MinecraftException
++    public void saveLevel() throws MinecraftException
+     {
+         this.perWorldStorage.saveAllData();
+     }

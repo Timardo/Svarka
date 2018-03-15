@@ -131,7 +131,36 @@
          if (!mcServer.isSinglePlayer())
          {
              world.getWorldInfo().setGameType(mcServer.getGameType());
-@@ -391,17 +439,125 @@
+@@ -294,26 +342,9 @@
+     public static void unloadWorlds(Hashtable<Integer, long[]> worldTickTimes) {
+         for (int id : unloadQueue) {
+             WorldServer w = worlds.get(id);
+-            try {
+-                if (w != null)
+-                {
+-                    w.saveAllChunks(true, null);
+-                }
+-                else
+-                {
+-                    FMLLog.warning("Unexpected world unload - world %d is already unloaded", id);
+-                }
+-            } catch (MinecraftException e) {
+-                e.printStackTrace();
+-            }
+-            finally
++            if (w != null)
+             {
+-                if (w != null)
+-                {
+-                    MinecraftForge.EVENT_BUS.post(new WorldEvent.Unload(w));
+-                    w.flush();
+-                    setWorld(id, null, w.getMinecraftServer());
+-                }
++                FMLCommonHandler.instance().getMinecraftServerInstance().server.unloadWorld(w.getWorld(),true);
+             }
+         }
+         unloadQueue.clear();
+@@ -391,17 +422,125 @@
      {
          if (DimensionManager.getWorld(0) != null)
          {

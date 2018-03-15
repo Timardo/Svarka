@@ -111,7 +111,13 @@
          // If we didn't load the chunk async and have a callback run it now
          if (runnable != null) runnable.run();
          return chunk;
-@@ -156,7 +190,51 @@
+@@ -151,12 +185,56 @@
+ 
+             this.id2ChunkMap.put(i, chunk);
+             chunk.onChunkLoad();
+-            chunk.populateChunk(this, this.chunkGenerator);
++            chunk.loadNearby(this, this.chunkGenerator,true);
+         }
  
          return chunk;
      }
