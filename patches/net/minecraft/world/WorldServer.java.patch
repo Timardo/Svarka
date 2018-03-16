@@ -35,7 +35,7 @@
      private final Map<UUID, Entity> entitiesByUuid = Maps.<UUID, Entity>newHashMap();
      public boolean disableLevelSaving;
      private boolean allPlayersSleeping;
-@@ -101,29 +114,30 @@
+@@ -101,30 +114,32 @@
      /** Stores the recently processed (lighting) chunks */
      protected Set<ChunkPos> doneChunks = new java.util.HashSet<ChunkPos>();
      public List<Teleporter> customTeleporters = new ArrayList<Teleporter>();
@@ -74,9 +74,11 @@
 +        this.worldScoreboard = new ServerScoreboard(this.mcServer);
 +        ((WorldServer) this).worldInfo.setDimension(dimensionId);
          String s = VillageCollection.fileNameForProvider(this.provider);
++        this.lootTable = new LootTableManager(new File(new File(this.saveHandler.getWorldDirectory(), "data"), "loot_tables"));
          VillageCollection villagecollection = (VillageCollection)this.perWorldStorage.getOrLoadData(VillageCollection.class, s);
  
-@@ -138,7 +152,10 @@
+         if (villagecollection == null)
+@@ -138,7 +153,10 @@
              this.villageCollectionObj.setWorldsForAll(this);
          }
  
@@ -88,7 +90,7 @@
          ScoreboardSaveData scoreboardsavedata = (ScoreboardSaveData)this.mapStorage.getOrLoadData(ScoreboardSaveData.class, "scoreboard");
  
          if (scoreboardsavedata == null)
-@@ -146,16 +163,11 @@
+@@ -146,16 +164,11 @@
              scoreboardsavedata = new ScoreboardSaveData();
              this.mapStorage.setData("scoreboard", scoreboardsavedata);
          }
@@ -109,7 +111,7 @@
          if (this.worldInfo.getBorderLerpTime() > 0L)
          {
              this.getWorldBorder().setTransition(this.worldInfo.getBorderSize(), this.worldInfo.getBorderLerpTarget(), this.worldInfo.getBorderLerpTime());
-@@ -165,6 +177,19 @@
+@@ -165,6 +178,19 @@
              this.getWorldBorder().setTransition(this.worldInfo.getBorderSize());
          }
  
@@ -129,7 +131,7 @@
          this.initCapabilities();
          return this;
      }
-@@ -193,9 +218,10 @@
+@@ -193,9 +219,10 @@
  
          this.theProfiler.startSection("mobSpawner");
  
@@ -141,7 +143,7 @@
          }
  
          this.theProfiler.endStartSection("chunkSource");
-@@ -231,6 +257,7 @@
+@@ -231,6 +258,7 @@
          }
          this.theProfiler.endSection();
          this.sendQueuedBlockEvents();
@@ -149,7 +151,7 @@
      }
  
      @Nullable
-@@ -341,7 +368,7 @@
+@@ -341,7 +369,7 @@
          this.worldInfo.setSpawnZ(j);
      }
  
@@ -158,7 +160,7 @@
      {
          return this.getChunkProvider().chunkExists(x, z);
      }
-@@ -998,6 +1025,7 @@
+@@ -998,6 +1026,7 @@
  
          if (chunkproviderserver.canSave())
          {
@@ -166,7 +168,7 @@
              if (progressCallback != null)
              {
                  progressCallback.displaySavingString("Saving level");
-@@ -1012,9 +1040,10 @@
+@@ -1012,9 +1041,10 @@
  
              chunkproviderserver.saveChunks(p_73044_1_);
              net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.WorldEvent.Save(this));
@@ -180,7 +182,7 @@
                  if (chunk != null && !this.thePlayerManager.contains(chunk.xPosition, chunk.zPosition))
                  {
                      chunkproviderserver.unload(chunk);
-@@ -1033,7 +1062,7 @@
+@@ -1033,7 +1063,7 @@
          }
      }
  
@@ -189,7 +191,7 @@
      {
          this.checkSessionLock();
  
-@@ -1044,7 +1073,10 @@
+@@ -1044,7 +1074,10 @@
                  ((WorldServerMulti)worldserver).saveAdditionalData();
              }
          }
@@ -201,7 +203,7 @@
          this.worldInfo.setBorderSize(this.getWorldBorder().getDiameter());
          this.worldInfo.getBorderCenterX(this.getWorldBorder().getCenterX());
          this.worldInfo.getBorderCenterZ(this.getWorldBorder().getCenterZ());
-@@ -1304,12 +1336,25 @@
+@@ -1304,12 +1337,25 @@
  
      public void spawnParticle(EnumParticleTypes particleType, boolean longDistance, double xCoord, double yCoord, double zCoord, int numberOfParticles, double xOffset, double yOffset, double zOffset, double particleSpeed, int... particleArguments)
      {

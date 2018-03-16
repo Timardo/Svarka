@@ -1,14 +1,20 @@
 --- ../src-base/minecraft/net/minecraft/item/ItemStack.java
 +++ ../src-work/minecraft/net/minecraft/item/ItemStack.java
-@@ -9,6 +9,7 @@
+@@ -5,10 +5,12 @@
+ import com.google.common.collect.Multimap;
+ import java.text.DecimalFormat;
+ import java.util.List;
++import java.util.Map;
+ import java.util.Random;
  import java.util.Map.Entry;
  import javax.annotation.Nullable;
- import net.minecraft.block.Block;
-+import net.minecraft.block.BlockMushroom;
+-import net.minecraft.block.Block;
++
++import net.minecraft.block.*;
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.enchantment.Enchantment;
  import net.minecraft.enchantment.EnchantmentDurability;
-@@ -20,6 +21,8 @@
+@@ -20,6 +22,8 @@
  import net.minecraft.entity.ai.attributes.AttributeModifier;
  import net.minecraft.entity.item.EntityItemFrame;
  import net.minecraft.entity.player.EntityPlayer;
@@ -17,19 +23,36 @@
  import net.minecraft.init.Enchantments;
  import net.minecraft.init.Items;
  import net.minecraft.inventory.EntityEquipmentSlot;
-@@ -45,6 +48,11 @@
+@@ -27,11 +31,9 @@
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.nbt.NBTTagList;
+ import net.minecraft.stats.StatList;
+-import net.minecraft.util.ActionResult;
+-import net.minecraft.util.EnumActionResult;
+-import net.minecraft.util.EnumFacing;
+-import net.minecraft.util.EnumHand;
+-import net.minecraft.util.ResourceLocation;
++import net.minecraft.tileentity.TileEntity;
++import net.minecraft.tileentity.TileEntitySkull;
++import net.minecraft.util.*;
+ import net.minecraft.util.datafix.DataFixer;
+ import net.minecraft.util.datafix.FixTypes;
+ import net.minecraft.util.datafix.walkers.BlockEntityTag;
+@@ -45,6 +47,13 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
 +import org.bukkit.Location;
 +import org.bukkit.TreeType;
 +import org.bukkit.block.BlockState;
++import org.bukkit.craftbukkit.block.CraftBlockState;
++import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 +import org.bukkit.entity.Player;
 +import org.bukkit.event.world.StructureGrowEvent;
  
  public final class ItemStack implements net.minecraftforge.common.capabilities.ICapabilitySerializable<NBTTagCompound>
  {
-@@ -54,7 +62,8 @@
+@@ -54,7 +63,8 @@
      private Item item;
      private NBTTagCompound stackTagCompound;
      int itemDamage;
@@ -39,7 +62,7 @@
      private Block canDestroyCacheBlock;
      private boolean canDestroyCacheResult;
      private Block canPlaceOnCacheBlock;
-@@ -101,8 +110,15 @@
+@@ -101,8 +111,15 @@
          {
              this.itemDamage = 0;
          }
@@ -55,13 +78,12 @@
      public static ItemStack loadItemStackFromNBT(NBTTagCompound nbt)
      {
          if (nbt.hasNoTags()) return null; // Deserialized inventories can have empty ItemStack compounds. Fixes tons of NumberFormatExceptions
-@@ -142,9 +158,53 @@
+@@ -142,13 +159,138 @@
  
      public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
      {
--        if (!worldIn.isRemote) return net.minecraftforge.common.ForgeHooks.onPlaceItemIntoWorld(this, playerIn, worldIn, pos, side, hitX, hitY, hitZ, hand);
 +        // CraftBukkit start - handle all block place event logic here
-+        //if (!worldIn.isRemote) return net.minecraftforge.common.ForgeHooks.onPlaceItemIntoWorld(this, playerIn, worldIn, pos, side, hitX, hitY, hitZ, hand);
+         if (!worldIn.isRemote) return net.minecraftforge.common.ForgeHooks.onPlaceItemIntoWorld(this, playerIn, worldIn, pos, side, hitX, hitY, hitZ, hand);
 +        int data = this.getMetadata();
 +        int count = this.stackSize;
 +        if(!(this.getItem() instanceof ItemBucket)){
@@ -78,13 +100,13 @@
 +        int newData = this.getMetadata();
 +        int newCount = this.stackSize;
 +        this.stackSize = count;
-+        //this.set(data);
-+        /*worldIn.captureBlockStates = false;
++        this.setItemDamage(data);
++        worldIn.captureBlockStates = false;
 +        if (enumactionresult == EnumActionResult.SUCCESS && worldIn.captureTreeGeneration && worldIn.capturedBlockStates.size() > 0) {
 +            worldIn.captureTreeGeneration = false;
 +            Location location = new Location(worldIn.getWorld(), pos.getX(), pos.getY(), pos.getZ());
-+            *//*TreeType treeType = Blocks.SAPLING.treeType;
-+            BlockSapling.treeType = null;*//*
++            TreeType treeType = BlockSapling.treeType;
++            BlockSapling.treeType = null;
 +            List<BlockState> blocks = (List<BlockState>) worldIn.capturedBlockStates.clone();
 +            worldIn.capturedBlockStates.clear();
 +            StructureGrowEvent event = null;
@@ -106,11 +128,97 @@
  
 +            return enumactionresult;
 +        }
-+        worldIn.captureTreeGeneration = false;*/
++        worldIn.captureTreeGeneration = false;
          if (enumactionresult == EnumActionResult.SUCCESS)
          {
-             playerIn.addStat(StatList.getObjectUseStats(this.item));
-@@ -160,6 +220,7 @@
+-            playerIn.addStat(StatList.getObjectUseStats(this.item));
++            //playerIn.addStat(StatList.getObjectUseStats(this.item));
++            org.bukkit.event.block.BlockPlaceEvent placeEvent = null;
++            List<BlockState> blocks = (List<BlockState>) worldIn.capturedBlockStates.clone();
++            worldIn.capturedBlockStates.clear();
++            if (blocks.size() > 1) {
++                placeEvent = org.bukkit.craftbukkit.event.CraftEventFactory.callBlockMultiPlaceEvent(worldIn, playerIn, hand, blocks, pos.getX(), pos.getY(), pos.getZ());
++            } else if (blocks.size() == 1) {
++                placeEvent = org.bukkit.craftbukkit.event.CraftEventFactory.callBlockPlaceEvent(worldIn, playerIn, hand, blocks.get(0), pos.getX(), pos.getY(), pos.getZ());
++            }
++
++            if (placeEvent != null && (placeEvent.isCancelled() || !placeEvent.canBuild())) {
++                enumactionresult = EnumActionResult.FAIL; // cancel placement
++                // PAIL: Remove this when MC-99075 fixed
++                placeEvent.getPlayer().updateInventory();
++                // revert back all captured blocks
++                for (BlockState blockstate : blocks) {
++                    blockstate.update(true, false);
++                }
++            } else {
++                // Change the stack to its new contents if it hasn't been tampered with.
++                if (this.stackSize == count && this.getMetadata() == data) {
++                    this.setItemDamage(newData);
++                    this.stackSize = newCount;
++                }
++                for (BlockState blockstate : blocks) {
++                    int x = blockstate.getX();
++                    int y = blockstate.getY();
++                    int z = blockstate.getZ();
++                    int updateFlag = ((CraftBlockState) blockstate).getFlag();
++                    org.bukkit.Material mat = blockstate.getType();
++                    Block oldBlock = CraftMagicNumbers.getBlock(mat);
++                    BlockPos newblockposition = new BlockPos(x, y, z);
++                    IBlockState block = worldIn.getBlockState(newblockposition);
++
++                    if (!(block instanceof BlockContainer)) { // Containers get placed automatically
++                        block.getBlock().onBlockAdded(worldIn, newblockposition, block);
++                    }
++
++                    worldIn.markAndNotifyBlock(newblockposition, null, oldBlock.getDefaultState(), block, updateFlag); // send null chunk as chunk.k() returns false by this point
++                }
++
++                for (Map.Entry<BlockPos, TileEntity> e : worldIn.capturedTileEntities.entrySet()) {
++                    worldIn.setTileEntity(e.getKey(), e.getValue());
++                }
++
++                // Special case juke boxes as they update their tile entity. Copied from ItemRecord.
++                // PAIL: checkme on updates.
++                if (this.getItem() instanceof ItemRecord) {
++                    ((BlockJukebox) Blocks.JUKEBOX).insertRecord(worldIn, pos, worldIn.getBlockState(pos), this);
++                    worldIn.playEvent((EntityPlayer) null, 1010, pos, Item.getIdFromItem(this.item));
++                    --this.stackSize;
++                    playerIn.addStat(StatList.RECORD_PLAYED);
++                }
++
++                if (this.getItem() == Items.SKULL) { // Special case skulls to allow wither spawns to be cancelled
++                    BlockPos bp = pos;
++                    if (!worldIn.getBlockState(pos).getBlock().canPlaceBlockAt(worldIn, pos)) {
++                        if (!worldIn.getBlockState(pos).getMaterial().isReplaceable()) {
++                            bp = null;
++                        } else {
++                            bp = bp.offset(side);
++                        }
++                    }
++                    if (bp != null) {
++                        TileEntity te = worldIn.getTileEntity(bp);
++                        if (te instanceof TileEntitySkull) {
++                            Blocks.SKULL.checkWitherSpawn(worldIn, bp, (TileEntitySkull) te);
++                        }
++                    }
++                }
++
++                // SPIGOT-1288 - play sound stripped from ItemBlock
++                if (this.getItem() instanceof ItemBlock) {
++                    SoundType soundeffecttype = ((ItemBlock) this.getItem()).getBlock().getSoundType(); // PAIL: rename
++                    worldIn.playSound(playerIn, pos, soundeffecttype.getBreakSound(), SoundCategory.BLOCKS, (soundeffecttype.getVolume() + 1.0F) / 2.0F, soundeffecttype.getPitch() * 0.8F);
++                }
++
++                playerIn.addStat(StatList.getObjectUseStats(this.item));
++            }
+         }
++        worldIn.capturedTileEntities.clear();
++        worldIn.capturedBlockStates.clear();
++        // CraftBukkit end
+ 
+         return enumactionresult;
+     }
+@@ -160,6 +302,7 @@
  
      public ActionResult<ItemStack> useItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand)
      {
@@ -118,7 +226,7 @@
          return this.getItem().onItemRightClick(this, worldIn, playerIn, hand);
      }
  
-@@ -172,13 +233,14 @@
+@@ -172,13 +315,14 @@
      public NBTTagCompound writeToNBT(NBTTagCompound nbt)
      {
          ResourceLocation resourcelocation = (ResourceLocation)Item.REGISTRY.getNameForObject(this.item);
@@ -134,7 +242,7 @@
          }
  
          if (this.capabilities != null)
-@@ -202,10 +264,11 @@
+@@ -202,10 +346,11 @@
          {
              this.itemDamage = 0;
          }
@@ -147,7 +255,7 @@
  
              if (this.item != null)
              {
-@@ -217,11 +280,13 @@
+@@ -217,11 +362,13 @@
  
      public int getMaxStackSize()
      {
@@ -161,7 +269,7 @@
          return this.getMaxStackSize() > 1 && (!this.isItemStackDamageable() || !this.isItemDamaged());
      }
  
-@@ -260,8 +325,10 @@
+@@ -260,8 +407,10 @@
          return this.item == null ? 0 : this.item.getMaxDamage(this);
      }
  
@@ -174,7 +282,7 @@
          if (!this.isItemStackDamageable())
          {
              return false;
-@@ -282,7 +349,22 @@
+@@ -282,7 +431,22 @@
                  }
  
                  amount -= j;
@@ -197,7 +305,7 @@
                  if (amount <= 0)
                  {
                      return false;
-@@ -300,7 +382,7 @@
+@@ -300,7 +464,7 @@
          {
              if (this.isItemStackDamageable())
              {
@@ -206,7 +314,7 @@
                  {
                      entityIn.renderBrokenItemStack(this);
                      --this.stackSize;
-@@ -310,10 +392,10 @@
+@@ -310,10 +474,10 @@
                          EntityPlayer entityplayer = (EntityPlayer)entityIn;
                          entityplayer.addStat(StatList.getObjectBreakStats(this.item));
                      }
@@ -220,7 +328,7 @@
                      }
  
                      this.itemDamage = 0;
-@@ -354,6 +436,7 @@
+@@ -354,6 +518,7 @@
  
      public ItemStack copy()
      {
@@ -228,7 +336,7 @@
          ItemStack itemstack = new ItemStack(this.item, this.stackSize, this.itemDamage, this.capabilities != null ? this.capabilities.serializeNBT() : null);
  
          if (this.stackTagCompound != null)
-@@ -1075,4 +1158,11 @@
+@@ -1075,4 +1240,11 @@
              return this.capabilities.areCompatible(other.capabilities);
          }
      }

@@ -182,6 +182,16 @@
      public EnumActionResult processRightClick(EntityPlayer player, World worldIn, ItemStack stack, EnumHand hand)
      {
          if (this.gameType == GameType.SPECTATOR)
+@@ -385,8 +461,8 @@
+ 
+                 if (itemstack.stackSize == 0)
+                 {
+-                    player.setHeldItem(hand, (ItemStack)null);
+                     net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, itemstack, hand);
++                    player.setHeldItem(hand, (ItemStack)null);
+                 }
+ 
+                 if (!player.isHandActive())
 @@ -401,34 +477,127 @@
  
      public EnumActionResult processRightClickBlock(EntityPlayer player, World worldIn, @Nullable ItemStack stack, EnumHand hand, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ)
@@ -241,6 +251,8 @@
 +                TileEntity tileentity = worldIn.getTileEntity(pos);
  
 -                if (ilockablecontainer instanceof TileEntityChest && block1 instanceof BlockChest)
+-                {
+-                    ilockablecontainer = ((BlockChest)block1).getLockableContainer(worldIn, pos);
 +                if (tileentity instanceof ILockableContainer) {
 +                    Block block = worldIn.getBlockState(pos).getBlock();
 +                    ILockableContainer itileinventory = (ILockableContainer) tileentity;
@@ -256,15 +268,17 @@
 +                } else if (tileentity instanceof IInventory) {
 +                    player.displayGUIChest((IInventory) tileentity);
 +                    return EnumActionResult.SUCCESS;
-+                }
-+
+                 }
+ 
+-                if (ilockablecontainer != null)
 +                return EnumActionResult.PASS;
 +            }else if (!player.isSneaking() || player.getHeldItemMainhand() == null && player.getHeldItemOffhand() == null) {
 +                result = (blockState.getBlock().onBlockActivated(worldIn, pos, blockState, player, hand, stack, facing, hitX, hitY, hitZ) ? EnumActionResult.SUCCESS : EnumActionResult.PASS);
 +                // Svarka start - if bukkitView is null, create one. Required for Ender Chests since they do not use NetworkRegistry.openRemoteGUI
 +                if (thisPlayerMP != null && !(thisPlayerMP.openContainer instanceof ContainerPlayer))
                  {
--                    ilockablecontainer = ((BlockChest)block1).getLockableContainer(worldIn, pos);
+-                    player.displayGUIChest(ilockablecontainer);
+-                    return EnumActionResult.SUCCESS;
 +                    if (thisPlayerMP.openContainer.getBukkitView() == null)
 +                    {
 +                        TileEntity te = thisPlayerMP.worldObj.getTileEntity(pos);
@@ -288,12 +302,12 @@
 +                    }
                  }
 +                // Svarka end
-+            }
+             }
+-            else if (tileentity instanceof IInventory)
 +            if (stack != null && result != EnumActionResult.SUCCESS && !interactResult) { // add !interactResult SPIGOT-764
 +                int j1 = stack.getMetadata();
 +                int k1 = stack.stackSize;
- 
--                if (ilockablecontainer != null)
++
 +                result = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
 +
 +                // The item count should not decrement in Creative mode.
@@ -301,21 +315,18 @@
 +                    stack.setItemDamage(j1);
 +                    stack.stackSize = k1;
 +                }
-+            }else if(stack != null && result == EnumActionResult.SUCCESS) // Thermos call the Forge item destruction event...
-+            {
-+                if (stack.stackSize <= 0)
-                 {
--                    player.displayGUIChest(ilockablecontainer);
--                    return EnumActionResult.SUCCESS;
-+                    ForgeEventFactory.onPlayerDestroyItem(this.thisPlayerMP, stack,hand);
-                 }
-             }
--            else if (tileentity instanceof IInventory)
-+            // If we have 'true' and no explicit deny *or* an explicit allow -- run the item part of the hook
-+            if (stack != null && ((result == EnumActionResult.SUCCESS && event.useItemInHand() != org.bukkit.event.Event.Result.DENY) || event.useItemInHand() == org.bukkit.event.Event.Result.ALLOW))
++            }/*else if(stack != null && result == EnumActionResult.SUCCESS) // Thermos call the Forge item destruction event...
              {
 -                player.displayGUIChest((IInventory)tileentity);
 -                return EnumActionResult.SUCCESS;
++                if (stack.stackSize <= 0)
++                {
++                    ForgeEventFactory.onPlayerDestroyItem(this.thisPlayerMP, stack,hand);
++                }
++            }*/
++            // If we have 'true' and no explicit deny *or* an explicit allow -- run the item part of the hook
++            if (stack != null && ((result == EnumActionResult.SUCCESS && event.useItemInHand() != org.bukkit.event.Event.Result.DENY) || event.useItemInHand() == org.bukkit.event.Event.Result.ALLOW))
++            {
 +                this.processRightClick(player, worldIn, stack,hand);
              }
 -
