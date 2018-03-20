@@ -18,7 +18,7 @@
  import net.minecraft.util.ReportedException;
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.ChunkPos;
-@@ -21,22 +17,40 @@
+@@ -21,22 +17,58 @@
  import net.minecraft.world.WorldServer;
  import net.minecraft.world.biome.Biome;
  import net.minecraft.world.chunk.Chunk;
@@ -52,7 +52,25 @@
      public final IChunkGenerator chunkGenerator;
      public final IChunkLoader chunkLoader;
 -    public final Long2ObjectMap<Chunk> id2ChunkMap = new Long2ObjectOpenHashMap(8192);
-+    public final Long2ObjectMap<Chunk> id2ChunkMap = new Long2ObjectOpenHashMap<Chunk>(8192);
++    protected Chunk lastChunkByPos = null;
++    public final Long2ObjectMap<Chunk> id2ChunkMap = new Long2ObjectOpenHashMap<Chunk>(8192){
++
++        @Override
++        public Chunk get(long key){
++            if(lastChunkByPos != null && key == lastChunkByPos.chunkKey){
++                return lastChunkByPos;
++            }
++            return lastChunkByPos = super.get(key);
++        }
++
++        @Override
++        public Chunk remove(long key) {
++            if(lastChunkByPos != null && key == lastChunkByPos.chunkKey){
++                lastChunkByPos = null;
++            }
++            return super.remove(key);
++        }
++    };
      public final WorldServer worldObj;
      private Set<Long> loadingChunks = com.google.common.collect.Sets.newHashSet();
 +    public boolean loadChunkOnProvideRequest = FMLCommonHandler.instance().getMinecraftServerInstance().svarkaConfig.loadChunkOnRequest.getValue(); // TODO Svarka - if true, allows mods to force load chunks. to disable, set load-chunk-on-request in cauldron.yml to false
@@ -61,7 +79,7 @@
      public ChunkProviderServer(WorldServer worldObjIn, IChunkLoader chunkLoaderIn, IChunkGenerator chunkGeneratorIn)
      {
          this.worldObj = worldObjIn;
-@@ -60,8 +74,10 @@
+@@ -60,8 +92,10 @@
  
      public void unloadAllChunks()
      {
@@ -73,7 +91,7 @@
              this.unload(chunk);
          }
      }
-@@ -101,9 +117,9 @@
+@@ -101,9 +135,9 @@
  
                  if (chunk != null)
                  {
@@ -86,7 +104,7 @@
                  }
  
                  loadingChunks.remove(pos);
-@@ -122,6 +138,24 @@
+@@ -122,6 +156,24 @@
              }
          }
  
@@ -111,7 +129,7 @@
          // If we didn't load the chunk async and have a callback run it now
          if (runnable != null) runnable.run();
          return chunk;
-@@ -151,12 +185,56 @@
+@@ -151,12 +203,56 @@
  
              this.id2ChunkMap.put(i, chunk);
              chunk.onChunkLoad();
@@ -169,7 +187,7 @@
      @Nullable
      private Chunk loadChunkFromFile(int x, int z)
      {
-@@ -212,11 +290,10 @@
+@@ -212,11 +308,10 @@
      {
          int i = 0;
          List<Chunk> list = Lists.newArrayList(this.id2ChunkMap.values());
@@ -184,7 +202,7 @@
              if (p_186027_1_)
              {
                  this.saveChunkExtraData(chunk);
-@@ -228,7 +305,7 @@
+@@ -228,7 +323,7 @@
                  chunk.setModified(false);
                  ++i;
  
@@ -193,7 +211,7 @@
                  {
                      return false;
                  }
-@@ -263,10 +340,10 @@
+@@ -263,10 +358,10 @@
  
                      if (chunk != null && chunk.unloaded)
                      {
@@ -208,7 +226,7 @@
                          ++i;
                          net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(chunk.xPosition, chunk.zPosition), chunk);
                          if (id2ChunkMap.size() == 0 && net.minecraftforge.common.ForgeChunkManager.getPersistentChunksFor(this.worldObj).size() == 0 && !this.worldObj.provider.getDimensionType().shouldLoadSpawn()){
-@@ -283,6 +360,38 @@
+@@ -283,6 +378,38 @@
          return false;
      }
  
