@@ -129,7 +129,7 @@
          if (flag)
          {
              Team team = this.getTeam();
-@@ -742,6 +799,10 @@
+@@ -742,9 +799,14 @@
      {
          this.currentWindowId = this.currentWindowId % 100 + 1;
      }
@@ -140,7 +140,11 @@
  
      public void displayGui(IInteractionObject guiOwner)
      {
-@@ -988,6 +1049,12 @@
++
+         if (guiOwner instanceof ILootContainer && ((ILootContainer)guiOwner).getLootTable() != null && this.isSpectator())
+         {
+             this.addChatMessage((new TextComponentTranslation("container.spectatorCantOpen", new Object[0])).setStyle((new Style()).setColor(TextFormatting.RED)));
+@@ -988,6 +1050,12 @@
      {
          this.lastHealth = -1.0E8F;
      }
@@ -153,7 +157,7 @@
  
      public void addChatComponentMessage(ITextComponent chatComponent)
      {
-@@ -1264,4 +1331,127 @@
+@@ -1264,4 +1332,127 @@
          this.setFlag(7, true);
          this.setFlag(7, false);
      }

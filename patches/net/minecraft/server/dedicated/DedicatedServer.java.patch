@@ -134,7 +134,18 @@
                  long j = System.nanoTime();
  
                  if (this.getFolderName() == null)
-@@ -263,7 +298,7 @@
+@@ -254,16 +289,16 @@
+                 this.getOpPermissionLevel();
+                 this.isSnooperEnabled();
+                 this.getNetworkCompressionThreshold();
+-                this.setBuildLimit(this.settings.getIntProperty("max-build-height", 256));
++                this.setBuildLimit(this.settings.getIntProperty("max-build1-height", 256));
+                 this.setBuildLimit((this.getBuildLimit() + 8) / 16 * 16);
+                 this.setBuildLimit(MathHelper.clamp_int(this.getBuildLimit(), 64, 256));
+-                this.settings.setProperty("max-build-height", Integer.valueOf(this.getBuildLimit()));
++                this.settings.setProperty("max-build1-height", Integer.valueOf(this.getBuildLimit()));
+                 TileEntitySkull.setProfileCache(this.getPlayerProfileCache());
+                 TileEntitySkull.setSessionService(this.getMinecraftSessionService());
                  PlayerProfileCache.setOnlineMode(this.isServerInOnlineMode());
                  if (!net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerAboutToStart(this)) return false;
                  LOGGER.info("Preparing level \"{}\"", new Object[] {this.getFolderName()});

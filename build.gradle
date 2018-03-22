@@ -18,11 +18,11 @@ apply plugin: 'net.minecraftforge.gradle.launch4j'
 
 
 group = 'fewizz.svarka'
-version = '0.0.3'
+version = '0.0.5'
 
-sourceCompatibility = targetCompatibility = 1.8
+sourceCompatibility = targetCompatibility = "1.8"
 compileJava {
-    sourceCompatibility = targetCompatibility = 1.8
+    sourceCompatibility = targetCompatibility = "1.8"
 }
 //afterEvaluate {
 //	patchSvarkaJar.addInject file('bukkit/src/main/java/')
@@ -107,6 +107,7 @@ jar{
     exclude "log4j2.xml"
 }
 
+
 minecraft {
     version = "1.10.2"
     mappings = 'snapshot_nodoc_20161111'
@@ -115,18 +116,21 @@ minecraft {
     buildUserdev = false
     buildInstaller = false
     installerVersion = '1.5'
-    sourceCompatibility = targetCompatibility = 1.8
+    sourceCompatibility = targetCompatibility = "1.8"
     compileJava {
-        sourceCompatibility = targetCompatibility = 1.8
+        sourceCompatibility = targetCompatibility = "1.8"
     }
-
     def common = {
         patchPrefixOriginal "../src-base/minecraft"
         patchPrefixChanged "../src-work/minecraft"
-/*        mainClassClient "net.minecraft.launchwrapper.Launch"
+/*      mainClassClient "net.minecraft.launchwrapper.Launch"
         tweakClassClient "net.minecraftforge.fml.common.launcher.FMLTweaker"*/
         mainClassServer "net.minecraft.launchwrapper.Launch"
         tweakClassServer "net.minecraftforge.fml.common.launcher.FMLServerTweaker"
+        sourceCompatibility = targetCompatibility = "1.8"
+        compileJava {
+            sourceCompatibility = targetCompatibility = "1.8"
+        }
     }
 
     projects {
@@ -144,10 +148,6 @@ minecraft {
         }
 
         svarka {
-            sourceCompatibility = targetCompatibility = 1.8
-            compileJava {
-                sourceCompatibility = targetCompatibility = 1.8
-            }
             rootDir "."
             patchDir "patches/"
             patchAfter "forge"
@@ -219,6 +219,10 @@ extractForgeSources {
 
 genGradleProjects {
     addCompileDep "junit:junit:4.12"
+    sourceCompatibility = targetCompatibility = "1.8"
+    compileJava {
+        sourceCompatibility = targetCompatibility = "1.8"
+    }
 }
 
 import groovy.json.JsonSlurper;

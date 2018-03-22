@@ -755,15 +755,15 @@
 -            {
 -                this.playerEntity.interactionManager.processRightClickBlock(this.playerEntity, worldserver, itemstack, enumhand, blockpos, enumfacing, packetIn.getFacingX(), packetIn.getFacingY(), packetIn.getFacingZ());
 -            }
--        }
--        else
--        {
-             TextComponentTranslation textcomponenttranslation = new TextComponentTranslation("build.tooHigh", new Object[] {Integer.valueOf(this.serverController.getBuildLimit())});
-             textcomponenttranslation.getStyle().setColor(TextFormatting.RED);
-             this.playerEntity.connection.sendPacket(new SPacketChat(textcomponenttranslation));
++            TextComponentTranslation textcomponenttranslation = new TextComponentTranslation("build1.tooHigh", new Object[] {Integer.valueOf(this.serverController.getBuildLimit())});
++            textcomponenttranslation.getStyle().setColor(TextFormatting.RED);
++            this.playerEntity.connection.sendPacket(new SPacketChat(textcomponenttranslation));
          }
-+        else
-+        {
+         else
+         {
+-            TextComponentTranslation textcomponenttranslation = new TextComponentTranslation("build.tooHigh", new Object[] {Integer.valueOf(this.serverController.getBuildLimit())});
+-            textcomponenttranslation.getStyle().setColor(TextFormatting.RED);
+-            this.playerEntity.connection.sendPacket(new SPacketChat(textcomponenttranslation));
 +            //double dist = playerEntity.interactionManager.getBlockReachDistance() + 3;
 +            //dist *= dist;
 +            //if (this.targetPos == null && this.playerEntity.getDistanceSq((double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.5D, (double)blockpos.getZ() + 0.5D) < dist && !this.serverController.isBlockProtected(worldserver, blockpos, this.playerEntity) && worldserver.getWorldBorder().contains(blockpos))
@@ -778,9 +778,9 @@
 +            if(this.playerEntity.interactionManager.processRightClickBlock(this.playerEntity, worldserver, itemstack, enumhand, blockpos, enumfacing, packetIn.getFacingX(), packetIn.getFacingY(), packetIn.getFacingZ()) == EnumActionResult.SUCCESS){
 +                placeResult = true;
 +            }
- 
-+        }
 +
+         }
+ 
          this.playerEntity.connection.sendPacket(new SPacketBlockChange(worldserver, blockpos));
          this.playerEntity.connection.sendPacket(new SPacketBlockChange(worldserver, blockpos.offset(enumfacing)));
          itemstack = this.playerEntity.getHeldItem(enumhand);

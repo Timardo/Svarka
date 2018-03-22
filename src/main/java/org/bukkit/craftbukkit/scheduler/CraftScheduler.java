@@ -29,44 +29,49 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 public class CraftScheduler implements BukkitScheduler
 {
-    private final AtomicInteger ids;
-    private volatile CraftTask head;
-    private final AtomicReference<CraftTask> tail;
-    private final PriorityQueue<CraftTask> pending;
-    private final List<CraftTask> temp;
-    private final ConcurrentHashMap<Integer, CraftTask> runners;
-    private volatile int currentTick;
-    private final Executor executor;
-    private CraftAsyncDebugger debugHead;
-    private CraftAsyncDebugger debugTail;
+    private final AtomicInteger ids = new AtomicInteger(1);
+    private volatile CraftTask head = new CraftTask();
+    private final AtomicReference<CraftTask> tail = new AtomicReference<CraftTask>(this.head);
+    final PriorityQueue<CraftTask> pending= new PriorityQueue<CraftTask>(10, new Comparator<CraftTask>() {
+        @Override
+        public int compare(final CraftTask o1, final CraftTask o2) {
+            return (int)(o1.getNextRun() - o2.getNextRun());
+        }
+    }); //Svarka
+    private final List<CraftTask> temp = new ArrayList<CraftTask>();
+    final ConcurrentHashMap<Integer, CraftTask> runners = new ConcurrentHashMap<Integer, CraftTask>(); // Svarka
+    volatile int currentTick = -1; // Svarka
+    private final Executor executor = Executors.newCachedThreadPool();
+    private CraftAsyncDebugger debugHead = new CraftAsyncDebugger(-1, (Plugin)null, (Class)null) {
+        @Override
+        StringBuilder debugTo(final StringBuilder string) {
+            return string;
+        }
+    };
+    private CraftAsyncDebugger debugTail = this.debugHead;
     private static final int RECENT_TICKS;
     
     static {
         RECENT_TICKS = 30;
     }
-    
+
+    // Svarka start
+    private final CraftScheduler asyncScheduler;
+    private final boolean isAsyncScheduler;
     public CraftScheduler() {
-        this.ids = new AtomicInteger(1);
-        this.head = new CraftTask();
-        this.tail = new AtomicReference<CraftTask>(this.head);
-        this.pending = new PriorityQueue<CraftTask>(10, new Comparator<CraftTask>() {
-            @Override
-            public int compare(final CraftTask o1, final CraftTask o2) {
-                return (int)(o1.getNextRun() - o2.getNextRun());
-            }
-        });
-        this.temp = new ArrayList<CraftTask>();
-        this.runners = new ConcurrentHashMap<Integer, CraftTask>();
-        this.currentTick = -1;
-        this.executor = Executors.newCachedThreadPool();
-        this.debugHead = new CraftAsyncDebugger(-1, (Plugin)null, (Class)null) {
-            @Override
-            StringBuilder debugTo(final StringBuilder string) {
-                return string;
-            }
-        };
-        this.debugTail = this.debugHead;
+     this(false);
     }
+
+    public CraftScheduler(boolean isAsync) {
+        this.isAsyncScheduler = isAsync;
+        if (isAsync) {
+            this.asyncScheduler = this;
+        } else {
+            this.asyncScheduler = new CraftAsyncScheduler();
+        }
+    }
+    // Svarka end
+
     
     @Override
     public int scheduleSyncDelayedTask(final Plugin plugin, final Runnable task) {
@@ -127,7 +132,7 @@ public class CraftScheduler implements BukkitScheduler
         else if (period < -1L) {
             period = -1L;
         }
-        return this.handle(new CraftTask(plugin, runnable, this.nextId(), period), delay);
+        return this.handle(new CraftAsyncTask(this.asyncScheduler.runners, plugin, runnable, this.nextId(), period), delay);
     }
     
     @Deprecated
@@ -163,6 +168,9 @@ public class CraftScheduler implements BukkitScheduler
     public void cancelTask(final int taskId) {
         if (taskId <= 0) {
             return;
+        }
+        if (!this.isAsyncScheduler) {
+            this.asyncScheduler.cancelTask(taskId);
         }
         CraftTask task = this.runners.get(taskId);
         if (task != null) {
@@ -206,6 +214,9 @@ public class CraftScheduler implements BukkitScheduler
     @Override
     public void cancelTasks(final Plugin plugin) {
         Validate.notNull((Object)plugin, "Cannot cancel tasks of null plugin");
+        if (!this.isAsyncScheduler) {
+            this.asyncScheduler.cancelTasks(plugin);
+        }
         final CraftTask task = new CraftTask(new Runnable() {
             @Override
             public void run() {
@@ -246,6 +257,9 @@ public class CraftScheduler implements BukkitScheduler
     
     @Override
     public void cancelAllTasks() {
+        if (!this.isAsyncScheduler) {
+            this.asyncScheduler.cancelAllTasks();
+        }
         final CraftTask task = new CraftTask(new Runnable() {
             @Override
             public void run() {
@@ -272,6 +286,11 @@ public class CraftScheduler implements BukkitScheduler
     
     @Override
     public boolean isCurrentlyRunning(final int taskId) {
+        if (!isAsyncScheduler) {
+            if (this.asyncScheduler.isCurrentlyRunning(taskId)) {
+                return true;
+            }
+        }
         final CraftTask task = this.runners.get(taskId);
         if (task == null || task.isSync()) {
             return false;
@@ -287,6 +306,9 @@ public class CraftScheduler implements BukkitScheduler
     public boolean isQueued(final int taskId) {
         if (taskId <= 0) {
             return false;
+        }
+        if (!this.isAsyncScheduler && this.asyncScheduler.isQueued(taskId)) {
+            return true;
         }
         for (CraftTask task = this.head.getNext(); task != null; task = task.getNext()) {
             if (task.getTaskId() == taskId) {
@@ -332,10 +354,16 @@ public class CraftScheduler implements BukkitScheduler
                 pending.add(task2);
             }
         }
+        if (!this.isAsyncScheduler) {
+            pending.addAll(this.asyncScheduler.getPendingTasks());
+        }
         return pending;
     }
     
     public void mainThreadHeartbeat(final int currentTick) {
+        if (!this.isAsyncScheduler) {
+            this.asyncScheduler.mainThreadHeartbeat(currentTick);
+        }
         this.currentTick = currentTick;
         final List<CraftTask> temp = this.temp;
         this.parsePending();
@@ -360,6 +388,8 @@ public class CraftScheduler implements BukkitScheduler
                 else {
                     this.debugTail = this.debugTail.setNext(new CraftAsyncDebugger(currentTick + CraftScheduler.RECENT_TICKS, task.getOwner(), task.getTaskClass()));
                     this.executor.execute(task);
+                    task.getOwner().getLogger().log(Level.SEVERE, "Unexpected Async Task in the Sync Scheduler. Report this to Svarka");
+
                 }
                 final long period = task.getPeriod();
                 if (period > 0L) {
@@ -379,14 +409,14 @@ public class CraftScheduler implements BukkitScheduler
         this.debugHead = this.debugHead.getNextHead(currentTick);
     }
     
-    private void addTask(final CraftTask task) {
+    protected void addTask(final CraftTask task) {
         AtomicReference<CraftTask> tail;
         CraftTask tailTask;
         for (tail = this.tail, tailTask = tail.get(); !tail.compareAndSet(tailTask, task); tailTask = tail.get()) {}
         tailTask.setNext(task);
     }
-    
-    private CraftTask handle(final CraftTask task, final long delay) {
+
+    protected CraftTask handle(final CraftTask task, final long delay) {
         task.setNextRun(this.currentTick + delay);
         this.addTask(task);
         return task;
@@ -404,7 +434,8 @@ public class CraftScheduler implements BukkitScheduler
         return this.ids.incrementAndGet();
     }
     
-    private void parsePending() {
+    void parsePending() {
+        //if (!this.isAsyncScheduler) MinecraftTimings.bukkitSchedulerPendingTimer.startTiming();
         CraftTask head = this.head;
         CraftTask task = head.getNext();
         CraftTask lastTask = head;
