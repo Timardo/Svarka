@@ -74,6 +74,15 @@
                              {
                                  set.add(blockpos);
                              }
+@@ -130,7 +149,7 @@
+         int j2 = MathHelper.floor_double(this.explosionZ - (double)f3 - 1.0D);
+         int j1 = MathHelper.floor_double(this.explosionZ + (double)f3 + 1.0D);
+         List<Entity> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this.exploder, new AxisAlignedBB((double)k1, (double)i2, (double)j2, (double)l1, (double)i1, (double)j1));
+-        net.minecraftforge.event.ForgeEventFactory.onExplosionDetonate(this.worldObj, this, list, f3);
++        //net.minecraftforge.event.ForgeEventFactory.onExplosionDetonate(this.worldObj, this, list, f3);
+         Vec3d vec3d = new Vec3d(this.explosionX, this.explosionY, this.explosionZ);
+ 
+         for (int k2 = 0; k2 < list.size(); ++k2)
 @@ -155,7 +174,16 @@
                          d9 = d9 / d13;
                          double d14 = (double)this.worldObj.getBlockDensity(vec3d, entity.getEntityBoundingBox());

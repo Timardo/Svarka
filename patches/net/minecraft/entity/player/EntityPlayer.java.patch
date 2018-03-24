@@ -60,3 +60,32 @@
  
      public void closeScreen()
      {
+@@ -1078,14 +1095,16 @@
+         return (float)i / (float)this.inventory.armorInventory.length;
+     }
+ 
+-    protected void damageEntity(DamageSource damageSrc, float damageAmount)
+-    {
++    protected void damageEntity(DamageSource damageSrc, float damageAmount) {
++        this.damageEntity0(damageSrc,damageAmount);
++    }
++    protected boolean damageEntity0(DamageSource damageSrc, float damageAmount){
+         if (!this.isEntityInvulnerable(damageSrc))
+         {
+             damageAmount = net.minecraftforge.common.ForgeHooks.onLivingHurt(this, damageSrc, damageAmount);
+-            if (damageAmount <= 0) return;
++            if (damageAmount <= 0) return false;
+             damageAmount = net.minecraftforge.common.ISpecialArmor.ArmorProperties.applyArmor(this, inventory.armorInventory, damageSrc, damageAmount);
+-            if (damageAmount <= 0) return;
++            if (damageAmount <= 0) return false;
+             damageAmount = this.applyPotionDamageCalculations(damageSrc, damageAmount);
+             float f = damageAmount;
+             damageAmount = Math.max(damageAmount - this.getAbsorptionAmount(), 0.0F);
+@@ -1104,6 +1123,7 @@
+                 }
+             }
+         }
++        return true;
+     }
+ 
+     public void openEditSign(TileEntitySign signTile)
