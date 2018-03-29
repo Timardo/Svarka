@@ -301,8 +301,8 @@ public abstract class CraftEntity implements Entity
         else if (entity instanceof net.minecraft.entity.Entity) {
             if (entity instanceof net.minecraft.entity.IProjectile) return new ru.svarka.entity.CustomCraftProjectile(server, entity); // Thermos
             return new CraftCustomEntity(server, (net.minecraft.entity.Entity) entity); }
-        else { return null; }
-        //throw new AssertionError("Unknown entity " + entity == null ? null : entity.getClass() + ": " + entity); // Cauldron - show the entity that caused exception
+        else // { return null; }
+        throw new AssertionError("Unknown entity " + entity == null ? null : entity.getClass() + ": " + entity); // Cauldron - show the entity that caused exception
     }
 
     // Cauldron start - copy of getEntity() but operates on classes instead of instances, for EntityRegistry registerBukkitType
