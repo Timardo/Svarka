@@ -7,8 +7,8 @@ buildscript {
         }
     }
     dependencies {
-        //classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
         classpath files('FGS.jar')
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 
@@ -24,16 +24,6 @@ sourceCompatibility = targetCompatibility = "1.8"
 compileJava {
     sourceCompatibility = targetCompatibility = "1.8"
 }
-//afterEvaluate {
-//	patchSvarkaJar.addInject file('bukkit/src/main/java/')
-//}
-
-//tasks.whenTaskAdded	{ task ->
-//	if(task.name.equals("genSvarkaPatches")) {
-//		task.addOriginalSource file('bukkit/src/main/java/')
-//	}
-//}
-
 repositories {
     clear()
     maven {
