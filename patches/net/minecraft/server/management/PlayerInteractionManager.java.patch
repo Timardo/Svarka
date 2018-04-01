@@ -85,13 +85,12 @@
              {
                  if (f >= 1.0F)
                  {
-@@ -213,7 +234,17 @@
+@@ -213,7 +234,16 @@
                      theWorld.notifyBlockUpdate(pos, theWorld.getBlockState(pos), theWorld.getBlockState(pos), 3);
                  }
                  return;
 +            }// CB
 +            org.bukkit.event.block.BlockDamageEvent blockEvent = CraftEventFactory.callBlockDamageEvent(this.thisPlayerMP, pos.getX(), pos.getY(), pos.getZ(), this.thisPlayerMP.inventory.getCurrentItem(), f >= 1.0f);
-+            //Svarka.debug("Func tryHarvestBlock: " + thisPlayerMP.getBukkitEntity().toString() + " event " + blockEvent.getPlayer().toString());
 +            if(blockEvent.isCancelled()) {
 +            	// Let the client know the block still exists
 +            	((EntityPlayerMP) this.thisPlayerMP).connection.sendPacket(new SPacketBlockChange(this.theWorld, pos));
@@ -103,7 +102,7 @@
  
              if (!iblockstate.getBlock().isAir(iblockstate, theWorld, pos) && f >= 1.0F)
              {
-@@ -255,6 +286,10 @@
+@@ -255,6 +285,10 @@
                      this.initialBlockDamage = this.initialDamage;
                  }
              }
@@ -114,7 +113,7 @@
          }
      }
  
-@@ -283,7 +318,51 @@
+@@ -283,7 +317,51 @@
      }
  
      public boolean tryHarvestBlock(BlockPos pos)
@@ -167,7 +166,7 @@
          int exp = net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(theWorld, gameType, thisPlayerMP, pos);
          if (exp == -1)
          {
-@@ -338,15 +417,16 @@
+@@ -338,15 +416,16 @@
                  }
  
                  // Drop experience
@@ -186,7 +185,7 @@
      public EnumActionResult processRightClick(EntityPlayer player, World worldIn, ItemStack stack, EnumHand hand)
      {
          if (this.gameType == GameType.SPECTATOR)
-@@ -385,8 +465,8 @@
+@@ -385,8 +464,8 @@
  
                  if (itemstack.stackSize == 0)
                  {
@@ -196,7 +195,7 @@
                  }
  
                  if (!player.isHandActive())
-@@ -401,34 +481,127 @@
+@@ -401,34 +480,127 @@
  
      public EnumActionResult processRightClickBlock(EntityPlayer player, World worldIn, @Nullable ItemStack stack, EnumHand hand, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ)
      {
@@ -341,7 +340,7 @@
          else
          {
              net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock event = net.minecraftforge.common.ForgeHooks
-@@ -494,7 +667,7 @@
+@@ -494,7 +666,7 @@
                      else return result;
                  }
              }
