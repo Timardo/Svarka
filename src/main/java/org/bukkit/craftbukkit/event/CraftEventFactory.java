@@ -627,10 +627,8 @@ public class CraftEventFactory
 
         if (damager != null) {
             event = new EntityDamageByEntityEvent(damager.getBukkitEntity(), damagee.getBukkitEntity(), cause, modifiers, modifierFunctions);
-            //System.out.println("Func CallEntityDamageEvent " + damager.toString());
         } else {
             event = new EntityDamageEvent(damagee.getBukkitEntity(), cause, modifiers, modifierFunctions);
-            //System.out.println("Func CallEntityDamageEvent " + damagee.toString());
         }
         callEvent(event);
         if (!event.isCancelled()) {

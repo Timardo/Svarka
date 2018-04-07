@@ -7,7 +7,6 @@ buildscript {
         }
     }
     dependencies {
-        classpath files('FGS.jar')
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
@@ -16,14 +15,9 @@ apply plugin: 'java'
 apply plugin: 'net.minecraftforge.gradle.patcher'
 apply plugin: 'net.minecraftforge.gradle.launch4j'
 
-
 group = 'fewizz.svarka'
 version = '0.0.5'
 
-sourceCompatibility = targetCompatibility = "1.8"
-compileJava {
-    sourceCompatibility = targetCompatibility = "1.8"
-}
 repositories {
     clear()
     maven {
@@ -106,10 +100,6 @@ minecraft {
     buildUserdev = false
     buildInstaller = false
     installerVersion = '1.5'
-    sourceCompatibility = targetCompatibility = "1.8"
-    compileJava {
-        sourceCompatibility = targetCompatibility = "1.8"
-    }
     def common = {
         patchPrefixOriginal "../src-base/minecraft"
         patchPrefixChanged "../src-work/minecraft"
@@ -117,10 +107,6 @@ minecraft {
         tweakClassClient "net.minecraftforge.fml.common.launcher.FMLTweaker"*/
         mainClassServer "net.minecraft.launchwrapper.Launch"
         tweakClassServer "net.minecraftforge.fml.common.launcher.FMLServerTweaker"
-        sourceCompatibility = targetCompatibility = "1.8"
-        compileJava {
-            sourceCompatibility = targetCompatibility = "1.8"
-        }
     }
 
     projects {

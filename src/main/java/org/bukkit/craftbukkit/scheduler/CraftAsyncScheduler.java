@@ -34,15 +34,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 public class CraftAsyncScheduler extends CraftScheduler {
 
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(
-            4, Integer.MAX_VALUE,30L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+            4, Integer.MAX_VALUE,30L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
             new ThreadFactoryBuilder().setNameFormat("Craft Scheduler Thread - %1$d").build());
     private final Executor management = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
             .setNameFormat("Craft Async Scheduler Management Thread").build());
-    private final List<CraftTask> temp = new ArrayList<>();
+    private final List<CraftTask> temp = new ArrayList<CraftTask>();
 
     CraftAsyncScheduler() {
         super(true);
@@ -51,28 +52,41 @@ public class CraftAsyncScheduler extends CraftScheduler {
     }
 
     @Override
-    public void cancelTask(int taskId) {
-        this.management.execute(() -> this.removeTask(taskId));
+    public void cancelTask(final int taskId) {
+        this.management.execute(new Runnable() {
+            @Override
+            public void run() {
+                CraftAsyncScheduler.this.removeTask(taskId);
+            }
+        });
     }
 
-    private synchronized void removeTask(int taskId) {
+    private synchronized void removeTask(final int taskId) {
         parsePending();
-        this.pending.removeIf((task) -> {
-            if (task.getTaskId() == taskId) {
-                task.cancel0();
-                return true;
+        this.pending.removeIf(new Predicate<CraftTask>() {
+            @Override
+            public boolean test(CraftTask task) {
+                if (task.getTaskId() == taskId) {
+                    task.cancel0();
+                    return true;
+                }
+                return false;
             }
-            return false;
         });
     }
 
     @Override
-    public void mainThreadHeartbeat(int currentTick) {
+    public void mainThreadHeartbeat(final int currentTick) {
         this.currentTick = currentTick;
-        this.management.execute(() -> this.runTasks(currentTick));
+        this.management.execute(new Runnable() {
+            @Override
+            public void run() {
+                CraftAsyncScheduler.this.runTasks(currentTick);
+            }
+        });
     }
 
-    private synchronized void runTasks(int currentTick) {
+    private synchronized void runTasks(final int currentTick) {
         parsePending();
         while (!this.pending.isEmpty() && this.pending.peek().getNextRun() <= currentTick) {
             CraftTask task = this.pending.remove();

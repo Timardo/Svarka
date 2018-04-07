@@ -21,7 +21,7 @@
  import net.minecraft.item.ItemBlock;
  import net.minecraft.item.ItemStack;
  import net.minecraft.item.ItemSword;
-@@ -26,6 +27,18 @@
+@@ -26,6 +27,19 @@
  import net.minecraft.world.ILockableContainer;
  import net.minecraft.world.World;
  import net.minecraft.world.WorldServer;
@@ -36,11 +36,12 @@
 +import org.bukkit.event.block.Action;
 +import org.bukkit.event.inventory.InventoryType;
 +import org.bukkit.event.player.PlayerInteractEvent;
++import ru.svarka.Svarka;
 +// CraftBukkit end
  
  public class PlayerInteractionManager
  {
-@@ -42,6 +55,10 @@
+@@ -42,6 +56,10 @@
      private BlockPos delayedDestroyPos = BlockPos.ORIGIN;
      private int initialBlockDamage;
      private int durabilityRemainingOnBlock = -1;
@@ -51,7 +52,7 @@
  
      public PlayerInteractionManager(World worldIn)
      {
-@@ -143,10 +160,13 @@
+@@ -143,10 +161,13 @@
      public void onBlockClicked(BlockPos pos, EnumFacing side)
      {
          net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock event = net.minecraftforge.common.ForgeHooks.onLeftClickBlock(thisPlayerMP, pos, side, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(thisPlayerMP, getBlockReachDistance() + 1));
@@ -66,7 +67,7 @@
              theWorld.notifyBlockUpdate(pos, theWorld.getBlockState(pos), theWorld.getBlockState(pos), 3);
              return;
          }
-@@ -191,7 +211,7 @@
+@@ -191,7 +212,7 @@
  
              if (!iblockstate.getBlock().isAir(iblockstate, theWorld, pos))
              {
@@ -75,7 +76,7 @@
                  {
                      block.onBlockClicked(this.theWorld, pos, this.thisPlayerMP);
                      this.theWorld.extinguishFire((EntityPlayer)null, pos, side);
-@@ -204,7 +224,7 @@
+@@ -204,7 +225,7 @@
                  }
                  f = iblockstate.getPlayerRelativeBlockHardness(this.thisPlayerMP, this.thisPlayerMP.worldObj, pos);
              }
@@ -84,7 +85,7 @@
              {
                  if (f >= 1.0F)
                  {
-@@ -213,7 +233,16 @@
+@@ -213,7 +234,16 @@
                      theWorld.notifyBlockUpdate(pos, theWorld.getBlockState(pos), theWorld.getBlockState(pos), 3);
                  }
                  return;
@@ -101,7 +102,7 @@
  
              if (!iblockstate.getBlock().isAir(iblockstate, theWorld, pos) && f >= 1.0F)
              {
-@@ -255,6 +284,10 @@
+@@ -255,6 +285,10 @@
                      this.initialBlockDamage = this.initialDamage;
                  }
              }
@@ -112,7 +113,7 @@
          }
      }
  
-@@ -283,7 +316,49 @@
+@@ -283,7 +317,51 @@
      }
  
      public boolean tryHarvestBlock(BlockPos pos)
@@ -129,6 +130,7 @@
 +    		((EntityPlayerMP) this.thisPlayerMP).connection.sendPacket(packet);
 +    	}
 +    	event = new BlockBreakEvent(blockCB, this.thisPlayerMP.getBukkitEntity());
++        Svarka.debug("Func tryHarvestBlock: " + thisPlayerMP.getBukkitEntity().toString() + " Event: " + event.getPlayer());
 +    	// Sword + Creative mode pre-cancel
 +    	event.setCancelled(isSwordNoBreak);
 +    	// Calculate default block experience
@@ -145,25 +147,26 @@
 +    			event.setExpToDrop(nmsBlock.getExpDrop(nmsData, this.theWorld, pos, bonusLevel));
 +    		}
 +    	}*/ // TODO
-+    	this.theWorld.getServer().getPluginManager().callEvent(event);
-+    	if (event.isCancelled()) {
-+    		if (isSwordNoBreak) {    			return false;
-+    		}
-+    		// Let the client know the block still exists
-+    		((EntityPlayerMP) this.thisPlayerMP).connection.sendPacket(new SPacketBlockChange(this.theWorld, pos));
-+    		// Update any tile entity data for this block
-+    		TileEntity tileentity = this.theWorld.getTileEntity(pos);
-+    		if (tileentity != null) {
-+    			this.thisPlayerMP.connection.sendPacket(tileentity.getUpdatePacket());
-+    		}
-+    		return false;
-+    	}
-+    	
-+    	// Forge
++        this.theWorld.getServer().getPluginManager().callEvent(event);
++        if (event.isCancelled()) {
++            if (isSwordNoBreak) {
++                return false;
++            }
++            // Let the client know the block still exists
++            ((EntityPlayerMP) this.thisPlayerMP).connection.sendPacket(new SPacketBlockChange(this.theWorld, pos));
++            // Update any tile entity data for this block
++            TileEntity tileentity = this.theWorld.getTileEntity(pos);
++            if (tileentity != null) {
++                this.thisPlayerMP.connection.sendPacket(tileentity.getUpdatePacket());
++            }
++            return false;
++        }
++
++        // Forge
          int exp = net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(theWorld, gameType, thisPlayerMP, pos);
          if (exp == -1)
          {
-@@ -338,15 +413,16 @@
+@@ -338,15 +416,16 @@
                  }
  
                  // Drop experience
@@ -182,7 +185,7 @@
      public EnumActionResult processRightClick(EntityPlayer player, World worldIn, ItemStack stack, EnumHand hand)
      {
          if (this.gameType == GameType.SPECTATOR)
-@@ -385,8 +461,8 @@
+@@ -385,8 +464,8 @@
  
                  if (itemstack.stackSize == 0)
                  {
@@ -192,7 +195,7 @@
                  }
  
                  if (!player.isHandActive())
-@@ -401,34 +477,127 @@
+@@ -401,34 +480,127 @@
  
      public EnumActionResult processRightClickBlock(EntityPlayer player, World worldIn, @Nullable ItemStack stack, EnumHand hand, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ)
      {
@@ -337,7 +340,7 @@
          else
          {
              net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock event = net.minecraftforge.common.ForgeHooks
-@@ -494,7 +663,7 @@
+@@ -494,7 +666,7 @@
                      else return result;
                  }
              }
