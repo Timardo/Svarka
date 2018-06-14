@@ -33,7 +33,7 @@ import ru.svarka.Svarka;
  */
 final class PluginClassLoader extends URLClassLoader {
     private final JavaPluginLoader loader;
-    private final ConcurrentMap<String, Class<?>> classes = new ConcurrentHashMap<String, Class<?>>(); // Svarka - Threadsafe classloading
+    private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>(); // Svarka - Threadsafe classloading
     private final PluginDescriptionFile description;
     private final File dataFolder;
     private final File file;
@@ -46,7 +46,7 @@ final class PluginClassLoader extends URLClassLoader {
     private RemapperProcessor remapperProcessor; // secondary; for inheritance & remapping reflection
     private boolean debug;            // classloader debugging
     private int remapFlags = -1;
-    private static ConcurrentMap<Integer,JarMapping> jarMappings = new ConcurrentHashMap<Integer, JarMapping>();
+    private static Map<Integer,JarMapping> jarMappings = new HashMap<Integer, JarMapping>();
     private static final int F_GLOBAL_INHERIT   = 1 << 1;
     private static final int F_REMAP_NMS1102    = 1 << 2;
     private static final int F_REMAP_OBC1102    = 1 << 3;
