@@ -21,6 +21,7 @@ import net.md_5.specialsource.transformer.MavenShade;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.Level;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.PluginDescriptionFile;
 import ru.svarka.SvarkaRemapper;
@@ -32,7 +33,7 @@ import ru.svarka.Svarka;
  */
 final class PluginClassLoader extends URLClassLoader {
     private final JavaPluginLoader loader;
-    private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>(); // Svarka - Threadsafe classloading
+    private final ConcurrentMap<String, Class<?>> classes = new ConcurrentHashMap<String, Class<?>>(); // Svarka - Threadsafe classloading
     private final PluginDescriptionFile description;
     private final File dataFolder;
     private final File file;
@@ -45,12 +46,10 @@ final class PluginClassLoader extends URLClassLoader {
     private RemapperProcessor remapperProcessor; // secondary; for inheritance & remapping reflection
     private boolean debug;            // classloader debugging
     private int remapFlags = -1;
-    private static Map<Integer,JarMapping> jarMappings = new HashMap<Integer,JarMapping>();
+    private static ConcurrentMap<Integer,JarMapping> jarMappings = new ConcurrentHashMap<Integer, JarMapping>();
     private static final int F_GLOBAL_INHERIT   = 1 << 1;
-    private static final int F_REMAP_OBCPRE     = 1 << 2;
-    private static final int F_REMAP_NMS1102    = 1 << 3;
-    private static final int F_REMAP_OBC1102    = 1 << 4;
-    private static final int F_REMAP_NMSPRE_MASK= 0xffff0000;  // "unversioned" NMS plugin version
+    private static final int F_REMAP_NMS1102    = 1 << 2;
+    private static final int F_REMAP_OBC1102    = 1 << 3;
     // This trick bypasses Maven Shade's package rewriting when using String literals [same trick in jline]
     private static final String org_bukkit_craftbukkit = new String(new char[] {'o','r','g','/','b','u','k','k','i','t','/','c','r','a','f','t','b','u','k','k','i','t'});
     // Svarka end
@@ -66,24 +65,23 @@ final class PluginClassLoader extends URLClassLoader {
         // Svarka start
         String pluginName = this.description.getName();
         // configure default remapper settings
-        boolean useCustomClassLoader = FMLCommonHandler.instance().getMinecraftServerInstance().getServer().svarkaConfig.getBoolean("plugin-settings.default.custom-class-loader", true);
-        boolean reflectFields = true; //TODO
-        boolean reflectClass = true;
-        boolean pluginInherit = true;
-        boolean globalInherit = true;
-        boolean allowFuture = true;
-        boolean remapOBC1102 = true;
-        boolean remapNMS1102 = true;
-        boolean remapOBCPre = true;
+        boolean useCustomClassLoader = FMLCommonHandler.instance().getMinecraftServerInstance().svarkaConfig.getBoolean("plugin-settings.default.custom-class-loader", true);
+        boolean reflectFields = FMLCommonHandler.instance().getMinecraftServerInstance().svarkaConfig.getBoolean("plugin-settings.mappings.reflect-fields", true);
+        boolean reflectClass = FMLCommonHandler.instance().getMinecraftServerInstance().svarkaConfig.getBoolean("plugin-settings.mappings.reflect-class", true);
+        boolean pluginInherit = FMLCommonHandler.instance().getMinecraftServerInstance().svarkaConfig.getBoolean("plugin-settings.mappings.plugin-inherit", true);;
+        boolean globalInherit = FMLCommonHandler.instance().getMinecraftServerInstance().svarkaConfig.getBoolean("plugin-settings.mappings.global-inherit", true);
+        boolean remapOBC1102 = FMLCommonHandler.instance().getMinecraftServerInstance().svarkaConfig.getBoolean("plugin-settings.mappings.remap-obc-1102", true);
+        boolean remapNMS1102 = FMLCommonHandler.instance().getMinecraftServerInstance().svarkaConfig.getBoolean("plugin-settings.mappings.remap-nms-1102", true);
+        debug = FMLCommonHandler.instance().getMinecraftServerInstance().svarkaConfig.getBoolean("plugin-settings.default.debug", false);
         Svarka.bukkitLog.info("PluginClassLoader debugging enabled for "+pluginName);
+        Svarka.bukkitLog.info(Bukkit.getServer().getClass().getPackage().getName());
         if(!useCustomClassLoader){
             remapper = null;
             return;
         }
         int flags = 0;
-        if(remapNMS1102) flags |= F_REMAP_NMS1102;
+        if  (remapNMS1102) flags |= F_REMAP_NMS1102;
         if (remapOBC1102) flags |= F_REMAP_OBC1102;
-        if (remapOBCPre) flags |= F_REMAP_OBCPRE;
         if (globalInherit) flags |= F_GLOBAL_INHERIT;
         remapFlags = flags; // used in findClass0
         JarMapping jarMapping = getJarMapping(flags);
@@ -94,8 +92,8 @@ final class PluginClassLoader extends URLClassLoader {
             }
             jarMapping.setInheritanceMap(loader.getGlobalInheritanceMap());
             jarMapping.setFallbackInheritanceProvider(new ClassLoaderProvider(this));
-            }
-            remapper = new SvarkaRemapper(jarMapping);
+        }
+        remapper = new SvarkaRemapper(jarMapping);
         if (pluginInherit || reflectFields || reflectClass) {
             remapperProcessor = new RemapperProcessor(
                     pluginInherit ? loader.getGlobalInheritanceMap() : null,
@@ -103,9 +101,9 @@ final class PluginClassLoader extends URLClassLoader {
             remapperProcessor.setRemapReflectField(reflectFields);
             remapperProcessor.setRemapReflectClass(reflectClass);
             remapperProcessor.debug = debug;
-            } else {
+        } else {
             remapperProcessor = null;
-            }
+        }
 
         try {
             Class<?> jarClass;
@@ -139,9 +137,10 @@ final class PluginClassLoader extends URLClassLoader {
      */
     public static String getNativeVersion() {
         // see https://github.com/mbax/VanishNoPacket/blob/master/src/main/java/org/kitteh/vanish/compat/NMSManager.java
-        if (SvarkaUtils.deobfuscatedEnvironment()) return "v1_10_R1"; // support plugins in deobf environment
+        /*if (SvarkaUtils.deobfuscatedEnvironment()) return "v1_10_R1"; // support plugins in deobf environment
         final String packageName = org.bukkit.craftbukkit.CraftServer.class.getPackage().getName();
-        return packageName.substring(packageName.lastIndexOf('.')  + 1);
+        return packageName.substring(packageName.lastIndexOf('.')  + 1);*/
+        return "v1_10_R1";
     }
     /**
      * Load NMS mappings from CraftBukkit mc-dev to repackaged srgnames for FML runtime deobf
@@ -156,7 +155,10 @@ final class PluginClassLoader extends URLClassLoader {
         Map<String, String> relocations = new HashMap<String, String>();
         // mc-dev jar to CB, apply version shading (aka plugin safeguard)
         relocations.put("net.minecraft.server", "net.minecraft.server." + obfVersion);
-
+        for (String s :
+                relocations.values()) {
+            Svarka.LOG.info("DEBUG: " + s);
+        }
         // support for running 1.10.2 plugins in Svarka dev
         if (SvarkaUtils.deobfuscatedEnvironment() && obfVersion.equals("v1_10_R1"))
         {
@@ -171,6 +173,7 @@ final class PluginClassLoader extends URLClassLoader {
                     null, false);
             // resolve naming conflict in FML/CB
             jarMapping.methods.put("net/minecraft/server/"+obfVersion+"/PlayerConnection/getPlayer ()Lorg/bukkit/craftbukkit/entity/CraftPlayer;", "getPlayerB");
+            Svarka.LOG.info("PKG DONE");
         }
         else
         {
@@ -185,7 +188,7 @@ final class PluginClassLoader extends URLClassLoader {
                         null, // no version relocation for obf
                         null, false);
             }
-
+            Svarka.LOG.info("NUM DONE");
             // resolve naming conflict in FML/CB
             jarMapping.methods.put("net/minecraft/server/"+obfVersion+"/PlayerConnection/getPlayer ()Lorg/bukkit/craftbukkit/"+getNativeVersion()+"/entity/CraftPlayer;", "getPlayerB");
         }
@@ -224,29 +227,6 @@ final class PluginClassLoader extends URLClassLoader {
                 else jarMapping.packages.put(org_bukkit_craftbukkit+"/v1_10_R1", org_bukkit_craftbukkit+"/"+getNativeVersion());
             }
 
-
-            if ((flags & F_REMAP_OBCPRE) != 0) {
-                // enabling unversioned obc not currently compatible with versioned obc plugins (overmapped) -
-                // admins should enable remap-obc-pre on a per-plugin basis, as needed
-                // then map unversioned to current version
-                jarMapping.packages.put(org_bukkit_craftbukkit+"/libs/org/objectweb/asm", "org/objectweb/asm"); // ?
-                jarMapping.packages.put(org_bukkit_craftbukkit, org_bukkit_craftbukkit+"/"+getNativeVersion());
-            }
-
-            if ((flags & F_REMAP_NMSPRE_MASK) != 0) {
-                String obfVersion;
-                switch (flags & F_REMAP_NMSPRE_MASK)
-                {
-                    case 0x11020000: obfVersion = "v1_10_R1"; break;
-                    default: throw new IllegalArgumentException("Invalid unversioned mapping flags: "+Integer.toHexString(flags & F_REMAP_NMSPRE_MASK)+" in "+Integer.toHexString(flags));
-                }
-
-                jarMapping.loadMappings(
-                        new BufferedReader(new InputStreamReader(loader.getClass().getClassLoader().getResourceAsStream("mappings/" + obfVersion + "/cb2numpkg.srg"))),
-                        null, // no version relocation!
-                        null, false);
-            }
-
             Svarka.bukkitLog.info("Mapping loaded "+jarMapping.packages.size()+" packages, "+jarMapping.classes.size()+" classes, "+jarMapping.fields.size()+" fields, "+jarMapping.methods.size()+" methods, flags "+Integer.toHexString(flags));
 
             JarMapping currentJarMapping = jarMappings.putIfAbsent(flags, jarMapping);
@@ -263,7 +243,7 @@ final class PluginClassLoader extends URLClassLoader {
         {
             JarMapping jarMapping = this.getJarMapping(remapFlags); // grab from SpecialSource
             String remappedClass = jarMapping.classes.get(name.replaceAll("\\.", "\\/")); // get remapped pkgmcp class name
-            Class<?> clazz = ((net.minecraft.launchwrapper.LaunchClassLoader)FMLCommonHandler.instance().getMinecraftServerInstance().getServer().getClass().getClassLoader()).findClass(remappedClass);
+            Class<?> clazz = ((net.minecraft.launchwrapper.LaunchClassLoader)FMLCommonHandler.instance().getMinecraftServerInstance().getClass().getClassLoader()).findClass(remappedClass);
             return clazz;
         }
         if (name.startsWith("org.bukkit.")) {

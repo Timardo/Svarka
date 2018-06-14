@@ -169,10 +169,10 @@
 -        else if (MinecraftServer.getServer() != null)
 +            return ((SaveHandler)DimensionManager.getWorld(0).getSaveHandler()).getWorldDirectory();
 +        }
-+        else if (FMLCommonHandler.instance().getMinecraftServerInstance().getServer() != null)
++        else if (FMLCommonHandler.instance().getMinecraftServerInstance() != null)
          {
 -            MinecraftServer srv = MinecraftServer.getServer();
-+            MinecraftServer srv = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
++            MinecraftServer srv = FMLCommonHandler.instance().getMinecraftServerInstance();
              SaveHandler saveHandler = (SaveHandler) srv.getActiveAnvilConverter().getSaveLoader(srv.getFolderName(), false);
              return saveHandler.getWorldDirectory();
 -        }*/

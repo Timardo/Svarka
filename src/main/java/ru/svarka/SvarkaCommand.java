@@ -89,7 +89,7 @@ public class SvarkaCommand extends Command {
                 currentWorld = ((CraftPlayer) sender).getWorld();
             }
             sender.sendMessage(ChatColor.DARK_RED + "---------------------------------------");
-            final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
+            final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
             ChatColor colourTPS;
             for (World world : server.server.getWorlds()) {
                 if (world instanceof CraftWorld) {

@@ -80,7 +80,24 @@
      }
  
      public void readEntityFromNBT(NBTTagCompound compound)
-@@ -319,7 +345,7 @@
+@@ -306,8 +332,15 @@
+             {
+                 ItemStack itemstack = this.inventory.getStackInSlot(i);
+ 
+-                if (itemstack != null && itemstack.getItem().isMap())
++                if (itemstack == null) continue;
++
++                if (itemstack.stackSize <= 0 )
+                 {
++                    this.inventory.setInventorySlotContents(i, null);
++                }
++
++                if (itemstack.getItem().isMap())
++                {
+                     Packet<?> packet = ((ItemMapBase)itemstack.getItem()).createMapDataPacket(itemstack, this.worldObj, this);
+ 
+                     if (packet != null)
+@@ -319,7 +352,7 @@
  
              if (this.getHealth() != this.lastHealth || this.lastFoodLevel != this.foodStats.getFoodLevel() || this.foodStats.getSaturationLevel() == 0.0F != this.wasHungry)
              {
@@ -89,7 +106,7 @@
                  this.lastHealth = this.getHealth();
                  this.lastFoodLevel = this.foodStats.getFoodLevel();
                  this.wasHungry = this.foodStats.getSaturationLevel() == 0.0F;
-@@ -439,7 +465,38 @@
+@@ -439,7 +472,38 @@
          if (net.minecraftforge.common.ForgeHooks.onLivingDeath(this, cause)) return;
          boolean flag = this.worldObj.getGameRules().getBoolean("showDeathMessages");
          this.connection.sendPacket(new SPacketCombatEvent(this.getCombatTracker(), SPacketCombatEvent.Event.ENTITY_DIED, flag));
@@ -129,7 +146,7 @@
          if (flag)
          {
              Team team = this.getTeam();
-@@ -742,9 +799,14 @@
+@@ -742,9 +806,14 @@
      {
          this.currentWindowId = this.currentWindowId % 100 + 1;
      }
@@ -144,7 +161,7 @@
          if (guiOwner instanceof ILootContainer && ((ILootContainer)guiOwner).getLootTable() != null && this.isSpectator())
          {
              this.addChatMessage((new TextComponentTranslation("container.spectatorCantOpen", new Object[0])).setStyle((new Style()).setColor(TextFormatting.RED)));
-@@ -988,6 +1050,12 @@
+@@ -988,6 +1057,12 @@
      {
          this.lastHealth = -1.0E8F;
      }
@@ -157,7 +174,7 @@
  
      public void addChatComponentMessage(ITextComponent chatComponent)
      {
-@@ -1264,4 +1332,127 @@
+@@ -1264,4 +1339,127 @@
          this.setFlag(7, true);
          this.setFlag(7, false);
      }

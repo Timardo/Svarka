@@ -28,7 +28,7 @@ public class TicksPerSecondCommand extends Command
         }
 
         StringBuilder sb = new StringBuilder( ChatColor.GOLD + "TPS from last 1m, 5m, 15m: " );
-        for ( double tps : FMLCommonHandler.instance().getMinecraftServerInstance().getServer().recentTps )
+        for ( double tps : FMLCommonHandler.instance().getMinecraftServerInstance().recentTps )
         {
             sb.append( format( tps ) );
             sb.append( ", " );

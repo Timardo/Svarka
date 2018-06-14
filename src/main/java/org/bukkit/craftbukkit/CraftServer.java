@@ -1379,7 +1379,7 @@ public final class CraftServer implements Server
         if (result == null) {
             GameProfile profile = null;
             // Only fetch an online UUID in online mode
-            if ( FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getOnlineMode() || org.spigotmc.SpigotConfig.bungee )
+            if ( FMLCommonHandler.instance().getMinecraftServerInstance().server.getOnlineMode() || org.spigotmc.SpigotConfig.bungee )
             {
                 profile = console.getPlayerProfileCache().getGameProfileForUsername( name );
             }

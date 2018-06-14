@@ -134,7 +134,8 @@ public final class SimplePluginManager implements PluginManager {
             try {
                 description = loader.getPluginDescription(file);
                 String name = description.getName();
-                if (name.equalsIgnoreCase("bukkit") || name.equalsIgnoreCase("minecraft") || name.equalsIgnoreCase("mojang")) {
+                if (name.equalsIgnoreCase("bukkit") || name.equalsIgnoreCase("minecraft") || name.equalsIgnoreCase("mojang")
+                        || name.equalsIgnoreCase("spigot") || name.equalsIgnoreCase("forge") || name.equalsIgnoreCase("cauldron") || name.equalsIgnoreCase("mcpc")) {
                 	Svarka.bukkitLog.log(Level.ERROR, "Could not load '" + file.getPath() + "' in folder '" + directory.getPath() + "': Restricted Name");
                     continue;
                 } else if (description.rawName.indexOf(' ') != -1) {
@@ -189,6 +190,8 @@ public final class SimplePluginManager implements PluginManager {
                 }
             }
         }
+
+        loadedPlugins.addAll(ImmutableSet.of("Cauldron", "Forge", "MCPC", "MCPC+", "KCauldron", "Thermos", "Svarka"));
 
         while (!plugins.isEmpty()) {
             boolean missingDependency = true;

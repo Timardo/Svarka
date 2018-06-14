@@ -31,7 +31,7 @@
 +                TextComponentString textComponentString;
 +                try{
 +                    long currentTime = System.currentTimeMillis();
-+                    long connectionThrottle = FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getConnectionThrottle();
++                    long connectionThrottle = FMLCommonHandler.instance().getMinecraftServerInstance().server.getConnectionThrottle();
 +                    InetAddress address = ((java.net.InetSocketAddress)this.networkManager.getRemoteAddress()).getAddress();
  
 +                    synchronized (throttleTracker){

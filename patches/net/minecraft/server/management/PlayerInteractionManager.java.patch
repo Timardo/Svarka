@@ -293,7 +293,7 @@
 +                        }
 +                        else
 +                        {
-+                            thisPlayerMP.openContainer.bukkitView = new CraftInventoryView(thisPlayerMP.getBukkitEntity(), FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.createInventory(thisPlayerMP.getBukkitEntity(), InventoryType.CHEST), thisPlayerMP.openContainer);
++                            thisPlayerMP.openContainer.bukkitView = new CraftInventoryView(thisPlayerMP.getBukkitEntity(), FMLCommonHandler.instance().getMinecraftServerInstance().server.createInventory(thisPlayerMP.getBukkitEntity(), InventoryType.CHEST), thisPlayerMP.openContainer);
 +                        }
 +
 +                        thisPlayerMP.openContainer = CraftEventFactory.callInventoryOpenEvent(thisPlayerMP, thisPlayerMP.openContainer, false);

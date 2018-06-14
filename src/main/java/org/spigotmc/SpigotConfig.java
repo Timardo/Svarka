@@ -81,7 +81,7 @@ public class SpigotConfig
     {
         for ( Map.Entry<String, Command> entry : commands.entrySet() )
         {
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().server.getCommandMap().register( entry.getKey(), "Spigot", entry.getValue() );
+            FMLCommonHandler.instance().getMinecraftServerInstance().server.getCommandMap().register( entry.getKey(), "Spigot", entry.getValue() );
         }
 
         if ( metrics == null )
