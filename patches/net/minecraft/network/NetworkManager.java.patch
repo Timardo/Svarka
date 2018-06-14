@@ -38,3 +38,14 @@
          if (this.isChannelOpen())
          {
              this.flushOutboundQueue();
+@@ -463,6 +470,10 @@
+         return channel;
+     }
+ 
++    public SocketAddress getRawAddress(){
++        return this.channel.remoteAddress(); // Spigot
++    }
++
+     static class InboundHandlerTuplePacketListener
+         {
+             private final Packet<?> packet;
