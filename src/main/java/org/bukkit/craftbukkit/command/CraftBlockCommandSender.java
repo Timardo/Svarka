@@ -15,6 +15,7 @@ public class CraftBlockCommandSender extends ServerCommandSender implements Bloc
     private final ICommandSender block;
     
     public CraftBlockCommandSender(final ICommandSender commandBlockListenerAbstract) {
+        super();
         this.block = commandBlockListenerAbstract;
     }
     
