@@ -158,12 +158,6 @@ task signUniversal(type: SignJar, dependsOn: 'outputJar') {
     inputFile = outputJar.archivePath
     outputFile = outputJar.archivePath
 }
-task sourceUpdate(type: Copy) {
-        from('src') {
-        include 'build.gradle'
-    }
-        into 'projects'
-}
 build.dependsOn signUniversal
 installer.dependsOn signUniversal
 
@@ -206,8 +200,9 @@ genGradleProjects {
         sourceCompatibility = targetCompatibility = "1.8"
     }
 }
-makeJarSvarka.dependsOn tasks.sourceUpdate
+
 import groovy.json.JsonSlurper;
+
 String getServerClasspath(File file) {
     def node = new JsonSlurper().parse(file);
     def out = new StringBuilder()
