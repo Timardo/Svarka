@@ -27,7 +27,7 @@ public class RestartCommand extends Command
     {
         if ( testPermission( sender ) )
         {
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().processQueue.add(new Runnable()
+            FMLCommonHandler.instance().getMinecraftServerInstance().processQueue.add(new Runnable()
             {
                 @Override
                 public void run()
@@ -61,7 +61,7 @@ public class RestartCommand extends Command
                 WatchdogThread.doStop();
 
                 // Kick all players
-                for ( EntityPlayerMP p : (List<EntityPlayerMP>) FMLCommonHandler.instance().getMinecraftServerInstance().getServer().getPlayerList() )
+                for ( EntityPlayerMP p : (List<EntityPlayerMP>) FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList() )
                 {
                     p.connection.kickPlayerFromServer(SpigotConfig.restartMessage);
                     p.connection.netManager.isChannelOpen();
@@ -74,7 +74,7 @@ public class RestartCommand extends Command
                 {
                 }
                 // Close the socket so we can rebind with the new process
-                FMLCommonHandler.instance().getMinecraftServerInstance().getServer().getNetworkSystem().terminateEndpoints();
+                FMLCommonHandler.instance().getMinecraftServerInstance().getNetworkSystem().terminateEndpoints();
 
                 // Give time for it to kick in
                 try

@@ -9,7 +9,7 @@ public class AsyncCatcher
 
     public static void catchOp(String reason)
     {
-        if ( enabled && Thread.currentThread() != FMLCommonHandler.instance().getMinecraftServerInstance().getServer().primaryThread )
+        if ( enabled && Thread.currentThread() != FMLCommonHandler.instance().getMinecraftServerInstance().primaryThread )
         {
             throw new IllegalStateException( "Asynchronous " + reason + "!" );
         }

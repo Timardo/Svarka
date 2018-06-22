@@ -1,5 +1,6 @@
 package ru.svarka;
 
+import net.minecraft.util.LazyLoadBase;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import org.apache.logging.log4j.Level;
@@ -11,10 +12,13 @@ import ru.svarka.configuration.Setting;
 public class SvarkaConfig extends ConfigBase {
     public BoolSetting commandEnable = new BoolSetting(this, "command.enable", true, "Enable Svarka command");
     public BoolSetting loadChunkOnRequest = new BoolSetting(this,"utils.enable", false, "Allows mods to force load chunks.");
+    public final BoolSetting realNames = new BoolSetting(this, "world-settings.use-real-names", false, "Instead of DIM##, use the world name prescribed by the mod! Be careful with this one, could create incompat with existing setups!");
+
 
     public SvarkaConfig() {
         super("svarka.yml", "svarka");
         register(commandEnable);
+        register(realNames);
         load();
     }
 

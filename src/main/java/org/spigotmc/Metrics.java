@@ -322,7 +322,7 @@ public class Metrics {
         // File pluginsFolder = plugin.getDataFolder().getParentFile();
 
         // return => base/plugins/PluginMetrics/config.yml
-        return new File(new File((File) FMLCommonHandler.instance().getMinecraftServerInstance().getServer().options.valueOf("plugins"), "PluginMetrics"), "config.yml");
+        return new File(new File((File) FMLCommonHandler.instance().getMinecraftServerInstance().options.valueOf("plugins"), "PluginMetrics"), "config.yml");
     }
 
     /**

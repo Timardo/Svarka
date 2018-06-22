@@ -287,8 +287,8 @@
 -        for (int l1 = -192; l1 <= 192 && this.isServerRunning(); l1 += 16)
 -        {
 -            for (int i2 = -192; i2 <= 192 && this.isServerRunning(); i2 += 16)
-+        for(int m = 0; m < worlds.size(); m++){
-+            WorldServer worldserver = this.worlds.get(m);
++        for(int m = 0; m < worldServers.length; m++){
++            WorldServer worldserver = this.worldServers[m];
 +            LOG.info("Preparing start region for level " + m + " (Seed: " + worldserver.getSeed() + ")");
 +            if(!worldserver.getWorld().getKeepSpawnInMemory()){
 +                continue;
@@ -322,7 +322,7 @@
              }
          }
 -
-+        for(WorldServer worldServer : this.worlds){
++        for(WorldServer worldServer : this.worldServers){
 +            this.server.getPluginManager().callEvent(new WorldLoadEvent(worldServer.getWorld()));
 +        }
          this.clearCurrentTask();
@@ -558,7 +558,7 @@
          long i = System.nanoTime();
          net.minecraftforge.fml.common.FMLCommonHandler.instance().onPreServerTick();
          ++this.tickCounter;
-@@ -629,11 +725,21 @@
+@@ -629,12 +725,18 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -574,15 +574,12 @@
 +            } catch (MinecraftException e) {
 +                e.printStackTrace();
 +            }
-+            server.playerCommandState = false;
-+            for (World world : worlds) {
-+                world.getWorld().save();
-+            }
-+            server.playerCommandState = true;
              this.theProfiler.endSection();
++            SpigotTimings.worldSaveTimer.stopTiming();
          }
  
-@@ -661,13 +767,23 @@
+         this.theProfiler.startSection("tallying");
+@@ -661,13 +763,23 @@
      {
          this.theProfiler.startSection("jobs");
  
@@ -608,7 +605,7 @@
  
          this.theProfiler.endStartSection("levels");
          net.minecraftforge.common.chunkio.ChunkIOExecutor.tick();
-@@ -831,7 +947,7 @@
+@@ -831,7 +943,7 @@
  
      public List<String> getTabCompletions(ICommandSender sender, String input, @Nullable BlockPos pos, boolean hasTargetBlock)
      {
@@ -617,7 +614,7 @@
          boolean flag = input.startsWith("/");
  
          if (flag)
-@@ -875,7 +991,8 @@
+@@ -875,7 +987,8 @@
              }
  
              return list;
@@ -627,7 +624,7 @@
      }
  
      public boolean isAnvilFileSet()
-@@ -1320,6 +1437,13 @@
+@@ -1320,6 +1433,13 @@
      {
          return this;
      }
@@ -641,7 +638,7 @@
  
      public int getMaxWorldSize()
      {
-@@ -1400,10 +1524,14 @@
+@@ -1400,10 +1520,14 @@
      @SideOnly(Side.SERVER)
      public static void main(String[] p_main_0_)
      {
@@ -656,7 +653,7 @@
              boolean flag = true;
              String s = null;
              String s1 = ".";
-@@ -1466,14 +1594,16 @@
+@@ -1466,14 +1590,16 @@
                  {
                      ++j;
                  }
@@ -676,7 +673,7 @@
              if (s != null)
              {
                  dedicatedserver.setServerOwner(s);
-@@ -1512,6 +1642,24 @@
+@@ -1512,6 +1638,24 @@
                      dedicatedserver.stopServer();
                  }
              });
@@ -701,7 +698,7 @@
          }
          catch (Exception exception)
          {
-@@ -1528,7 +1676,8 @@
+@@ -1528,7 +1672,8 @@
      @SideOnly(Side.SERVER)
      public boolean isDebuggingEnabled()
      {

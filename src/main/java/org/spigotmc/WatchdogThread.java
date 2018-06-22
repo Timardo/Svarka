@@ -72,7 +72,7 @@ public class WatchdogThread extends Thread
                 //
                 log.log( Level.ERROR, "------------------------------" );
                 log.log( Level.ERROR, "Server thread dump (Look for plugins here before reporting to Spigot!):" );
-                dumpThread( ManagementFactory.getThreadMXBean().getThreadInfo( FMLCommonHandler.instance().getMinecraftServerInstance().getServer().primaryThread.getId(), Integer.MAX_VALUE ), log );
+                dumpThread( ManagementFactory.getThreadMXBean().getThreadInfo( FMLCommonHandler.instance().getMinecraftServerInstance().primaryThread.getId(), Integer.MAX_VALUE ), log );
                 log.log( Level.ERROR, "------------------------------" );
                 //
                 log.log( Level.ERROR, "Entire Thread Dump:" );

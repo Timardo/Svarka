@@ -16,11 +16,11 @@ public class SvarkaUtils {
             byte[] bs = ((net.minecraft.launchwrapper.LaunchClassLoader)SvarkaUtils.class.getClassLoader()).getClassBytes("net.minecraft.world.World");
             if (bs != null)
             {
-                //Svara.LOG.info("Managed to load a deobfuscated Minecraft name- we are in a deobfuscated environment. Skipping runtime deobfuscation");
+                Svarka.LOG.info("Managed to load a deobfuscated Minecraft name- we are in a deobfuscated environment. Skipping runtime deobfuscation");
                 deobfuscated = true;
             }
         }
-        catch (IOException e1)
+        catch (IOException ignored)
         {
         }
         return deobfuscated;
@@ -33,20 +33,20 @@ public class SvarkaUtils {
 
         if ((!newWorld.isDirectory()) && (oldWorld.isDirectory()))
         {
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logInfo("---- Migration of old " + worldType + " folder required ----");
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logInfo("Svarka has moved back to using the Forge World structure, your " + worldType + " folder will be moved to a new location in order to operate correctly.");
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logInfo("We will move this folder for you, but it will mean that you need to move it back should you wish to stop using Cauldron in the future.");
-            FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logInfo("Attempting to move " + oldWorld + " to " + newWorld + "...");
+            FMLCommonHandler.instance().getMinecraftServerInstance().logInfo("---- Migration of old " + worldType + " folder required ----");
+            FMLCommonHandler.instance().getMinecraftServerInstance().logInfo("Svarka has moved back to using the Forge World structure, your " + worldType + " folder will be moved to a new location in order to operate correctly.");
+            FMLCommonHandler.instance().getMinecraftServerInstance().logInfo("We will move this folder for you, but it will mean that you need to move it back should you wish to stop using Cauldron in the future.");
+            FMLCommonHandler.instance().getMinecraftServerInstance().logInfo("Attempting to move " + oldWorld + " to " + newWorld + "...");
 
             if (newWorld.exists())
             {
-                FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logSevere("A file or folder already exists at " + newWorld + "!");
-                FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logInfo("---- Migration of old " + worldType + " folder failed ----");
+                FMLCommonHandler.instance().getMinecraftServerInstance().logSevere("A file or folder already exists at " + newWorld + "!");
+                FMLCommonHandler.instance().getMinecraftServerInstance().logInfo("---- Migration of old " + worldType + " folder failed ----");
                 result = false;
             }
             else if (newWorld.getParentFile().mkdirs() || newWorld.getParentFile().exists())
             {
-                FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logInfo("Success! To restore " + worldType + " in the future, simply move " + newWorld + " to " + oldWorld);
+                FMLCommonHandler.instance().getMinecraftServerInstance().logInfo("Success! To restore " + worldType + " in the future, simply move " + newWorld + " to " + oldWorld);
 
                 // Migrate world data
                 try
@@ -55,7 +55,7 @@ public class SvarkaUtils {
                 }
                 catch (IOException exception)
                 {
-                    FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logSevere("Unable to move world data.");
+                    FMLCommonHandler.instance().getMinecraftServerInstance().logSevere("Unable to move world data.");
                     exception.printStackTrace();
                     result = false;
                 }
@@ -65,10 +65,10 @@ public class SvarkaUtils {
                 }
                 catch (IOException exception)
                 {
-                    FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logSevere("Unable to migrate world level.dat.");
+                    FMLCommonHandler.instance().getMinecraftServerInstance().logSevere("Unable to migrate world level.dat.");
                 }
 
-                FMLCommonHandler.instance().getMinecraftServerInstance().getServer().logInfo("---- Migration of old " + worldType + " folder complete ----");
+                FMLCommonHandler.instance().getMinecraftServerInstance().logInfo("---- Migration of old " + worldType + " folder complete ----");
             }
             else result = false;
         }
