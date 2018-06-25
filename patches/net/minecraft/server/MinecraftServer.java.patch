@@ -30,7 +30,7 @@
  import net.minecraft.server.management.PlayerList;
  import net.minecraft.server.management.PlayerProfileCache;
  import net.minecraft.util.IProgressUpdate;
-@@ -66,33 +62,53 @@
+@@ -66,35 +62,55 @@
  import net.minecraft.util.math.Vec3d;
  import net.minecraft.util.text.ITextComponent;
  import net.minecraft.util.text.TextComponentString;
@@ -94,8 +94,11 @@
 -    private final File anvilFile;
 +    public File anvilFile;
      private final List<ITickable> tickables = Lists.<ITickable>newArrayList();
-     public final ICommandManager commandManager;
+-    public final ICommandManager commandManager;
++    public ICommandManager commandManager;
      public final Profiler theProfiler = new Profiler();
+     private final NetworkSystem networkSystem;
+     private final ServerStatusResponse statusResponse = new ServerStatusResponse();
 @@ -146,21 +162,67 @@
      private long currentTime = getCurrentTimeMillis();
      @SideOnly(Side.CLIENT)
@@ -129,9 +132,10 @@
 -        this.anvilFile = anvilFileIn;
 +        //this.anvilFile = anvilFileIn; // CraftBukkit
          this.networkSystem = new NetworkSystem(this);
-         this.commandManager = this.createNewCommandManager();
+-        this.commandManager = this.createNewCommandManager();
 -        this.anvilConverterForAnvilFile = new AnvilSaveConverter(anvilFileIn, dataFixerIn);
 +        this.svarkaConfig = new SvarkaConfig();
++        //this.commandManager = this.createNewCommandManager(); // moved to CraftServer
 +        //this.anvilConverterForAnvilFile = new AnvilSaveConverter(anvilFileIn, dataFixerIn); // CraftBukkit - moved to DedicatedServer.init
          this.dataFixer = dataFixerIn;
 +        // CraftBukkit start
@@ -251,7 +255,7 @@
              world.addEventListener(new ServerWorldEventHandler(this, world));
  
              if (!this.isSinglePlayer())
-@@ -261,44 +334,52 @@
+@@ -261,44 +334,53 @@
                  world.getWorldInfo().setGameType(this.getGameType());
              }
              net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.WorldEvent.Load(world));
@@ -264,6 +268,7 @@
 +        this.playerList.setPlayerManager(this.worldServers);
          this.setDifficultyForAllWorlds(this.getDifficulty());
          this.initialWorldChunkLoad();
++        this.commandManager = this.createNewCommandManager();
      }
  
      public void initialWorldChunkLoad()
@@ -289,7 +294,7 @@
 -            for (int i2 = -192; i2 <= 192 && this.isServerRunning(); i2 += 16)
 +        for(int m = 0; m < worldServers.length; m++){
 +            WorldServer worldserver = this.worldServers[m];
-+            LOG.info("Preparing start region for level " + m + " (Seed: " + worldserver.getSeed() + ")");
++            LOG.info("Preparing start region for level " + worldserver.worldInfo.getWorldName() + " (Seed: " + worldserver.getSeed() + ")");
 +            if(!worldserver.getWorld().getKeepSpawnInMemory()){
 +                continue;
 +            }
@@ -328,7 +333,7 @@
          this.clearCurrentTask();
      }
  
-@@ -337,81 +418,100 @@
+@@ -337,81 +419,100 @@
      {
          this.currentTask = null;
          this.percentDone = 0;
@@ -473,7 +478,7 @@
      }
  
      public boolean isServerRunning()
-@@ -436,43 +536,34 @@
+@@ -436,43 +537,34 @@
                  this.statusResponse.setServerDescription(new TextComponentString(this.motd));
                  this.statusResponse.setVersion(new ServerStatusResponse.Version("1.10.2", 210));
                  this.applyServerIconToResponse(this.statusResponse);
@@ -536,7 +541,7 @@
                      this.serverIsRunning = true;
                  }
                  net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStopping();
-@@ -537,6 +628,10 @@
+@@ -537,6 +629,10 @@
          }
      }
  
@@ -547,7 +552,7 @@
      public void applyServerIconToResponse(ServerStatusResponse response)
      {
          File file1 = this.getFile("server-icon.png");
-@@ -596,8 +691,9 @@
+@@ -596,8 +692,9 @@
      {
      }
  
@@ -558,7 +563,7 @@
          long i = System.nanoTime();
          net.minecraftforge.fml.common.FMLCommonHandler.instance().onPreServerTick();
          ++this.tickCounter;
-@@ -629,12 +725,18 @@
+@@ -629,12 +726,18 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -579,7 +584,7 @@
          }
  
          this.theProfiler.startSection("tallying");
-@@ -661,13 +763,23 @@
+@@ -661,13 +764,23 @@
      {
          this.theProfiler.startSection("jobs");
  
@@ -605,16 +610,20 @@
  
          this.theProfiler.endStartSection("levels");
          net.minecraftforge.common.chunkio.ChunkIOExecutor.tick();
-@@ -831,7 +943,7 @@
+@@ -831,7 +944,11 @@
  
      public List<String> getTabCompletions(ICommandSender sender, String input, @Nullable BlockPos pos, boolean hasTargetBlock)
      {
 -        List<String> list = Lists.<String>newArrayList();
++        // Cauldron start - add mod commands to list then pass to bukkit
++
++        java.util.HashSet arraylist = new java.util.HashSet(); // use a set here to avoid duplicates
++
 +        /*List<String> list = Lists.<String>newArrayList();
          boolean flag = input.startsWith("/");
  
          if (flag)
-@@ -875,7 +987,8 @@
+@@ -875,7 +992,8 @@
              }
  
              return list;
@@ -624,7 +633,7 @@
      }
  
      public boolean isAnvilFileSet()
-@@ -1320,6 +1433,13 @@
+@@ -1320,6 +1438,13 @@
      {
          return this;
      }
@@ -638,7 +647,7 @@
  
      public int getMaxWorldSize()
      {
-@@ -1400,10 +1520,14 @@
+@@ -1400,10 +1525,14 @@
      @SideOnly(Side.SERVER)
      public static void main(String[] p_main_0_)
      {
@@ -653,7 +662,7 @@
              boolean flag = true;
              String s = null;
              String s1 = ".";
-@@ -1466,14 +1590,16 @@
+@@ -1466,14 +1595,16 @@
                  {
                      ++j;
                  }
@@ -673,7 +682,7 @@
              if (s != null)
              {
                  dedicatedserver.setServerOwner(s);
-@@ -1512,6 +1638,24 @@
+@@ -1512,6 +1643,24 @@
                      dedicatedserver.stopServer();
                  }
              });
@@ -698,7 +707,7 @@
          }
          catch (Exception exception)
          {
-@@ -1528,7 +1672,8 @@
+@@ -1528,7 +1677,8 @@
      @SideOnly(Side.SERVER)
      public boolean isDebuggingEnabled()
      {
@@ -708,3 +717,17 @@
      }
  
      @SideOnly(Side.SERVER)
+@@ -1581,4 +1731,13 @@
+     {
+         return this.serverThread;
+     }
++
++    public WorldServer getWorldServer(int dimension) {
++        for(WorldServer worldServer : worldServers){
++            if(worldServer.dimension == dimension){
++                return worldServer;
++            }
++        }
++        return worldServers[0];
++    }
+ }

@@ -4,6 +4,7 @@
 
 package org.bukkit.craftbukkit.command;
 
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.bukkit.command.ProxiedCommandSender;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.command.ConsoleCommandSender;
@@ -74,6 +75,7 @@ public final class VanillaCommandWrapper extends VanillaCommand
     public final int dispatchVanillaCommand(final CommandSender bSender, final ICommandSender icommandlistener, final String[] as) {
         final int i = this.getPlayerListSize(as);
         int j = 0;
+        Svarka.debug("dispatchVanillaCommand: " + bSender.getName() + " " + icommandlistener.getName() + " " + as.toString());
         //final WorldServer[] prev = MinecraftServer.getServerInst().worldServers;
         final MinecraftServer server = MinecraftServer.getServerInst();
         //(server.worldServers = new WorldServer[/*server.worlds.size()*/ server.worldServers.length])[0] = (WorldServer)icommandlistener.getEntityWorld();

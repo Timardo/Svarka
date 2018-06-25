@@ -91,13 +91,11 @@ public class SvarkaCommand extends Command {
             sender.sendMessage(ChatColor.DARK_RED + "---------------------------------------");
             final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
             ChatColor colourTPS;
-            for (World world : server.server.getWorlds()) {
-                if (world instanceof CraftWorld) {
+            for (WorldServer world : server.worldServers) {
                     boolean current = currentWorld != null && currentWorld == world;
-                    net.minecraft.world.WorldServer mcWorld = ((CraftWorld) world).getHandle();
-                    String bukkitName = world.getName();
-                    int dimensionId = mcWorld.provider.getDimensionType().getId();
-                    String name = mcWorld.provider.getDimensionType().getName();
+                    String bukkitName = world.worldInfo.getWorldName();
+                    int dimensionId = world.provider.getDimensionType().getId();
+                    String name = world.provider.getDimensionType().getName();
                     String displayName = name.equals(bukkitName) ? name : String.format("%s | %s", name, bukkitName);
 
                     double worldTickTime = mean(server.worldTickTimes.get(dimensionId)) * 1.0E-6D;
@@ -114,7 +112,6 @@ public class SvarkaCommand extends Command {
                     sender.sendMessage(String.format("%s[%d] %s%s %s- %s%.2fms / %s%.2ftps", ChatColor.GOLD, dimensionId,
                             current ? ChatColor.GREEN : ChatColor.YELLOW, displayName, ChatColor.RESET,
                             ChatColor.DARK_RED, worldTickTime, colourTPS, worldTPS));
-                }
             }
 
             double meanTickTime = mean(server.tickTimeArray) * 1.0E-6D;

@@ -64,7 +64,19 @@
  
                  if (k < 1)
                  {
-@@ -144,4 +173,5 @@
+@@ -130,6 +159,11 @@
+             }
+             catch (Throwable var24)
+             {
++                // CraftBukkit start
++                if (var24 instanceof CommandException) {
++                    throw (CommandException) var24;
++                    }
++                    // CraftBukkit end
+                 throw new CommandException("commands.execute.failed", new Object[] {s, entity.getName()});
+             }
+         }
+@@ -144,4 +178,5 @@
      {
          return index == 0;
      }

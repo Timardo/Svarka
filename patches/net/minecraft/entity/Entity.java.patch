@@ -427,7 +427,7 @@
 +                }
 +                if (bworld == null) {
 +                    final EntityPlayerMP entityPlayer = (EntityPlayerMP)this;
-+                    bworld = MinecraftServer.getServerInst().worldServers[entityPlayer.dimension].getWorld();//((CraftServer)server).getServer().getWorldServer(entityPlayer.dimension).getWorld();
++                    bworld = ((CraftServer)server).getServer().getWorldServer(entityPlayer.dimension).getWorld();//MinecraftServer.getServerInst().worldServers[entityPlayer.dimension].getWorld();
 +                }
 +                this.setWorld((bworld == null) ? null : ((CraftWorld)bworld).getHandle());
 +            }
@@ -574,7 +574,7 @@
 +            //int i = this.dimension;
 +            //WorldServer worldserver = minecraftserver.worldServerForDimension(i);
 +            //WorldServer worldserver1 = minecraftserver.worldServerForDimension(dimensionIn);
-+            WorldServer exitWorld = minecraftserver.worldServers[dimensionIn];
++            WorldServer exitWorld = minecraftserver.getWorldServer(dimensionIn);
 +            //if (this.dimension < 10) {
 +            //    for (final WorldServer world : minecraftserver.worldServers) {
 +            //        if (world.dimension == dimensionIn) {

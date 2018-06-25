@@ -1,0 +1,20 @@
+--- ../src-base/minecraft/net/minecraft/command/ServerCommandManager.java
++++ ../src-work/minecraft/net/minecraft/command/ServerCommandManager.java
+@@ -86,6 +86,17 @@
+         this.registerCommand(new CommandTitle());
+         this.registerCommand(new CommandEntityData());
+         this.registerCommand(new CommandStopSound());
++        // Cauldron start - add permission nodes for rest of vanilla commands
++        /*this.registerCommand("vanilla.command", new CommandDebug());
++        this.registerCommand("vanilla.command", new CommandSpreadPlayers());
++        this.registerCommand("vanilla.command", new CommandPlaySound());
++        this.registerCommand("vanilla.command", new CommandScoreboard());
++        this.registerCommand("vanilla.command", new CommandAchievement());
++        this.registerCommand("vanilla.command", new CommandSummon());
++        this.registerCommand("vanilla.command", new CommandSetBlock());
++        this.registerCommand("vanilla.command", new CommandTestForBlock());
++        this.registerCommand("vanilla.command", new CommandMessageRaw());*/
++        // Cauldron end
+ 
+         if (serverIn.isDedicatedServer())
+         {

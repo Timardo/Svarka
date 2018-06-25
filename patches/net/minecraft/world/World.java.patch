@@ -371,7 +371,7 @@
      {
          // do not drop any items while restoring blocksnapshots. Prevents dupes
          if (!this.isRemote && (entityIn == null || (entityIn instanceof net.minecraft.entity.item.EntityItem && this.restoringBlockSnapshots))) return false;
-@@ -1112,13 +1306,55 @@
+@@ -1112,9 +1306,50 @@
          {
              flag = true;
          }
@@ -422,19 +422,6 @@
              return false;
          }
          else
-         {
-+            if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.EntityJoinWorldEvent(entityIn, this)) && !flag) return false;
-             if (entityIn instanceof EntityPlayer)
-             {
-                 EntityPlayer entityplayer = (EntityPlayer)entityIn;
-@@ -1126,7 +1362,6 @@
-                 this.updateAllPlayersSleepingFlag();
-             }
- 
--            if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.EntityJoinWorldEvent(entityIn, this)) && !flag) return false;
- 
-             this.getChunkFromChunkCoords(i, j).addEntity(entityIn);
-             this.loadedEntityList.add(entityIn);
 @@ -1141,6 +1376,7 @@
          {
              ((IWorldEventListener)this.eventListeners.get(i)).onEntityAdded(entityIn);
