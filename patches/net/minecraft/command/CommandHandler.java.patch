@@ -1,0 +1,76 @@
+--- ../src-base/minecraft/net/minecraft/command/CommandHandler.java
++++ ../src-work/minecraft/net/minecraft/command/CommandHandler.java
+@@ -14,8 +14,11 @@
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.text.TextComponentTranslation;
+ import net.minecraft.util.text.TextFormatting;
++import net.minecraftforge.fml.common.FMLCommonHandler;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++import org.bukkit.craftbukkit.command.CraftSimpleCommandMap;
++import org.bukkit.craftbukkit.command.ModCustomCommand;
+ 
+ public abstract class CommandHandler implements ICommandManager
+ {
+@@ -45,7 +48,7 @@
+             textcomponenttranslation.getStyle().setColor(TextFormatting.RED);
+             sender.addChatMessage(textcomponenttranslation);
+         }
+-        else if (icommand.checkPermission(this.getServer(), sender))
++        else if (true || icommand.checkPermission(this.getServer(), sender))
+         {
+             net.minecraftforge.event.CommandEvent event = new net.minecraftforge.event.CommandEvent(icommand, sender, astring);
+             if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event))
+@@ -131,9 +134,11 @@
+ 
+     public ICommand registerCommand(ICommand command)
+     {
+-        this.commandMap.put(command.getCommandName(), command);
++
++        /*this.commandMap.put(command.getCommandName(), command);
+         this.commandSet.add(command);
+ 
++
+         for (String s : command.getCommandAliases())
+         {
+             ICommand icommand = (ICommand)this.commandMap.get(s);
+@@ -144,6 +149,39 @@
+             }
+         }
+ 
++        return command;*/
++        // Cauldron start - register commands with permission nodes, defaulting to class name
++        return registerCommand(command, command.getClass().getName());
++    }
++
++    public ICommand registerCommand(String permissionGroup, ICommand par1ICommand)
++    {
++        return registerCommand(par1ICommand, permissionGroup + "." + par1ICommand.getCommandName());
++    }
++
++    public ICommand registerCommand(ICommand command, String permissionNode) {
++
++        List list = command.getCommandAliases();
++        this.commandMap.put(command.getCommandName(), command);
++        this.commandSet.add(command);
++        //register vanilla commands with Bukkit to support permissions.
++        CraftSimpleCommandMap commandMap = MinecraftServer.getServerInst().server.getCraftCommandMap();
++        ModCustomCommand customCommand = new ModCustomCommand(command.getCommandName());
++        customCommand.setPermission(permissionNode);
++        if (list != null) customCommand.setAliases(list);
++        commandMap.register(command.getCommandName(), customCommand);
++        LogManager.getLogger().info("Registered command " + command.getCommandName() + " with permission node " + permissionNode);
++        if (list != null) {
++            for (String s : command.getCommandAliases())
++            {
++                ICommand icommand = (ICommand)this.commandMap.get(s);
++
++                if (icommand == null || !icommand.getCommandName().equals(s))
++                {
++                    this.commandMap.put(s, command);
++                }
++            }
++        }
+         return command;
+     }
+ 

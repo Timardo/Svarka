@@ -10,7 +10,7 @@ public class Svarka {
 	public static final Logger spigotLog = LogManager.getLogger("Spigot");
 	public static final Logger bukkitLog = LogManager.getLogger("Bukkit");
 	public static final boolean DEBUG = false;
-	private static final String versions = "0.0.3";
+	private static final String versions = "0.0.5";
 	public static void debug(String str) {
 		if(DEBUG) {
 			LOG.info(str);

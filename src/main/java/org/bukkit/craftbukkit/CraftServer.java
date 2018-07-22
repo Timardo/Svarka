@@ -10,6 +10,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLLog;
+import org.bukkit.craftbukkit.command.CraftSimpleCommandMap;
 import org.bukkit.event.world.WorldSaveEvent;
 import ru.svarka.Svarka;
 import org.bukkit.scoreboard.ScoreboardManager;
@@ -208,6 +209,7 @@ public final class CraftServer implements Server
     private final Logger logger;
     private final ServicesManager servicesManager;
     private final CraftScheduler scheduler;
+    private final CraftSimpleCommandMap craftCommandMap = new CraftSimpleCommandMap(this);
     private final SimpleCommandMap commandMap;
     private final SimpleHelpMap helpMap;
     private final StandardMessenger messenger;
@@ -681,6 +683,17 @@ public final class CraftServer implements Server
         try {
             this.playerCommandState = true;
             return this.dispatchCommand(sender, serverCommand.command);
+            // Cauldron start - handle bukkit/vanilla console commands
+            /*int space = serverCommand.command.indexOf(" ");
+            // if bukkit command exists then execute it over vanilla
+            if (this.getCommandMap().getCommand(serverCommand.command.substring(0, space != -1 ? space : serverCommand.command.length())) != null)
+            {
+
+            }
+            else { // process vanilla console command
+                craftCommandMap.setVanillaConsoleSender(serverCommand.sender);
+                return this.dispatchVanillaCommand(sender, serverCommand.command);
+            }*/
         }
         catch (Exception ex) {
         	Svarka.bukkitLog.log(Level.WARN, "Unexpected exception while parsing console command \"" + serverCommand.command + '\"', ex);
@@ -699,10 +712,28 @@ public final class CraftServer implements Server
             return true;
         }
         sender.sendMessage(org.spigotmc.SpigotConfig.unknownCommandMessage);
+        // Cauldron start - handle vanilla commands called from plugins
+        if(sender instanceof ConsoleCommandSender) {
+            craftCommandMap.setVanillaConsoleSender(this.console);
+        }
+
+        return this.dispatchVanillaCommand(sender, commandLine);
+        // Cauldron end
+    }
+
+    // Cauldron start
+    // used to process vanilla commands
+    public boolean dispatchVanillaCommand(CommandSender sender, String commandLine) {
+        if (craftCommandMap.dispatch(sender, commandLine)) {
+            return true;
+        }
+
+        sender.sendMessage(org.spigotmc.SpigotConfig.unknownCommandMessage); // Spigot
 
         return false;
     }
-    
+    // Cauldron end
+
     @Override
     public void reload() {
         ++this.reloadCount;
@@ -1800,6 +1831,10 @@ public final class CraftServer implements Server
     public Spigot spigot()
     {
         return this.spigot;
+    }
+
+    public CraftSimpleCommandMap getCraftCommandMap() {
+        return craftCommandMap;
     }
 
     private static final class BooleanWrapper

@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/tileentity/CommandBlockBaseLogic.java
 +++ ../src-work/minecraft/net/minecraft/tileentity/CommandBlockBaseLogic.java
-@@ -1,15 +1,18 @@
+@@ -1,24 +1,33 @@
  package net.minecraft.tileentity;
  
 +import com.google.common.base.Joiner;
@@ -22,32 +22,33 @@
  import net.minecraft.entity.player.EntityPlayer;
  import net.minecraft.nbt.NBTTagCompound;
  import net.minecraft.server.MinecraftServer;
-@@ -17,8 +20,14 @@
++import net.minecraft.server.dedicated.DedicatedServer;
+ import net.minecraft.util.ReportedException;
  import net.minecraft.util.text.ITextComponent;
  import net.minecraft.util.text.TextComponentString;
  import net.minecraft.world.World;
 +import net.minecraft.world.WorldServer;
++import net.minecraftforge.fml.common.FMLCommonHandler;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.command.Command;
-+import org.bukkit.command.CommandMap;
-+import org.bukkit.command.CommandSender;
-+import org.bukkit.command.SimpleCommandMap;
++import org.bukkit.command.*;
 +import org.bukkit.craftbukkit.command.VanillaCommandWrapper;
++import org.bukkit.event.server.ServerCommandEvent;
  
  public abstract class CommandBlockBaseLogic implements ICommandSender
  {
-@@ -26,8 +35,9 @@
+@@ -26,9 +35,10 @@
      private int successCount;
      private boolean trackOutput = true;
      private ITextComponent lastOutput;
 -    private String commandStored = "";
 +    public String commandStored = "";
      private String customName = "@";
-+    public CommandSender sender;
      private final CommandResultStats resultStats = new CommandResultStats();
++    public CommandSender sender;
  
      public int getSuccessCount()
+     {
 @@ -128,12 +138,11 @@
  
              if (minecraftserver != null && minecraftserver.isAnvilFileSet() && minecraftserver.isCommandBlockEnabled())
@@ -62,7 +63,7 @@
                  }
                  catch (Throwable throwable)
                  {
-@@ -162,7 +171,123 @@
+@@ -162,7 +171,133 @@
              }
          }
      }
@@ -73,9 +74,16 @@
 +        if (command.startsWith("/")) {
 +            command = command.substring(1);
 +        }
++        ServerCommandEvent event = new ServerCommandEvent(bSender, command);
++        org.bukkit.Bukkit.getPluginManager().callEvent(event);
++        if(event.isCancelled()){
++            return 0;
++        }
++        command = event.getCommand();
+ 
 +        String[] args = command.split(" ");
 +        ArrayList<String[]> commands = new ArrayList<String[]>();
- 
++
 +        String cmd = args[0];
 +        if (cmd.startsWith("minecraft:")) cmd = cmd.substring("minecraft:".length());
 +        if (cmd.startsWith("bukkit:")) cmd = cmd.substring("bukkit:".length());
@@ -107,14 +115,16 @@
 +
 +        // Make sure this is a valid command
 +        if (commandMap.getCommand(args[0]) == null) {
++            //net.minecraft.command.ICommandManager icommandmanager = FMLCommonHandler.instance().getMinecraftServerInstance().getCommandManager();
++            //icommandmanager.executeCommand(sender,command);
 +            return 0;
 +        }
 +
 +        commands.add(args);
 +
 +        // Find positions of command block syntax, if any
-+        WorldServer[] prev = MinecraftServer.getServerInst().worldServers;
-+        MinecraftServer server = MinecraftServer.getServerInst();
++        WorldServer[] prev = FMLCommonHandler.instance().getMinecraftServerInstance().worldServers;
++        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 +        server.worldServers = new WorldServer[server.worlds.size()];
 +        server.worldServers[0] = (WorldServer) sender.getEntityWorld();
 +        int bpos = 0;
@@ -140,7 +150,7 @@
 +                }
 +            }
 +        } finally {
-+            MinecraftServer.getServerInst().worldServers = prev;
++            FMLCommonHandler.instance().getMinecraftServerInstance().worldServers = prev;
 +        }
 +
 +        int completed = 0;
@@ -153,12 +163,12 @@
 +                }
 +            } catch (Throwable exception) {
 +                if (sender.getCommandSenderEntity() instanceof EntityMinecartCommandBlock) {
-+                    MinecraftServer.getServerInst().server.getLogger().log(Level.WARNING, String.format("MinecartCommandBlock at (%d,%d,%d) failed to handle command", sender.getPosition().getX(), sender.getPosition().getY(), sender.getPosition().getZ()), exception);
++                    FMLCommonHandler.instance().getMinecraftServerInstance().server.getLogger().log(Level.WARNING, String.format("MinecartCommandBlock at (%d,%d,%d) failed to handle command", sender.getPosition().getX(), sender.getPosition().getY(), sender.getPosition().getZ()), exception);
 +                } else if (sender instanceof CommandBlockBaseLogic) {
 +                    CommandBlockBaseLogic listener = (CommandBlockBaseLogic) sender;
-+                    MinecraftServer.getServerInst().server.getLogger().log(Level.WARNING, String.format("CommandBlock at (%d,%d,%d) failed to handle command", listener.getPosition().getX(), listener.getPosition().getY(), listener.getPosition().getZ()), exception);
++                    FMLCommonHandler.instance().getMinecraftServerInstance().server.getLogger().log(Level.WARNING, String.format("CommandBlock at (%d,%d,%d) failed to handle command", listener.getPosition().getX(), listener.getPosition().getY(), listener.getPosition().getZ()), exception);
 +                } else {
-+                    MinecraftServer.getServerInst().server.getLogger().log(Level.WARNING, String.format("Unknown CommandBlock failed to handle command"), exception);
++                    FMLCommonHandler.instance().getMinecraftServerInstance().server.getLogger().log(Level.WARNING, String.format("Unknown CommandBlock failed to handle command"), exception);
 +                }
 +            }
 +        }
@@ -182,6 +192,7 @@
 +
 +        return commands;
 +    }
++
 +
      public String getName()
      {

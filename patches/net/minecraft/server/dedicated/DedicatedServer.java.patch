@@ -80,7 +80,7 @@
  
 +            //org.spigotmc.SpigotConfig.init((File) options.valueOf("spigot-settings"));
 +            //org.spigotmc.SpigotConfig.registerCommands();
-+            this.setPlayerList(new DedicatedPlayerList(this));
++            //this.setPlayerList(new DedicatedPlayerList(this));
              LOGGER.info("Generating keypair");
              this.setKeyPair(CryptManager.generateKeyPair());
              LOGGER.info("Starting Minecraft server on {}:{}", new Object[] {this.getServerHostname().isEmpty() ? "*" : this.getServerHostname(), Integer.valueOf(this.getServerPort())});
@@ -109,7 +109,7 @@
 -                return false;
 -            }
  
-+            //this.setPlayerList(new DedicatedPlayerList(this));
++            this.setPlayerList(new DedicatedPlayerList(this));
              if (!this.isServerInOnlineMode())
              {
                  LOGGER.warn("**** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!");

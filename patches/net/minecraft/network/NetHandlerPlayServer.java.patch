@@ -952,7 +952,9 @@
      {
 -        this.serverController.getCommandManager().executeCommand(this.playerEntity, command);
 +        //this.serverController.getCommandManager().executeCommand(this.playerEntity, command);
-+    	NetHandlerPlayServer.LOGGER.info(String.valueOf(this.playerEntity.getName()) + " issued server command: " + command);
++        if(SpigotConfig.logCommands){
++            NetHandlerPlayServer.LOGGER.info(String.valueOf(this.playerEntity.getName()) + " issued server command: " + command);
++        }
 +        final CraftPlayer player = this.getPlayer();
 +        final PlayerCommandPreprocessEvent event = new PlayerCommandPreprocessEvent(player, command, new LazyPlayerSet(this.serverController));
 +        this.server.getPluginManager().callEvent(event);
@@ -961,9 +963,7 @@
 +            return;
 +        }
 +        try {
-+            if(SpigotConfig.logCommands){
-+                Svarka.LOG.info(event.getPlayer().getName() + " issued server command: " + event.getMessage());
-+            }
++
 +            // Cauldron start - handle bukkit/vanilla commands
 +            int space = event.getMessage().indexOf(" ");
 +            // if bukkit command exists then execute it over vanilla
@@ -973,7 +973,7 @@
 +                org.bukkit.craftbukkit.SpigotTimings.playerCommandTimer.stopTiming(); // Spigot
 +                return;
 +            } else {
-+                this.server.dispatchCommand(event.getPlayer(), event.getMessage().substring(1));
++                this.server.dispatchVanillaCommand(event.getPlayer(), event.getMessage().substring(1));
 +                org.bukkit.craftbukkit.SpigotTimings.playerCommandTimer.stopTiming(); // Spigot
 +                return;
 +            }

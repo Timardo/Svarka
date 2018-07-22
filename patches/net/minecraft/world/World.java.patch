@@ -371,7 +371,7 @@
      {
          // do not drop any items while restoring blocksnapshots. Prevents dupes
          if (!this.isRemote && (entityIn == null || (entityIn instanceof net.minecraft.entity.item.EntityItem && this.restoringBlockSnapshots))) return false;
-@@ -1112,13 +1306,55 @@
+@@ -1112,9 +1306,50 @@
          {
              flag = true;
          }
@@ -422,19 +422,6 @@
              return false;
          }
          else
-         {
-+            if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.EntityJoinWorldEvent(entityIn, this)) && !flag) return false;
-             if (entityIn instanceof EntityPlayer)
-             {
-                 EntityPlayer entityplayer = (EntityPlayer)entityIn;
-@@ -1126,7 +1362,6 @@
-                 this.updateAllPlayersSleepingFlag();
-             }
- 
--            if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.EntityJoinWorldEvent(entityIn, this)) && !flag) return false;
- 
-             this.getChunkFromChunkCoords(i, j).addEntity(entityIn);
-             this.loadedEntityList.add(entityIn);
 @@ -1141,6 +1376,7 @@
          {
              ((IWorldEventListener)this.eventListeners.get(i)).onEntityAdded(entityIn);
@@ -693,7 +680,15 @@
          if (!canUpdate) canUpdate = net.minecraftforge.event.ForgeEventFactory.canEntityUpdate(entityIn);
  
          if (canUpdate)
-@@ -2383,7 +2685,7 @@
+@@ -1965,6 +2267,7 @@
+                 else
+                 {
+                     entityIn.onUpdate();
++                    entityIn.postTick(); // Svarka start
+                 }
+             }
+ 
+@@ -2383,7 +2686,7 @@
      {
          return this.chunkProvider.makeString();
      }
@@ -702,7 +697,7 @@
      @Nullable
      public TileEntity getTileEntity(BlockPos pos)
      {
-@@ -2393,6 +2695,11 @@
+@@ -2393,6 +2696,11 @@
          }
          else
          {
@@ -714,7 +709,7 @@
              TileEntity tileentity = null;
  
              if (this.processingLoadedTiles)
-@@ -2437,6 +2744,14 @@
+@@ -2437,6 +2745,14 @@
          {
              if (tileEntityIn != null && !tileEntityIn.isInvalid())
              {
@@ -729,7 +724,7 @@
                  if (this.processingLoadedTiles)
                  {
                      tileEntityIn.setPos(pos);
-@@ -2659,6 +2974,13 @@
+@@ -2659,6 +2975,13 @@
                  }
  
                  this.rainingStrength = MathHelper.clamp_float(this.rainingStrength, 0.0F, 1.0F);
@@ -743,7 +738,7 @@
              }
          }
      }
-@@ -2843,8 +3165,11 @@
+@@ -2843,8 +3166,11 @@
  
      public boolean checkLightFor(EnumSkyBlock lightType, BlockPos pos)
      {
@@ -757,7 +752,7 @@
              return false;
          }
          else
-@@ -3131,11 +3456,20 @@
+@@ -3131,11 +3457,20 @@
          int i = 0;
  
          for (Entity entity : this.loadedEntityList)
@@ -782,7 +777,7 @@
          }
  
          return i;
-@@ -3145,6 +3479,11 @@
+@@ -3145,6 +3480,11 @@
      {
          for (Entity entity : entityCollection)
          {
@@ -794,7 +789,7 @@
              if (!net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.EntityJoinWorldEvent(entity, this)))
              {
                  loadedEntityList.add(entity);
-@@ -3159,10 +3498,17 @@
+@@ -3159,10 +3499,17 @@
      }
  
      public boolean canBlockBePlaced(Block blockIn, BlockPos pos, boolean p_175716_3_, EnumFacing side, @Nullable Entity entityIn, @Nullable ItemStack itemStackIn)
@@ -816,7 +811,7 @@
      }
  
      public int getSeaLevel()
-@@ -3296,6 +3642,11 @@
+@@ -3296,6 +3643,11 @@
          for (int i = 0; i < this.playerEntities.size(); ++i)
          {
              EntityPlayer entityplayer1 = (EntityPlayer)this.playerEntities.get(i);
@@ -828,7 +823,7 @@
  
              if ((EntitySelectors.CAN_AI_TARGET.apply(entityplayer1) || !spectator) && (EntitySelectors.NOT_SPECTATING.apply(entityplayer1) || spectator))
              {
-@@ -3541,6 +3892,16 @@
+@@ -3541,6 +3893,16 @@
      public void updateAllPlayersSleepingFlag()
      {
      }
@@ -845,7 +840,7 @@
  
      public float getThunderStrength(float delta)
      {
-@@ -3939,4 +4300,9 @@
+@@ -3939,4 +4301,9 @@
      {
          return this.lootTable;
      }

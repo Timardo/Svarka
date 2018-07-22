@@ -8,7 +8,7 @@
  
  public class BlockCommandBlock extends BlockContainer
  {
-@@ -57,7 +58,14 @@
+@@ -57,11 +58,18 @@
                  boolean flag1 = tileentitycommandblock.isPowered();
                  boolean flag2 = tileentitycommandblock.isAuto();
  
@@ -24,6 +24,11 @@
                  {
                      tileentitycommandblock.setPowered(true);
  
+-                    if (tileentitycommandblock.getMode() != TileEntityCommandBlock.Mode.SEQUENCE && !flag2)
++                    if (!flag1 && !flag2 && tileentitycommandblock.getMode() != TileEntityCommandBlock.Mode.SEQUENCE)
+                     {
+                         boolean flag3 = !tileentitycommandblock.isConditional() || this.isNextToSuccessfulCommandBlock(worldIn, pos, state);
+                         tileentitycommandblock.setConditionMet(flag3);
 @@ -73,7 +81,7 @@
                          }
                      }

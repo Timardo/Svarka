@@ -17,10 +17,18 @@ import org.bukkit.command.CommandSender;
 
 public abstract class ServerCommandSender implements CommandSender
 {
+    private static PermissibleBase blockPermInst;
     private final PermissibleBase perm;
-    
+
     public ServerCommandSender() {
-        this.perm = new PermissibleBase(this);
+        if(this instanceof CraftBlockCommandSender){
+            if(blockPermInst == null){
+                blockPermInst = new PermissibleBase(this);
+            }
+            this.perm = blockPermInst;
+        } else {
+            this.perm = new PermissibleBase(this);
+        }
     }
     
     @Override
